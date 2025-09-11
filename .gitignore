@@ -1,0 +1,7 @@
+__pycache__/
+*.egg-info/
+dist/
+embedding_cache/
+!embedding_cache/.gitkeep
+index_dev/*
+!index_dev/.gitkeep

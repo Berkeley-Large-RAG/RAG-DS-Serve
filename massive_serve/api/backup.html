@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Compact-DS Dive</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f7f9fc;
+    }
+    .rounded-highlight {
+      background-color: #fff8b3;
+      border-radius: 0.5rem;
+      padding: 0 0.3em;
+    }
+    .toggle-switch {
+      width: 40px;
+      height: 20px;
+      background-color: #d1d5db;
+      border-radius: 9999px;
+      position: relative;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .toggle-switch.enabled {
+      background-color: #14b8a6;
+    }
+    .toggle-switch-thumb {
+      content: "";
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 16px;
+      height: 16px;
+      background-color: white;
+      border-radius: 9999px;
+      transition: transform 0.3s ease;
+    }
+    .toggle-switch.enabled .toggle-switch-thumb {
+      transform: translateX(20px);
+    }
+    .sidebar-item {
+      cursor: pointer;
+      border-bottom-width: 1px;
+      border-color: rgb(229 231 235);
+      padding: 0.75rem;
+      transition: color, background-color, border-color, text-decoration-color, fill, stroke;
+      transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+      transition-duration: 0.2s;
+    }
+    .sidebar-item:hover {
+      background-color: rgb(243 244 246);
+    }
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+    .animate-spin {
+      animation: spin 1s linear infinite;
+    }
+    
+    /* Drop Pod Animation */
+    @keyframes dropPod {
+      0%, 100% {
+        transform: translateY(0px);
+      }
+      50% {
+        transform: translateY(-8px);
+      }
+    }
+    
+    .drop-pod-animation {
+      animation: dropPod 3s ease-in-out infinite;
+      image-rendering: pixelated;
+      image-rendering: -moz-crisp-edges;
+      image-rendering: crisp-edges;
+    }
+    
+    /* Lambda Slider Styling */
+    .slider {
+      -webkit-appearance: none;
+      appearance: none;
+      background: transparent;
+      cursor: pointer;
+    }
+    
+    .slider::-webkit-slider-track {
+      background: #e5e7eb;
+      height: 8px;
+      border-radius: 4px;
+    }
+    
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      background: #14b8a6;
+      height: 16px;
+      width: 16px;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    
+    .slider::-moz-range-track {
+      background: #e5e7eb;
+      height: 8px;
+      border-radius: 4px;
+      border: none;
+    }
+    
+    .slider::-moz-range-thumb {
+      background: #14b8a6;
+      height: 16px;
+      width: 16px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: none;
+    }
+    
+    .slider:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    /* Centered tooltip/help modal */
+    .tooltip-centered {
+      position: fixed !important;
+      top: 50% !important;
+      left: 50% !important;
+      transform: translate(-50%, -50%) !important;
+      z-index: 10000 !important;
+      max-width: 90vw !important;
+      max-height: 80vh !important;
+      overflow-y: auto !important;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3) !important;
+      border: 2px solid #4a5568 !important;
+      padding: 1.25rem !important;
+      border-radius: 0.75rem !important;
+      background: #111827 !important; /* gray-900 */
+      color: #fff !important;
+    }
+    .tooltip-overlay {
+      position: fixed !important;
+      inset: 0 !important;
+      background: rgba(0,0,0,0.5) !important;
+      z-index: 9999 !important;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="welcomeMessage" class="absolute inset-0 flex flex-col items-center justify-center text-center px-2 sm:px-4 lg:px-6 text-gray-700 pointer-events-none">
+    <img src="./styles/capsule.png" alt="Icon" class="w-24 h-24 sm:w-32 sm:h-32 lg:w-48 lg:h-48 xl:w-64 xl:h-64 mb-2 sm:mb-4 drop-pod-animation" />
+    <h2 class="text-lg sm:text-2xl lg:text-3xl xl:text-4xl font-bold mb-1 sm:mb-2">Dive into Compact-DS!</h2>
+    <p class="text-xs sm:text-sm lg:text-base text-gray-700">Query and cast your valuable vote for relevance!</p>
+  </div>
+
+  <!-- Centered Search Group -->
+  <div id="centeredSearchGroup" class="fixed bottom-2 sm:bottom-4 left-2 right-2 sm:left-4 sm:right-4 lg:left-[calc(25%+1rem)] flex justify-center pointer-events-none z-20 overflow-visible">
+    <div class="pointer-events-auto bg-white rounded-xl shadow-lg p-2 sm:p-3 lg:p-4 border w-full max-w-5xl overflow-visible">
+      <div class="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 lg:gap-3 justify-center">
+        <div class="relative">
+          <button id="toggleParamsBtn" class="text-xs sm:text-sm bg-gray-100 hover:bg-gray-200 px-2 sm:px-3 py-1 sm:py-2 rounded-md font-medium flex items-center gap-1">
+            <svg class="w-3 h-3 sm:w-4 sm:h-4 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+              <rect x="4" y="6" width="16" height="12" rx="2"/>
+              <line x1="8" y1="10" x2="16" y2="10"/>
+              <line x1="8" y1="14" x2="12" y2="14"/>
+              <circle cx="18" cy="12" r="1"/>
+            </svg>
+            <span class="hidden sm:inline">Parameters</span>
+            <span class="sm:hidden">Params</span>
+          </button>
+          <div id="paramPanel" class="hidden absolute bottom-full left-2 right-2 sm:left-auto sm:right-auto mb-2 bg-white border rounded-lg shadow-lg p-2 sm:p-3 lg:p-4 w-auto sm:w-[320px] lg:w-[360px] space-y-1 sm:space-y-3 lg:space-y-4 max-h-[35vh] sm:max-h-[50vh] overflow-y-auto overflow-x-visible z-30">
+            <!-- Help button (opens centered modal with all descriptions) -->
+            <div class="flex justify-end mb-2">
+              <button id="helpBtn" class="text-xs sm:text-sm bg-blue-100 hover:bg-blue-200 w-6 h-6 sm:w-8 sm:h-8 rounded-full font-medium flex items-center justify-center">
+                ?
+              </button>
+            </div>
+            <!-- nprobe, k, rerank, diverse, lambda -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
+              <label class="text-sm font-medium text-gray-700">nprobe</label>
+              <select id="nprobe" class="border rounded-md p-1 text-sm w-full sm:w-24">
+                <option>1</option><option>8</option><option>16</option><option selected>32</option><option>64</option><option>128</option><option>256</option>
+              </select>
+            </div>
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
+              <label class="text-sm font-medium text-gray-700">k (max: 1000)</label>
+              <input type="number" id="k" min="1" max="1000" value="5" class="border rounded-md p-1 text-sm w-16 text-center">
+            </div>
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
+              <label class="text-sm font-medium text-gray-700">Exact Search</label>
+              <button id="rerankToggle" class="toggle-switch disabled self-start sm:self-auto" data-exact-rerank>
+                <span class="toggle-switch-thumb"></span>
+              </button>
+            </div>
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
+              <label class="text-sm font-medium text-gray-700">Diverse Search</label>
+              <button id="diverseToggle" class="toggle-switch disabled self-start sm:self-auto" data-diverse-search>
+                <span class="toggle-switch-thumb"></span>
+              </button>
+            </div>
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
+              <label class="text-sm font-medium text-gray-700">λ (lambda)</label>
+              <div class="flex items-center gap-2 w-full sm:w-32 pr-2 sm:pr-0">
+                <input type="range" id="lambda" min="0" max="100" value="50" step="1" class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider" disabled>
+                <span id="lambdaValue" class="text-sm text-gray-600 w-10 text-right">0.50</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="relative flex-grow w-full min-w-0">
+          <input id="queryInput" type="text" placeholder="Enter your query here" class="w-full border rounded-2xl p-2 sm:p-3 pr-14 sm:pr-16 text-xs sm:text-sm lg:text-base" />
+          <button id="sendButton" class="absolute right-3 sm:right-3 top-1/2 -translate-y-1/2 bg-teal-600 text-white hover:bg-teal-700 flex items-center justify-center w-[24px] h-[24px] sm:w-[32px] sm:h-[32px] lg:w-[36px] lg:h-[36px] rounded-full">
+            <svg id="sendButtonText" class="w-2 h-2 sm:w-3 sm:h-3 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+            </svg>
+          </button>
+          <div id="loadingSpinner" class="hidden absolute right-3 sm:right-3 top-1/2 -translate-y-1/2 bg-teal-600 flex items-center justify-center w-[24px] h-[24px] sm:w-[32px] sm:h-[32px] lg:w-[36px] lg:h-[36px] rounded-full">
+            <svg class="w-2 h-2 sm:w-3 sm:h-3 lg:w-4 lg:h-4 text-white animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- History Panel Sidebar -->
+  <div id="historySidebar" class="fixed left-0 top-0 h-full w-1/4 min-w-[200px] max-w-[300px] bg-white border-r border-gray-200 flex flex-col z-30 transform -translate-x-full lg:translate-x-0 transition-transform duration-300">
+    <div class="p-3 sm:p-4 border-b border-gray-200 flex items-center justify-between">
+      <h1 class="text-sm sm:text-lg font-semibold text-gray-700">Query History</h1>
+      <button id="sidebarCloseBtn" class="lg:hidden bg-gray-100 hover:bg-gray-200 p-1 rounded-md transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+    <div id="queryHistory" class="flex-1 overflow-y-auto">
+      <p class="p-4 text-gray-500 text-xs sm:text-sm">No search history yet</p>
+    </div>
+  </div>
+
+  <!-- Mobile Menu Toggle -->
+  <button id="mobileMenuToggle" class="fixed top-20 right-4 z-40 lg:hidden bg-white p-2 rounded-lg shadow-lg border transition-transform duration-300">
+    <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+    </svg>
+  </button>
+
+  <!-- Main Content Area (adjusted for sidebar) -->
+  <div class="flex-1 flex flex-col items-stretch ml-0 lg:ml-[25%]">
+    <!-- Rounded Header -->
+    <header class="w-full bg-white border-b py-2 sm:py-3 px-3 sm:px-4 rounded-b-xl shadow-sm fixed top-0 left-0 lg:left-[25%] right-0 z-20">
+      <h1 class="text-lg sm:text-2xl lg:text-3xl font-bold text-gray-900">Compact-DS Dive</h1>
+    </header>
+    
+    <!-- Main results container that scrolls till the top edge -->
+    <main class="pt-20 sm:pt-20 lg:pt-24 px-2 sm:px-4 lg:px-6 mb-24 sm:mb-36 overflow-y-auto max-h-[calc(100vh-160px)] sm:max-h-[calc(100vh-112px)]" id="results"></main>
+
+
+
+  </div>
+
+  <script>
+    // Preserve multi-line query content with single-line input by intercepting paste
+    window.__preservedPasteRaw = null;       // raw text with \n
+    window.__preservedPasteDisplay = null;   // what is shown in the input (\n -> space)
+    // Query History Management
+    let queryHistory = [];
+
+    // Load query history from localStorage
+    function loadQueryHistory() {
+      try {
+        const saved = localStorage.getItem('faiss-rag-query-history');
+        if (saved) {
+          queryHistory = JSON.parse(saved);
+          renderQueryHistory();
+        }
+      } catch (error) {
+        console.error('Failed to load query history:', error);
+      }
+    }
+
+    // Save query history to localStorage
+    function saveQueryHistory() {
+      try {
+        const toSave = queryHistory.slice(0, 50); // Keep only last 50 queries
+        localStorage.setItem('faiss-rag-query-history', JSON.stringify(toSave));
+      } catch (error) {
+        console.error('Failed to save query history:', error);
+      }
+    }
+
+    // Add query to history
+    function addToHistory(query, results, searchParams, latency) {
+      const historyItem = {
+        id: Date.now(),
+        query: query,
+        timestamp: new Date().toISOString(),
+        results: results,
+        searchParams: searchParams,
+        latency: latency
+      };
+      queryHistory.unshift(historyItem);
+      saveQueryHistory();
+      renderQueryHistory();
+    }
+
+    // Show help cover over parameter panel
+    function openHelpCover() {
+      const paramPanel = document.getElementById('paramPanel');
+      if (!paramPanel) return;
+      
+      // Create help cover
+      const helpCover = document.createElement('div');
+      helpCover.id = 'helpCover';
+      helpCover.className = 'absolute inset-0 bg-white rounded-lg shadow-lg p-3 sm:p-4 z-40 transform transition-transform duration-300 ease-in-out';
+      helpCover.style.transform = 'translateY(100%)';
+      
+      helpCover.innerHTML = `
+        <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-100">
+          <h3 class="text-lg font-bold text-teal-600 flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            Parameter Help
+          </h3>
+          <button id="helpCloseBtn" class="text-gray-400 hover:text-teal-600 hover:bg-teal-50 text-xl font-bold w-7 h-7 rounded-full flex items-center justify-center transition-colors duration-200">×</button>
+        </div>
+        <div class="space-y-4 text-sm overflow-y-auto max-h-[calc(100%-4rem)]">
+          <div class="p-3 bg-gray-50 rounded-lg border-l-4 border-teal-500">
+            <span class="font-semibold text-teal-700">nprobe:</span> 
+            <span class="text-gray-700">Number of clusters to search. Higher values typically improve accuracy.</span>
+          </div>
+          <div class="p-3 bg-gray-50 rounded-lg border-l-4 border-teal-500">
+            <span class="font-semibold text-teal-700">k:</span> 
+            <span class="text-gray-700">Number of top passages to retrieve.</span>
+          </div>
+          <div class="p-3 bg-gray-50 rounded-lg border-l-4 border-teal-500">
+            <span class="font-semibold text-teal-700">Exact Search:</span> 
+            <span class="text-gray-700">Use exact search instead of ANN. More accurate but slower.</span>
+          </div>
+          <div class="p-3 bg-gray-50 rounded-lg border-l-4 border-teal-500">
+            <span class="font-semibold text-teal-700">Diverse Search:</span> 
+            <span class="text-gray-700">Use diverse search to avoid similar results but may reduce relevance. Tune the tradeoff with λ.</span>
+          </div>
+          <div class="p-3 bg-gray-50 rounded-lg border-l-4 border-teal-500">
+            <span class="font-semibold text-teal-700">λ (lambda):</span> 
+            <span class="text-gray-700">Diversity tradeoff parameter: higher for diversity, lower for relevance.</span>
+          </div>
+        </div>
+      `;
+      
+      // Add to parameter panel
+      paramPanel.appendChild(helpCover);
+      
+      // Animate in
+      setTimeout(() => {
+        helpCover.style.transform = 'translateY(0)';
+      }, 10);
+      
+      // Close functionality
+      const closeBtn = helpCover.querySelector('#helpCloseBtn');
+      closeBtn.addEventListener('click', closeHelpCover);
+      
+      // Store reference
+      window.currentHelpCover = helpCover;
+    }
+    
+    // Close help cover
+    function closeHelpCover() {
+      const helpCover = window.currentHelpCover;
+      if (!helpCover) return;
+      
+      // Animate out
+      helpCover.style.transform = 'translateY(100%)';
+      
+      // Remove after animation
+      setTimeout(() => {
+        if (helpCover.parentNode) {
+          helpCover.parentNode.removeChild(helpCover);
+        }
+        window.currentHelpCover = null;
+      }, 300);
+    }
+
+    // Render query history
+    function renderQueryHistory() {
+      const container = document.getElementById('queryHistory');
+      if (queryHistory.length === 0) {
+        container.innerHTML = '<p class="p-4 text-gray-500 text-sm">No search history yet</p>';
+        return;
+      }
+
+      container.innerHTML = queryHistory.map(item => renderHistoryItem(item)).join('');
+      attachHistoryEventListeners();
+    }
+
+    // Render individual history item
+    function renderHistoryItem(item) {
+      const date = new Date(item.timestamp).toLocaleDateString();
+      const time = new Date(item.timestamp).toLocaleTimeString();
+      
+      return `
+        <div class="sidebar-item group hover:bg-gray-100 cursor-pointer" data-id="${item.id}" data-select-query>
+          <div class="flex justify-between items-start">
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-medium text-gray-900 truncate">${item.query}</div>
+              <div class="text-xs text-gray-500 mt-1">${date} ${time}</div>
+              ${item.latency ? `<div class="text-xs text-gray-400">${item.latency}s</div>` : ''}
+            </div>
+            <div class="hidden group-hover:flex gap-1 ml-2">
+              <button data-delete-query class="text-xs text-red-500 hover:text-red-700">Delete</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Attach event listeners to history items
+    function attachHistoryEventListeners() {
+                   // Select query
+      document.querySelectorAll('[data-select-query]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          // Don't trigger if clicking on delete button
+          if (e.target.closest('[data-delete-query]')) {
+            return;
+          }
+          
+          const id = parseInt(e.target.closest('[data-id]').dataset.id);
+          const item = queryHistory.find(h => h.id === id);
+          if (item) {
+            document.getElementById('queryInput').value = item.query;
+            displayResults(item.results, item.query, item.searchParams, item.latency);
+          }
+        });
+      });
+
+
+
+      // Delete query
+      document.querySelectorAll('[data-delete-query]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const id = parseInt(e.target.closest('[data-id]').dataset.id);
+          const deletedItem = queryHistory.find(h => h.id === id);
+          
+          // Check if we're currently viewing this deleted item
+          const currentQuery = document.getElementById('queryInput').value;
+          const isCurrentlyViewing = deletedItem && currentQuery === deletedItem.query;
+          
+          // Remove from history
+          queryHistory = queryHistory.filter(h => h.id !== id);
+          saveQueryHistory();
+          renderQueryHistory();
+          
+          // If we're currently viewing the deleted item, clear the page and show welcome
+          if (isCurrentlyViewing) {
+            // Clear the query input
+            document.getElementById('queryInput').value = '';
+            
+            // Clear the results
+            document.getElementById('results').innerHTML = '';
+            
+            // Show welcome message, title, and centered search group
+            const welcomeMessage = document.getElementById('welcomeMessage');
+            const centeredSearchGroup = document.getElementById('centeredSearchGroup');
+            const header = document.querySelector('header');
+            if (welcomeMessage) {
+              welcomeMessage.style.display = 'flex';
+            }
+            if (centeredSearchGroup) {
+              centeredSearchGroup.style.display = 'flex';
+            }
+            if (header) {
+              header.style.display = 'flex';
+            }
+          }
+        });
+      });
+
+
+    }
+
+    // Loading state management
+    function setLoading(loading) {
+      const sendButton = document.getElementById('sendButton');
+      const loadingSpinner = document.getElementById('loadingSpinner');
+      
+      if (loading) {
+        sendButton.classList.add('hidden');
+        loadingSpinner.classList.remove('hidden');
+      } else {
+        sendButton.classList.remove('hidden');
+        loadingSpinner.classList.add('hidden');
+      }
+    }
+
+          // Display results (existing function, enhanced)
+    function displayResults(data, query, searchParams, latency) {
+      const container = document.getElementById('results');
+      container.innerHTML = '';
+      
+      // Hide welcome message and title when displaying results
+      const welcomeMessage = document.getElementById('welcomeMessage');
+      const header = document.querySelector('header');
+      if (welcomeMessage) {
+        welcomeMessage.style.display = 'none';
+      }
+      if (header) {
+        header.style.display = 'none';
+      }
+      // Do NOT hide the search group here!
+      
+      // Add query and parameter display at the top (fixed position)
+      if (query) {
+        const nprobe = searchParams?.nprobe || document.getElementById('nprobe').value;
+        const k = searchParams?.k || document.getElementById('k').value;
+        const useRerank = searchParams?.useRerank !== undefined ? searchParams.useRerank : document.getElementById('rerankToggle').classList.contains('enabled');
+        const useDiverse = searchParams?.useDiverse !== undefined ? searchParams.useDiverse : document.getElementById('diverseToggle').classList.contains('enabled');
+        const lambdaVal = searchParams?.lambdaVal || document.getElementById('lambda').value;
+        
+        const isLongQuery = (query || '').length > 25; // fallback; actual collapse decided after measuring
+        const safeQuery = escapeHtml(query || '');
+        // Build preview for summary: first ~25 chars, cut at word boundary, add ellipsis if truncated
+        const previewLimit = 25;
+        let previewRaw = (query || '').slice(0, previewLimit);
+        if ((query || '').length > previewLimit) {
+          let cut = (query || '').slice(0, previewLimit);
+          const lastSpace = cut.lastIndexOf(' ');
+          if (lastSpace > 0) cut = cut.slice(0, lastSpace);
+          previewRaw = cut + '...';
+        }
+        const previewEscaped = escapeHtml(previewRaw);
+
+        // Escape single quotes for safe embedding inside single-quoted attributes
+        const safeQueryAttr = (safeQuery || '').replace(/'/g, "&#39;");
+        const previewAttr = (previewEscaped || '').replace(/'/g, "&#39;");
+
+        const queryDisplay = document.createElement('div');
+        queryDisplay.className = "text-gray-700 text-lg font-medium mb-4 bg-[#f7f9fc] py-3 px-4 shadow-sm rounded-lg fixed top-0 left-0 md:left-80 right-2 md:right-6 z-20";
+        // append first for measuring available width
+        container.appendChild(queryDisplay);
+
+        const collapse = shouldCollapseQuery(safeQuery, queryDisplay);
+        const headerMarkup = collapse
+          ? `<details class="mt-1" data-query-collapsible data-full='${safeQueryAttr}' data-preview='${previewAttr}'>
+               <summary class="cursor-pointer select-none">Query: <span class="font-semibold whitespace-pre-wrap break-words">${previewEscaped}</span></summary>
+             </details>`
+          : `<div>Query: <span class="font-semibold whitespace-pre-wrap break-words">${safeQuery}</span></div>`;
+
+        queryDisplay.innerHTML = `
+          ${headerMarkup}
+          <div class="flex gap-2 mt-2 flex-wrap" id="queryMeta">
+            <span class="bg-gray-200 text-gray-700 text-sm px-2 py-1 rounded-full">nprobe: ${nprobe}</span>
+            <span class="bg-gray-200 text-gray-700 text-sm px-2 py-1 rounded-full">k: ${k}</span>
+            ${useRerank ? '<span class="bg-teal-100 text-teal-700 text-sm px-2 py-1 rounded-full">Exact Search</span>' : ''}
+            ${useDiverse ? '<span class="bg-blue-100 text-blue-700 text-sm px-2 py-1 rounded-full">Diverse Search</span>' : ''}
+            ${useDiverse ? `<span class="bg-blue-100 text-blue-700 text-sm px-2 py-1 rounded-full">λ: ${lambdaVal}</span>` : ''}
+            ${latency ? `<span class="bg-green-100 text-green-700 text-sm px-2 py-1 rounded-full flex items-center gap-1"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path></svg>${latency}s</span>` : ''}
+          </div>
+        `;
+        // Insert/update spacer so first passage starts below the fixed header
+        ensureResultsSpacer(container, queryDisplay);
+        // Initialize collapsible behavior to swap preview with full text without repetition
+        initQueryCollapsible(queryDisplay);
+        // On resize, recompute collapse based on available width
+        setupResponsiveHeader(queryDisplay);
+      }
+      
+      const passages = data?.results?.passages?.[0] || [];
+
+      if (passages.length > 0) {
+        passages.forEach((p, i) => {
+          const div = document.createElement('div');
+          div.className = 'bg-white p-3 sm:p-4 rounded-2xl shadow-md mb-3 sm:mb-4 relative overflow-hidden';
+          div.setAttribute('data-passage-id', p.index_id || i);
+          div.innerHTML = `
+            <div class='text-sm text-gray-600 mb-2'>#${i + 1} • Source: <span class='font-medium'>${p.source || 'unknown'}</span>${data?.results?.scores?.[0]?.[i] ? ` • Score: <span class='font-medium text-blue-600'>${data.results.scores[0][i].toFixed(8)}</span> <span class='text-xs text-gray-500'> </span>` : ''}</div>
+            <div class='text-gray-900 leading-relaxed mb-4 whitespace-pre-wrap break-words' data-original-raw="${p.text.replace(/"/g, '&quot;')}">${escapeHtml(p.text)}</div>
+            
+            <!-- Show More/Less Section -->
+            <div class="mt-4 pt-4 border-t border-gray-200">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                  <button 
+                    class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded text-sm transition-colors"
+                    data-show-more
+                    data-index-id="${p.index_id || i}"
+                    data-offset="1"
+                  >
+                    Show More
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Rating Feedback Section -->
+            <div class="flex flex-wrap items-center gap-x-2 gap-y-1 mt-3 lg:mt-0 lg:absolute lg:bottom-4 lg:right-4" data-vote-box>
+                <span class="text-sm sm:text-base font-semibold text-blue-600">Is this passage relevant?</span>
+                <button 
+                    class="text-sm font-semibold text-blue-600 hover:text-green-600 transition-colors px-1.5 py-0.5"
+                    title="Yes, this passage is relevant"
+                    data-vote="yes"
+                    data-passage-id="${(p.passage_id ?? '').toString().replace(/"/g, '&quot;')}"
+                >
+                    [YES]
+                </button>
+                <button 
+                    class="text-sm font-semibold text-blue-600 hover:text-red-600 transition-colors px-1.5 py-0.5"
+                    title="No, this passage is not relevant"
+                    data-vote="no"
+                    data-passage-id="${(p.passage_id ?? '').toString().replace(/"/g, '&quot;')}"
+                >
+                    [NO]
+                </button>
+            </div>
+          `;
+          container.appendChild(div);
+        });
+        
+        // Attach event listeners for Show More/Less functionality
+        attachShowMoreListeners();
+        // [disk-vote] attach vote listeners tied to current query
+        attachVoteListeners(query);
+      } else {
+        const noResultsDiv = document.createElement('div');
+        noResultsDiv.className = 'bg-red-50 border border-red-300 text-red-700 p-6 rounded-2xl shadow-md text-center max-w-2xl mx-auto mt-10';
+        noResultsDiv.innerHTML = `
+          <h3 class="text-2xl font-semibold mb-2"> Oops!</h3>
+          <p class="mb-4">We couldn't find enough results for your query.</p>
+          <p class="text-sm text-red-600">Please try:</p>
+          <ul class="text-sm list-disc list-inside mt-2 text-red-600">
+            <li>Adding more details</li>
+            <li>Rephrasing your query</li>
+            <li>Changing the search parameters</li>
+          </ul>
+        `;
+        container.appendChild(noResultsDiv);
+      }
+    }
+
+    // Event listeners
+    document.getElementById('toggleParamsBtn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      document.getElementById('paramPanel').classList.toggle('hidden');
+    });
+
+    // Hide parameter panel when clicking outside
+    document.addEventListener('click', (e) => {
+      const paramPanel = document.getElementById('paramPanel');
+      const toggleBtn = document.getElementById('toggleParamsBtn');
+      
+      if (!paramPanel.contains(e.target) && !toggleBtn.contains(e.target)) {
+        paramPanel.classList.add('hidden');
+      }
+    });
+
+    // Hide parameter panel when pressing Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        document.getElementById('paramPanel').classList.add('hidden');
+      }
+    });
+
+    document.getElementById('rerankToggle').addEventListener('click', function () {
+      this.classList.toggle('enabled');
+      this.classList.toggle('disabled');
+    });
+
+    document.getElementById('diverseToggle').addEventListener('click', function () {
+      this.classList.toggle('enabled');
+      this.classList.toggle('disabled');
+      toggleLambdaState();
+    });
+
+    document.getElementById('queryInput').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        submitQuery(true);
+      }
+    });
+
+    document.getElementById('sendButton').addEventListener('click', function () {
+      submitQuery(true);
+    });
+
+    function toggleLambdaState() {
+      const lambda = document.getElementById('lambda');
+      const lambdaValue = document.getElementById('lambdaValue');
+      const diverse = document.getElementById('diverseToggle');
+      const enabled = diverse.classList.contains('enabled');
+      lambda.disabled = !enabled;
+      if (!enabled) {
+        lambdaValue.classList.add('text-gray-400');
+      } else {
+        lambdaValue.classList.remove('text-gray-400');
+      }
+    }
+
+    // Lambda slider event listener
+    document.getElementById('lambda').addEventListener('input', function() {
+      const value = parseFloat(this.value) / 100;
+      document.getElementById('lambdaValue').textContent = value.toFixed(2);
+    });
+
+
+
+    async function submitQuery(addToHist) {
+      // Hide parameter panel when submitting query
+      document.getElementById('paramPanel').classList.add('hidden');
+      
+      const qi = document.getElementById('queryInput');
+      const displayVal = qi.value;
+      // Prefer preserved raw (with newlines) if input hasn't diverged since paste
+      let candidate = (window.__preservedPasteRaw && window.__preservedPasteDisplay === displayVal)
+        ? window.__preservedPasteRaw
+        : displayVal.replace(/\\n/g, "\n"); // allow manual \\n entry
+      const query = candidate.replace(/\r\n|\r/g, "\n").trim();
+      const nprobe = document.getElementById('nprobe').value;
+      const k = document.getElementById('k').value;
+      const useRerank = document.getElementById('rerankToggle').classList.contains('enabled');
+      const useDiverse = document.getElementById('diverseToggle').classList.contains('enabled');
+      const lambdaVal = parseFloat(document.getElementById('lambda').value) / 100;
+      
+      if (!query) return;
+      
+      const container = document.getElementById('results');
+      // Hide welcome message when starting search
+      const welcomeMessage = document.getElementById('welcomeMessage');
+      if (welcomeMessage) {
+        welcomeMessage.style.display = 'none';
+      }
+      container.innerHTML = '';
+      
+      // Show loading state
+      setLoading(true);
+      
+      const loadingMsg = document.createElement('div');
+      loadingMsg.className = "text-gray-500 text-sm flex items-center gap-2";
+      loadingMsg.innerHTML = `
+        <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        Searching...
+      `;
+      container.appendChild(loadingMsg);
+      
+      const startTime = performance.now();
+      
+      try {
+        const response = await fetch(`http://compactds.duckdns.org:30888/search`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            query,
+            nprobe: parseInt(nprobe),
+            n_docs: parseInt(k),
+            // use_rerank: useRerank,  // ORIGINAL - commented out
+            // use_diverse: useDiverse,  // ORIGINAL - commented out
+            exact_search: useRerank,
+            diverse_search: useDiverse,
+            lambda: lambdaVal
+          })
+        });
+        
+        const data = await response.json();
+        const endTime = performance.now();
+        const latency = ((endTime - startTime) / 1000).toFixed(2);
+        
+        container.innerHTML = '';
+        
+                 if (addToHist) {
+           const searchParams = { nprobe, k, useRerank, useDiverse, lambdaVal };
+           addToHistory(query, data, searchParams, latency);
+         }
+         
+         displayResults(data, query, { nprobe, k, useRerank, useDiverse, lambdaVal }, latency);
+        
+      } catch (err) {
+        container.innerHTML = '<div class="text-red-500 text-sm">Error fetching result.</div>';
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    // Show More/Less functionality
+    let expandedPassages = new Set();
+    let expandedPassagesData = new Map();
+
+    function attachShowMoreListeners() {
+      document.querySelectorAll('[data-show-more]').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const indexId = parseInt(e.target.dataset.indexId);
+          const offset = parseInt(e.target.dataset.offset);
+          
+          if (expandedPassages.has(indexId)) {
+            // Collapse - restore original text
+            expandedPassages.delete(indexId);
+            e.target.textContent = 'Show More';
+            e.target.dataset.offset = '1';
+            removeExpandedPassages(indexId);
+            
+            const passageDiv = e.target.closest('.bg-white');
+            const textDiv = passageDiv.querySelector('[data-original-raw]');
+            if (textDiv) {
+              const originalRaw = textDiv.getAttribute('data-original-raw');
+              textDiv.innerHTML = originalRaw;
+            }
+            
+            // Scroll to top of the passage
+            const resultsContainer = document.getElementById('results');
+            const passageTop = passageDiv.offsetTop;
+            const containerTop = resultsContainer.offsetTop;
+            const scrollTarget = passageTop - containerTop - 135;
+            
+            resultsContainer.scrollTo({
+              top: scrollTarget,
+              behavior: 'smooth'
+            });
+          } else {
+            // Immediate UI feedback
+            expandedPassages.add(indexId);
+            e.target.textContent = 'Loading...';
+            e.target.disabled = true;
+            
+            // Cache DOM elements to avoid repeated queries
+            const passageDiv = e.target.closest('.bg-white');
+            const textDiv = passageDiv.querySelector('[data-original-raw]');
+            const originalRaw = textDiv.getAttribute('data-original-raw');
+            
+            try {
+              const expandedData = await expandPassage(indexId, offset);
+              if (expandedData && expandedData.results && expandedData.results.passages) {
+                const expandedPassagesData = expandedData.results.passages[0] || [];
+                setExpandedPassages(indexId, expandedPassagesData);
+                
+                // Replace text in place with expanded content
+                if (textDiv && expandedPassagesData.length > 0) {
+                  const expandedText = expandedPassagesData[0].text;
+                  
+                  // Optimized highlighting - only process if needed
+                  const highlightedText = highlightOriginalTextOptimized(expandedText, originalRaw);
+                  textDiv.innerHTML = highlightedText;
+                  textDiv.setAttribute('data-expanded-text', highlightedText);
+                }
+                
+                const newOffset = (parseInt(e.target.dataset.offset) || 1) + 1;
+                e.target.dataset.offset = newOffset;
+                e.target.textContent = 'Show Less';
+                e.target.disabled = false;
+                
+                if (newOffset > 3) {
+                  e.target.disabled = true;
+                  e.target.classList.add('text-gray-400', 'cursor-not-allowed');
+                  e.target.classList.remove('hover:bg-gray-200');
+                  e.target.textContent = 'Expansion limit reached';
+                }
+              }
+            } catch (error) {
+              console.error('Expand error:', error);
+              e.target.textContent = 'Show More';
+              e.target.disabled = false;
+              expandedPassages.delete(indexId);
+            }
+          }
+        });
+      });
+    }
+
+    // ============================ [disk-vote] BEGIN additions ============================
+    function attachVoteListeners(queryForVote) {
+      try {
+        document.querySelectorAll('[data-vote-box]').forEach(box => {
+          box.querySelectorAll('[data-vote]').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+              const vote = e.currentTarget.getAttribute('data-vote');
+              const passageId = e.currentTarget.getAttribute('data-passage-id');
+              const relevant = vote === 'yes';
+              const parent = e.currentTarget.parentElement;
+              // [disk-vote] include current search parameters for analysis
+              const nprobe = document.getElementById('nprobe')?.value;
+              const useRerank = document.getElementById('rerankToggle')?.classList.contains('enabled');
+              const useDiverse = document.getElementById('diverseToggle')?.classList.contains('enabled');
+              const lambdaVal = parseFloat(document.getElementById('lambda')?.value || '50') / 100;
+              try {
+                await fetch(`http://compactds.duckdns.org:30888/vote`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    query: queryForVote || document.getElementById('queryInput')?.value || '',
+                    passage_id: passageId,
+                    relevant: relevant,
+                    config: {
+                      nprobe: nprobe ? parseInt(nprobe) : undefined,
+                      exact_search: !!useRerank,
+                      diverse_search: !!useDiverse,
+                      lambda: lambdaVal
+                    }
+                  })
+                });
+                parent.innerHTML = relevant
+                  ? '<span class="text-sm text-green-600 font-medium">✓ Thanks for the feedback!</span>'
+                  : '<span class="text-sm text-red-600 font-medium">✗ Thanks for the feedback!</span>';
+              } catch (err) {
+                console.error('Vote submit failed:', err);
+              }
+            });
+          });
+        });
+      } catch (e) {
+        console.error('attachVoteListeners failed:', e);
+      }
+    }
+    // ============================ [disk-vote] END additions ============================
+
+    async function expandPassage(indexId, offset) {
+      try {
+        const response = await fetch(`http://compactds.duckdns.org:30888/search`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            query: '',
+            expand_index_id: indexId,
+            expand_offset: offset
+          })
+        });
+        return await response.json();
+      } catch (error) {
+        console.error('Expand request failed:', error);
+        throw error;
+      }
+    }
+
+    function setExpandedPassages(indexId, passages) {
+      expandedPassagesData.set(indexId, passages);
+    }
+
+    function getExpandedPassages(indexId) {
+      return expandedPassagesData.get(indexId) || [];
+    }
+
+    function removeExpandedPassages(indexId) {
+      expandedPassagesData.delete(indexId);
+    }
+
+    // Helper functions
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+    
+    function toHexString(num) {
+      // Convert to hex with full precision
+      const buffer = new ArrayBuffer(8);
+      const view = new DataView(buffer);
+      view.setFloat64(0, num);
+      const hex = Array.from(new Uint8Array(buffer))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('');
+      return '0x' + hex;
+    }
+
+    // Initialize query collapsible behavior to avoid repeated content below
+    function initQueryCollapsible(scope) {
+      (scope || document).querySelectorAll('details[data-query-collapsible]').forEach((dt) => {
+        const summary = dt.querySelector('summary');
+        const full = dt.dataset.full || '';
+        const preview = dt.dataset.preview || '';
+        dt.addEventListener('toggle', () => {
+          const content = dt.open ? full : preview;
+          if (summary) {
+            summary.innerHTML = `Query: <span class="font-semibold whitespace-pre-wrap break-words">${content}</span>`;
+          }
+        });
+      });
+    }
+
+    // Decide if header should collapse based on rendered width (one-line fit)
+    function shouldCollapseQuery(fullHtmlEscaped, headerContainer) {
+      // Create a temporary measurement element with same styling
+      const temp = document.createElement('div');
+      temp.style.position = 'absolute';
+      temp.style.visibility = 'hidden';
+      temp.style.whiteSpace = 'nowrap';
+      temp.style.fontWeight = '600';
+      temp.style.fontSize = getComputedStyle(headerContainer).fontSize || '1rem';
+      temp.style.maxWidth = 'none';
+      temp.innerHTML = `Query: <span class="font-semibold whitespace-pre-wrap break-words">${fullHtmlEscaped}</span>`;
+      document.body.appendChild(temp);
+      const textWidth = temp.getBoundingClientRect().width;
+      document.body.removeChild(temp);
+
+      // Available width inside the container (padding already applied on container)
+      const containerWidth = headerContainer.getBoundingClientRect().width;
+      // Heuristic: allow some headroom for the meta badges that follow; collapse if text would wrap
+      const reservedForBadges = 260; // px buffer for chips; tuned for mobile/desktop
+      return textWidth > Math.max(0, containerWidth - reservedForBadges);
+    }
+
+    // Re-evaluate collapse on resize
+    function setupResponsiveHeader(scope) {
+      const container = scope || document;
+      const relayout = () => {
+        const queryBox = container; // the same wrapper we created
+        if (!queryBox) return;
+        const full = queryBox.dataset.full;
+        const preview = queryBox.dataset.preview;
+        if (!full || !preview) return;
+
+        const collapse = shouldCollapseQuery(full, queryBox);
+        const existsDetails = queryBox.querySelector('details[data-query-collapsible]');
+        if (collapse && !existsDetails) {
+          queryBox.insertAdjacentHTML('afterbegin', `<details class="mt-1" data-query-collapsible data-full='${full.replace(/'/g, "&#39;")}' data-preview='${preview.replace(/'/g, "&#39;")}'><summary class="cursor-pointer select-none">Query: <span class="font-semibold whitespace-pre-wrap break-words">${preview}</span></summary></details>`);
+          // remove static div header if present
+          const staticDiv = queryBox.querySelector(':scope > div');
+          if (staticDiv) staticDiv.remove();
+          initQueryCollapsible(queryBox);
+        } else if (!collapse) {
+          // replace details with static full text
+          const det = existsDetails;
+          if (det) det.remove();
+          queryBox.insertAdjacentHTML('afterbegin', `<div>Query: <span class="font-semibold whitespace-pre-wrap break-words">${full}</span></div>`);
+        }
+      };
+      window.addEventListener('resize', relayout);
+      // Run once now
+      setTimeout(relayout, 0);
+    }
+
+    // Ensure a spacer element exists under the fixed header so content doesn't hide behind it
+    function ensureResultsSpacer(resultsContainer, headerEl) {
+      if (!resultsContainer || !headerEl) return;
+      let spacer = resultsContainer.querySelector('[data-results-spacer]');
+      if (!spacer) {
+        spacer = document.createElement('div');
+        spacer.setAttribute('data-results-spacer', '1');
+        resultsContainer.prepend(spacer);
+      }
+      const updateSpacer = () => {
+        const rect = headerEl.getBoundingClientRect();
+        const margin = 4; // breathing room
+        const isOpen = !!headerEl.querySelector('details[data-query-collapsible][open]');
+        // When collapsed, use a compact spacer; when expanded, use full height to prevent overlap
+        const target = isOpen
+          ? Math.max(0, Math.round(rect.height + margin))
+          : Math.max(0, Math.round((rect.height + margin) / 3));
+        spacer.style.height = `${target}px`;
+      };
+      updateSpacer();
+      // Update on resize and when details toggle may change height
+      window.addEventListener('resize', updateSpacer);
+      const details = headerEl.querySelector('details[data-query-collapsible]');
+      if (details) {
+        details.addEventListener('toggle', () => setTimeout(updateSpacer, 0));
+      }
+      // Also update after responsive relayout changes header structure
+      setTimeout(updateSpacer, 0);
+    }
+
+    function highlightOriginalText(expandedText, originalText) {
+      const escapedExpanded = escapeHtml(expandedText);
+      const escapedOriginal = escapeHtml(originalText);
+
+      // Attempt exact substring match
+      if (escapedExpanded.includes(escapedOriginal)) {
+        return escapedExpanded.replace(
+          escapedOriginal,
+          `<span class="border-b-2 border-green-500">${escapedOriginal}</span>`
+        );
+      }
+
+      // Fallback: do not highlight
+      console.warn("Exact match for original passage not found in expanded text");
+      return escapedExpanded;
+    }
+
+    // Optimized version with early exit and caching
+    function highlightOriginalTextOptimized(expandedText, originalText) {
+      // Early exit if texts are identical
+      if (expandedText === originalText) {
+        return `<span class="border-b-2 border-green-500">${escapeHtml(originalText)}</span>`;
+      }
+      
+      // Quick check if original text is contained in expanded text
+      if (!expandedText.includes(originalText)) {
+        return escapeHtml(expandedText);
+      }
+      
+      // Only escape if we need to highlight
+      const escapedExpanded = escapeHtml(expandedText);
+      const escapedOriginal = escapeHtml(originalText);
+      
+      if (escapedExpanded.includes(escapedOriginal)) {
+        return escapedExpanded.replace(
+          escapedOriginal,
+          `<span class="border-b-2 border-green-500">${escapedOriginal}</span>`
+        );
+      }
+      
+      return escapedExpanded;
+    }
+
+
+
+    // Mobile menu toggle functionality
+    document.getElementById('mobileMenuToggle').addEventListener('click', () => {
+      const sidebar = document.getElementById('historySidebar');
+      const menuToggle = document.getElementById('mobileMenuToggle');
+      const searchGroup = document.getElementById('centeredSearchGroup');
+      const isOpen = !sidebar.classList.contains('-translate-x-full');
+      
+      if (isOpen) {
+        // Close sidebar
+        sidebar.classList.add('-translate-x-full');
+        menuToggle.style.transform = 'translateX(0)';
+        searchGroup.style.left = '0.5rem';
+        searchGroup.style.right = '0.5rem';
+      } else {
+        // Open sidebar
+        sidebar.classList.remove('-translate-x-full');
+        const sidebarWidth = sidebar.offsetWidth;
+        menuToggle.style.transform = `translateX(${sidebarWidth}px)`;
+        searchGroup.style.left = `${sidebarWidth + 8}px`;
+        searchGroup.style.right = '0.5rem';
+      }
+    });
+
+    // Sidebar close button functionality
+    document.getElementById('sidebarCloseBtn').addEventListener('click', () => {
+      const sidebar = document.getElementById('historySidebar');
+      const menuToggle = document.getElementById('mobileMenuToggle');
+      const searchGroup = document.getElementById('centeredSearchGroup');
+      
+      sidebar.classList.add('-translate-x-full');
+      menuToggle.style.transform = 'translateX(0)';
+      searchGroup.style.left = '0.5rem';
+      searchGroup.style.right = '0.5rem';
+    });
+
+    // Close sidebar when clicking outside on mobile
+    document.addEventListener('click', (e) => {
+      const sidebar = document.getElementById('historySidebar');
+      const menuToggle = document.getElementById('mobileMenuToggle');
+      const searchGroup = document.getElementById('centeredSearchGroup');
+      
+      if (window.innerWidth < 1024 && // Only on mobile/tablet
+          !sidebar.contains(e.target) && 
+          !menuToggle.contains(e.target) &&
+          !sidebar.classList.contains('-translate-x-full')) {
+        sidebar.classList.add('-translate-x-full');
+        menuToggle.style.transform = 'translateX(0)';
+        searchGroup.style.left = '0.5rem';
+        searchGroup.style.right = '0.5rem';
+      }
+    });
+
+    // Position parameter panel to avoid covering search bar
+    function positionParamPanel() {
+      const paramPanel = document.getElementById('paramPanel');
+      const searchGroup = document.getElementById('centeredSearchGroup');
+      if (!paramPanel || !searchGroup) return;
+
+      if (window.innerWidth < 640) {
+        // Make the panel fixed and full-width with safe margins on mobile
+        const searchRect = searchGroup.getBoundingClientRect();
+        const viewportHeight = window.innerHeight;
+        const safeBottomPx = Math.max(8, viewportHeight - searchRect.top + 8); // stay above bar
+
+        paramPanel.style.position = 'fixed';
+        paramPanel.style.left = '8px';
+        paramPanel.style.right = '8px';
+        paramPanel.style.width = 'auto';
+        paramPanel.style.bottom = `${safeBottomPx}px`;
+        paramPanel.style.maxWidth = 'none';
+        paramPanel.style.transform = 'none';
+      } else {
+        // Restore defaults for larger screens; allow CSS classes to handle layout
+        paramPanel.style.position = '';
+        paramPanel.style.left = '';
+        paramPanel.style.right = '';
+        paramPanel.style.width = '';
+        paramPanel.style.bottom = '';
+        paramPanel.style.maxWidth = '';
+        paramPanel.style.transform = '';
+      }
+    }
+    
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      loadQueryHistory();
+      const welcomeMessage = document.getElementById('welcomeMessage');
+      const centeredSearchGroup = document.getElementById('centeredSearchGroup');
+      if (welcomeMessage) welcomeMessage.style.display = 'flex';
+      if (centeredSearchGroup) centeredSearchGroup.style.display = 'flex';
+
+      // Wire help button
+      const helpBtn = document.getElementById('helpBtn');
+      if (helpBtn) {
+        let helpCover = null;
+        let isHelpOpen = false;
+        
+        helpBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          if (!isHelpOpen) {
+            openHelpCover();
+            isHelpOpen = true;
+          } else {
+            closeHelpCover();
+            isHelpOpen = false;
+          }
+        });
+      }
+      
+      // Position parameter panel on load and resize
+      positionParamPanel();
+      window.addEventListener('resize', positionParamPanel);
+      
+      // Position panel when it becomes visible
+      const toggleParamsBtn = document.getElementById('toggleParamsBtn');
+      if (toggleParamsBtn) {
+        toggleParamsBtn.addEventListener('click', () => {
+          setTimeout(positionParamPanel, 10); // Small delay to ensure panel is visible
+        });
+      }
+
+      // Paste handling for query input to preserve internal newlines while keeping box single-line
+      const qi = document.getElementById('queryInput');
+      if (qi) {
+        qi.addEventListener('paste', (e) => {
+          try {
+            e.preventDefault();
+            const text = (e.clipboardData || window.clipboardData).getData('text');
+            const raw = (text || '').replace(/\r\n|\r/g, "\n");
+            window.__preservedPasteRaw = raw;
+            window.__preservedPasteDisplay = raw.replace(/\n/g, ' ');
+            qi.value = window.__preservedPasteDisplay;
+          } catch (_) { /* no-op */ }
+        });
+        qi.addEventListener('input', () => {
+          if (window.__preservedPasteDisplay !== qi.value) {
+            window.__preservedPasteRaw = null;
+            window.__preservedPasteDisplay = null;
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>
