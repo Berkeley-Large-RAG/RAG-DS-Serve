@@ -5,3 +5,4 @@ embedding_cache/
 !embedding_cache/.gitkeep
 index_dev/*
 !index_dev/.gitkeep
+_backup_DiskANN_20250911_064525/*
