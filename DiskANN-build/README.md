@@ -25,4 +25,6 @@ For pip install:
 conda install -y -c conda-forge -c defaults intel-openmp mkl mkl-include cmake ninja scikit-build
 export CMAKE_ARGS="-DOMP_PATH=$CONDA_PREFIX/lib -DMKL_PATH=$CONDA_PREFIX/lib -DMKL_INCLUDE_PATH=$CONDA_PREFIX/include -DCMAKE_PREFIX_PATH=$CONDA_PREFIX"
 export LD_LIBRARY_PATH="$CONDA_PREFIX/lib:$LD_LIBRARY_PATH"
+cd /home/yichuan_wang/DS-serve/DiskANN-build/DiskANN
+pip install -e .
 ```
