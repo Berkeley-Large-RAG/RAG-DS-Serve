@@ -12,12 +12,27 @@ deprioritized_domains = ["massiveds-rpj_arxiv", "massiveds-rpj_github", "massive
 deprioritized_domains_index = {domain: i + 1 for i, domain in enumerate(deprioritized_domains)}
 
 def sort_func(filename):
-    domain = filename.split('raw_passages')[0].split('--')[0]
-    rank = int(filename.split('passages_')[-1].split("-")[0])
-    shard_idx = int(filename.split("-of-")[0].split("-")[-1])
-    deprioritized = deprioritized_domains_index.get(domain, 0)
-    return (deprioritized, domain, rank, shard_idx)
+    import re
+    domain = filename.split('--', 1)[0]
+    m = re.search(r'--passages(\d+)_(\d+)\.pkl$', filename)
+    if m:
+        rank = int(m.group(1))
+        shard_idx = int(m.group(2))
+        deprioritized = deprioritized_domains_index.get(domain, 0)
+        return (deprioritized, domain, rank, shard_idx)
 
+    m = re.search(r'passages_(\d+)-of-(\d+)', filename)
+    if m:
+        rank = int(m.group(1))
+        try:
+            shard_idx = int(filename.split('-of-')[0].split('-')[-1])
+        except Exception:
+            shard_idx = 0
+        deprioritized = deprioritized_domains_index.get(domain, 0)
+        return (deprioritized, domain, rank, shard_idx)
+
+    deprioritized = deprioritized_domains_index.get(domain, 0)
+    return (deprioritized, domain, float('inf'), float('inf'))
 def sort_jsonl_files(jsonl_files):
     return sorted(jsonl_files, key=sort_func)
 
