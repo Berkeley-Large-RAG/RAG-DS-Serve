@@ -8,7 +8,7 @@ title: DS Serve
 <p align="center">Jinjian Liu<sup>1*</sup>, Yichuan Wang<sup>1*</sup>, Xinxi Lyu<sup>2</sup>, Rulin Shao<sup>3</sup>, Joseph E. Gonzalez<sup>1</sup>, Matei Zaharia<sup>1</sup>, Sewon Min<sup>1</sup></p>
 <p align="center"><sup>1</sup>University of California, Berkeley <sup>2</sup>University of Illinois Urbana–Champaign <sup>3</sup>University of Washington</p>
 
-<p align="center">[<a href="https://tinyurl.com/compact-ds-dive">Web Interface</a>] [<a href="/RAG-DS-Serve/API_DOCUMENTATION.html">API Endpoint</a>] [<a href="/RAG-DS-Serve/README.html">Server & CLI</a>] [<a href="/RAG-DS-Serve/VOTES_DOCUMENTATION.html">Voting System</a>] [<a href="https://github.com/Berkeley-Large-RAG/RAG-DS-Serve">Code</a>] [<a href="https://openreview.net/forum?id=nQBZKcF2bo">Paper</a>]</p>
+<p align="center">[<a href="https://tinyurl.com/compact-ds-dive">Web Interface</a>] [<a href="{{ site.baseurl }}/API_DOCUMENTATION.html">API Endpoint</a>] [<a href="{{ site.baseurl }}/README.html">Server & CLI</a>] [<a href="{{ site.baseurl }}/VOTES_DOCUMENTATION.html">Voting System</a>] [<a href="https://github.com/Berkeley-Large-RAG/RAG-DS-Serve">Code</a>] [<a href="https://openreview.net/forum?id=nQBZKcF2bo">Paper</a>]</p>
 
 **[✨NEW]** DiskANN integration: ~1000 QPS at 500B-token scale with low RAM.
 
@@ -24,7 +24,7 @@ We introduce DS Serve, a framework that transforms large-scale text corpus into 
 <p align="left"><i>Figure 1: DS SERVE converts a large dataset into a neural retrieval system: a query q retrieves relevant text via ANN, optionally reranks with exact and/or diverse search, and returns the top-k chunks with voting options for user feedback.</i></p>
 
 <p align="center">
-  <img src="Figure%201.png" style="width: 80%;" />
+  <img src="Figure%201.png" style="width: 70%;" />
 </p>
 
 **Key Performance**
@@ -71,7 +71,7 @@ Because IVFPQ inevitably sacrifices accuracy, we introduce Exact Search as an op
 <p align="left"><i>Figure 2: Control panel with tunable parameters and tooltips.</i></p>
 
 <p align="center">
-  <img src="parameter panel.png" style="width: 70%;" />
+  <img src="parameter panel.png" style="width: 60%;" />
 </p>
 
 Search results often suffer from information overlap, like nearly identical text chunks, so we offer a Diverse Search option to improve overall coverage of the results. To do this, we apply maximal marginal relevance (MMR) on candidates returned by ANN to penalize redundant information. In our use cases, we find Diverse Search substantially improves user experience by eliminating redundant texts.
@@ -83,7 +83,7 @@ During search, DS SERVE initially fetches a very large pool of K candidates (K =
 <p align="left"><i>Figure 3: Example failure mode and user guidance.</i></p>
 
 <p align="center">
-  <img src="failure mode.png" style="width: 80%;" />
+  <img src="failure mode.png" style="width: 70%;" />
 </p>
 
 <p align="left"><i>Table 1: Evaluation of DS SERVE on five established benchmarks. ‘Acc’ is accuracy (%), and t is end-to-end retrieval latency (s). For Exact Search, we report t without cache and tcache with cache. We use K = 1000, k = 10, and nprobe = 256 for all tasks.</i></p>

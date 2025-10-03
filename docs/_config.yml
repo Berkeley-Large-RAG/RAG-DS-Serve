@@ -1,7 +1,6 @@
 title: DS Serve
-author: Jiacheng Liu
-email: liujc [at] cs [dot] washington [dot] edu
-
+url: https://berkeley-large-rag.github.io
+baseurl: /RAG-DS-Serve
 header_pages:
   - demo.md
   - api_doc.md
@@ -12,6 +11,5 @@ header_pages:
   - discord.md
 
 theme: minima
-
 plugins:
   - jekyll-redirect-from
