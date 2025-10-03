@@ -8,7 +8,7 @@ title: DS Serve
 <p align="center">Jinjian Liu<sup>1*</sup>, Yichuan Wang<sup>1*</sup>, Xinxi Lyu<sup>2</sup>, Rulin Shao<sup>3</sup>, Joseph E. Gonzalez<sup>1</sup>, Matei Zaharia<sup>1</sup>, Sewon Min<sup>1</sup></p>
 <p align="center"><sup>1</sup>University of California, Berkeley <sup>2</sup>University of Illinois Urbana–Champaign <sup>3</sup>University of Washington</p>
 
-<p align="center">[<a href="https://tinyurl.com/compact-ds-dive">Web Interface</a>] [<a href="../API_DOCUMENTATION.md">API Endpoint</a>] [<a href="../README.md">Server & CLI</a>] [<a href="../VOTES_DOCUMENTATION.md">Voting System</a>] [<a href="https://github.com/Berkeley-Large-RAG/RAG-DS-Serve">Code</a>] [<a href="https://openreview.net/forum?id=nQBZKcF2bo">Paper</a>]</p>
+<p align="center">[<a href="https://tinyurl.com/compact-ds-dive">Web Interface</a>] [<a href="/RAG-DS-Serve/API_DOCUMENTATION.html">API Endpoint</a>] [<a href="/RAG-DS-Serve/README.html">Server & CLI</a>] [<a href="/RAG-DS-Serve/VOTES_DOCUMENTATION.html">Voting System</a>] [<a href="https://github.com/Berkeley-Large-RAG/RAG-DS-Serve">Code</a>] [<a href="https://openreview.net/forum?id=nQBZKcF2bo">Paper</a>]</p>
 
 **[✨NEW]** DiskANN integration: ~1000 QPS at 500B-token scale with low RAM.
 
