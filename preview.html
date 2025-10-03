@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DS Serve Blog Preview</title>
+    <script src='https://cdn.jsdelivr.net/npm/marked/marked.min.js'></script>
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            max-width: 800px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            line-height: 1.6; 
+            color: #333;
+        }
+        h1 { 
+            color: #2c3e50; 
+            border-bottom: 2px solid #3498db; 
+            padding-bottom: 10px;
+        }
+        h2 { 
+            color: #34495e; 
+            margin-top: 30px;
+        }
+        h3 { 
+            color: #7f8c8d; 
+            margin-top: 25px;
+        }
+        code { 
+            background: #f8f9fa; 
+            padding: 2px 6px; 
+            border-radius: 3px; 
+            font-family: 'Monaco', 'Menlo', monospace;
+            color: #e74c3c;
+        }
+        pre { 
+            background: #f8f9fa; 
+            padding: 15px; 
+            border-radius: 5px; 
+            overflow-x: auto; 
+            border-left: 4px solid #3498db;
+        }
+        blockquote { 
+            border-left: 4px solid #bdc3c7; 
+            margin: 0; 
+            padding-left: 20px; 
+            color: #7f8c8d; 
+            font-style: italic;
+        }
+        strong {
+            color: #2c3e50;
+        }
+        a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        hr {
+            border: none;
+            border-top: 1px solid #bdc3c7;
+            margin: 30px 0;
+        }
+    </style>
+</head>
+<body>
+    <div id='content'></div>
+    <script>
+        const markdownContent = `# DS Serve Documentation
+
+## Overview
+
+We introduce DS Serve, a framework that transforms large-scale text corpus into a high-performance neural retrieval system, aka search engines without daunting hardware requirements. DS Serve achieves low latency with modest memory overhead, and it also supports inference time tradeoff across accuracy, diversity, and latency. (Figure 1, Table 1)
+
+We've further optimized throughput by integrating DiskANN for on‑disk vector search at 500 billion token scale. In practice, DiskANN delivered ~1000 QPS, while maintaining a low RAM footprint. Tunable controls like complexity and beamwidth allow a smooth accuracy–latency tradeoff. Compared to basic ANN, DiskANN significantly increased QPS by a few hundred times under the same memory budget.
+
+## Use Cases
+
+### Application
+
+**Data Attribution and Curation**: DS SERVE can be easily used to organize and search over large quantities of data. DS SERVE understands the meaning of user inputs beyond simply looking for overlapping words thanks to semantic neural retrieval. Thus, our framework complements and improves on prior systems like OLMoTrace that relies on n-gram keyword matching. Moreover, DS SERVE enhances data curation by enabling smart cleanup of datasets and creation of tailored subsets for specific topics.
+
+**Training a Search Agent**: Search agents are in high demand for applications such as deep research but bottlenecked by cost, throughput, and rate limit at the same time. DS SERVE addresses these issues by providing a fully controllable search backend, allowing developers to set their own latency-accuracy tradeoffs without incurring costs or rate limits.
+
+**Advancing Frontiers of Search**: Commercial search engines like Google are great at handling short keyword searches, but they often fall short on longer and more queries. That's where vector-based search like DS SERVE stands out, since it can better capture the meaning of longer questions or detailed prompts. Recent studies suggest vector-based search can match or even outperform traditional search engines in these scenarios. Furthermore, the voting features in DS SERVE offer a unique opportunity to collect queries from real-world user distributions, enabling the creation of realistic benchmarks over high-quality training data to advance research in nearest neighbor search.
+
+### Case Studies
+
+**Accuracy–diversity tradeoff**: For queries that are less common or rely on very recent knowledge — for example "Jensen Huang" — the datastore may only contain a handful of truly relevant passages, due to its frozen state. In these situations, Exact Search performs well because it prioritizes those relevant results at the top. By contrast, Diverse Search doesn't necessarily improve performance since it risks surfacing less accurate passages when there aren't enough strong candidates to begin with.
+
+**Failure mode**: During search, DS SERVE initially fetches a very large pool of K candidates (K = 1000), so it always easily fills the top-k (e.g. k = 5) passage list. On the very rare occasion that retrieval does fail, a clear alert message pops up to give informative suggestions for the user. (Figure 3)
+
+## User Guide
+
+### Quick Walkthrough
+
+DS SERVE offers a control panel with tunable parameters, explained through tooltips available via the question mark icon. (Figure 2) Users can also choose up to two optional search modes: Exact and Diverse Search to prioritize accuracy and diversity, respectively.
+
+To run a search, simply type a query and press "Enter" or click the arrow icon. Results are ordered by score, and each passage can be expanded/collapsed with one click. Every search is also logged in the history panel with detailed information for easy reference.
+
+### Video
+
+[Video placeholder - insert your demonstration video here]
+
+## Technical Design
+
+### Search Modes
+
+**Approximate Nearest Neighbor (ANN) Search**: ANN is the backbone of DS Serve. In particular, DS Serve incorporates FAISS IVFPQ, which reduces memory usage and latency by partitioning the vector space into clusters and avoiding full comparisons. In our setting, the ANN backbone supports inference within 200 ms at ~100GB memory overhead.
+
+**Exact Search**: Because IVFPQ inevitably sacrifices accuracy, we introduce Exact Search as an optional reranking mode. On top of ANN, we employ GritLM to compute exact similarities between queries and passage embeddings, which are then used to rerank top-k passages. As shown in our evaluation results (Table 1), Exact Search effectively enhances accuracy across all five tasks. On a cold start, embedding the results can be slow, so we've built an embedding cache to allow ~1000ms latency on similar queries in Exact Search.
+
+**Diversity Search**: Search results often suffer from information overlap, like nearly identical text chunks, so we offer a Diverse Search option to improve overall coverage of the results. To do this, we apply maximal marginal relevance (MMR) on candidates returned by ANN to penalize redundant information. In our use cases, we find Diverse Search substantially improves user experience by eliminating redundant texts.
+
+---
+
+*This documentation follows the structure and style of the [infini-gram documentation](https://github.com/liujch1998/infini-gram/blob/master/docs/index.md) while presenting the unique capabilities and technical design of DS Serve.*`;
+
+        document.getElementById('content').innerHTML = marked.parse(markdownContent);
+    </script>
+</body>
+</html>
