@@ -1,0 +1,17 @@
+title: infini-gram
+author: Jiacheng Liu
+email: liujc [at] cs [dot] washington [dot] edu
+
+header_pages:
+  - demo.md
+  - api_doc.md
+  - pkg_doc.md
+  - docs.md
+  - code.md
+  - paper.md
+  - discord.md
+
+theme: minima
+
+plugins:
+  - jekyll-redirect-from
