@@ -17,6 +17,8 @@ title: DS Serve
 ---
 <br/>
 
+## Overview
+
 We introduce DS Serve, a framework that transforms large-scale text corpus into a high-performance neural retrieval system, aka search engines without daunting hardware requirements. DS Serve achieves low latency with modest memory overhead, and it also supports inference time tradeoff across accuracy, diversity, and latency.
 
 <p align="left"><i>Figure 1: DS SERVE converts a large dataset into a neural retrieval system: a query q retrieves relevant text via ANN, optionally reranks with exact and/or diverse search, and returns the top-k chunks with voting options for user feedback.</i></p>
@@ -30,18 +32,14 @@ We introduce DS Serve, a framework that transforms large-scale text corpus into 
 - FAISS IVFPQ backbone: ~200 ms inference at ~100 GB memory overhead
 - Toggle accuracy/diversity with Exact and Diverse search options
 
-<p align="left"><i>Table 1: Evaluation of DS SERVE on five established benchmarks. ‘Acc’ is accuracy (%), and t is end-to-end retrieval latency (s). For Exact Search, we report t without cache and tcache with cache. We use K = 1000, k = 10, and nprobe = 256 for all tasks.</i></p>
-
-<p align="center">
-  <img src="table.png" style="width: 80%;" />
-</p>
-
 ---
 <br/>
 
-<h2 align="center">What can I use DS Serve for?</h2>
+## Use cases
 
 We use DS Serve for fast, controllable retrieval in RAG and search applications.
+
+### Application
 
 It’s actively useful for:
 1. **Data attribution & curation**: semantic search beyond keyword overlap; complements tools like OLMoTrace
@@ -56,7 +54,17 @@ Beyond these, DS Serve helps with:
 ---
 <br/>
 
-<h2 align="center">Why Exact and Diverse Modes?</h2>
+## User guide
+
+### Quick walkthrough
+
+- Use the control panel to set `nprobe`, enable Exact or Diverse search, and adjust λ.
+- Type a query and press Enter. Results are scored; click to expand/collapse passages. History logs each search.
+
+---
+<br/>
+
+## Case studies
 
 Because IVFPQ inevitably sacrifices accuracy, we introduce Exact Search as an optional reranking mode. On top of ANN, we employ GritLM to compute exact similarities between queries and passage embeddings, which are then used to rerank top-k passages. As shown in our evaluation results (Table 1), Exact Search effectively enhances accuracy across all five tasks. On a cold start, embedding the results can be slow, so we've built an embedding cache to allow ~1000ms latency on similar queries in Exact Search.
 
@@ -78,16 +86,24 @@ During search, DS SERVE initially fetches a very large pool of K candidates (K =
   <img src="failure mode.png" style="width: 80%;" />
 </p>
 
+<p align="left"><i>Table 1: Evaluation of DS SERVE on five established benchmarks. ‘Acc’ is accuracy (%), and t is end-to-end retrieval latency (s). For Exact Search, we report t without cache and tcache with cache. We use K = 1000, k = 10, and nprobe = 256 for all tasks.</i></p>
+
+<p align="center">
+  <img src="table.png" style="width: 80%;" />
+</p>
+
 ---
 <br/>
 
-<h2 align="center">How DS Serve Works</h2>
+## Technical design
 
-- **Backbone**: FAISS IVFPQ index for billion-scale ANN search
-- **On-disk scale**: DiskANN integration for high QPS with low RAM
-- **Passage lookup**: position arrays map FAISS ids back to text shards
-- **Reranking**: optional Exact (accuracy) and Diverse (coverage) modes
-- **Controls**: tunable nprobe, exact/diverse toggles, λ for MMR, etc.
+### Search Modes
+
+**Approximate Nearest Neighbor (ANN) Search**: ANN is the backbone of DS Serve. In particular, DS Serve incorporates FAISS IVFPQ, which reduces memory usage and latency by partitioning the vector space into clusters and avoiding full comparisons. In our setting, the ANN backbone supports inference within 200 ms at ~100GB memory overhead.
+
+**Exact Search**: Because IVFPQ inevitably sacrifices accuracy, we introduce Exact Search as an optional reranking mode. On top of ANN, we employ GritLM to compute exact similarities between queries and passage embeddings, which are then used to rerank top-k passages. As shown in our evaluation results (Table 1), Exact Search effectively enhances accuracy across all five tasks. On a cold start, embedding the results can be slow, so we’ve built an embedding cache to allow ~1000ms latency on similar queries in Exact Search.
+
+**Diversity Search**: Search results often suffer from information overlap, like nearly identical text chunks, so we offer a Diverse Search option to improve overall coverage of the results. To do this, we apply maximal marginal relevance (MMR) on candidates returned by ANN to penalize redundant information. In our use cases, we find Diverse Search substantially improves user experience by eliminating redundant texts.
 
 ---
 <br/>

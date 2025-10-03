@@ -20,11 +20,11 @@
             padding-bottom: 10px;
         }
         h2 { 
-            color: #34495e; 
+            color: #2f3d59; 
             margin-top: 30px;
         }
         h3 { 
-            color: #7f8c8d; 
+            color: #2f4a73; 
             margin-top: 25px;
         }
         code { 
@@ -69,16 +69,38 @@
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
+        .cta-links { margin: 10px 0 0; }
+        .cta-links a {
+            display: inline-block;
+            margin: 6px 6px 0;
+            padding: 8px 12px;
+            border: 1px solid #3498db;
+            border-radius: 6px;
+            color: #3498db;
+            text-decoration: none;
+            font-weight: 600;
+            background: #f0f8ff;
+        }
+        .cta-links a:hover { background: #e6f3ff; }
     </style>
 </head>
 <body>
+    <div class='top-tabs' style="text-align:center; margin: 10px 0 0;">
+        <a href="index.md?cb=" class="tab-link" style="display:inline-block;margin:0 8px;padding:6px 10px;border:1px solid #ddd;border-radius:6px;text-decoration:none;color:#333;">Home</a>
+        <a href="api_doc.md" class="tab-link" style="display:inline-block;margin:0 8px;padding:6px 10px;border:1px solid #ddd;border-radius:6px;text-decoration:none;color:#333;">API Endpoint</a>
+        <a href="pkg_doc.md" class="tab-link" style="display:inline-block;margin:0 8px;padding:6px 10px;border:1px solid #ddd;border-radius:6px;text-decoration:none;color:#333;">Python Package</a>
+        <a href="docs.md" class="tab-link" style="display:inline-block;margin:0 8px;padding:6px 10px;border:1px solid #ddd;border-radius:6px;text-decoration:none;color:#333;">Docs</a>
+        <a href="https://github.com/Berkeley-Large-RAG/RAG-DS-Serve" class="tab-link" style="display:inline-block;margin:0 8px;padding:6px 10px;border:1px solid #ddd;border-radius:6px;text-decoration:none;color:#333;">Code</a>
+        <a href="paper.md" class="tab-link" style="display:inline-block;margin:0 8px;padding:6px 10px;border:1px solid #ddd;border-radius:6px;text-decoration:none;color:#333;">Paper</a>
+    </div>
     <div id='content'></div>
     <script>
         // Load markdown content from the actual file
-        fetch('blog.md')
+        fetch('index.md?cb=' + Date.now())
             .then(response => response.text())
             .then(markdown => {
-                document.getElementById('content').innerHTML = marked.parse(markdown);
+                const cleaned = markdown.replace(/^---[\s\S]*?---\s*/, '');
+                document.getElementById('content').innerHTML = marked.parse(cleaned);
             })
             .catch(error => {
                 console.error('Error loading markdown:', error);
