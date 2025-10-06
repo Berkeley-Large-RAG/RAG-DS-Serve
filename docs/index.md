@@ -10,9 +10,9 @@ title: DS Serve
 
 <p align="center">[<a href="https://tinyurl.com/compact-ds-dive">Web Interface</a>] [<a href="{{ site.baseurl }}/API_DOCUMENTATION.html">API Endpoint</a>] [<a href="{{ site.baseurl }}/README.html">Server & CLI</a>] [<a href="{{ site.baseurl }}/VOTES_DOCUMENTATION.html">Voting System</a>] [<a href="https://github.com/Berkeley-Large-RAG/RAG-DS-Serve">Code</a>] [<a href="https://openreview.net/forum?id=nQBZKcF2bo">Paper</a>]</p>
 
-**[✨NEW]** DiskANN integration: ~1000 QPS at 500B-token scale with low RAM.
+<!-- **[✨NEW]** DiskANN integration: ~1000 QPS at 500B-token scale with low RAM.
 
-**[✨NEW]** Exact + Diverse modes: tune accuracy–diversity–latency on demand.
+**[✨NEW]** Exact + Diverse modes: tune accuracy–diversity–latency on demand. -->
 
 ---
 <br/>
@@ -20,6 +20,10 @@ title: DS Serve
 ## Overview
 
 We introduce DS Serve, a framework that transforms large-scale text corpus into a high-performance neural retrieval system, aka search engines without daunting hardware requirements. DS Serve achieves low latency with modest memory overhead, and it also supports inference time tradeoff across accuracy, diversity, and latency.
+
+To the best of our knowledge, **DS Serve** is the **largest datastore** (~**500B tokens**, ~**2B vectors**, ~**5T vector embeddings**) in the public domain that provides **free and high-performance neural retrieval endpoints**.  
+We can offer **<100 ms latency** and handle **>1000 QPS**, enabling accurate search over a **pre-trained-scale datastore**.  
+For deployment, everyone can clone our **codebase and index**, and run it using **under 200 GB RAM** without any GPU.
 
 <p align="left"><i>Figure 1: DS SERVE converts a large dataset into a neural retrieval system: a query q retrieves relevant text via ANN, optionally reranks with exact and/or diverse search, and returns the top-k chunks with voting options for user feedback.</i></p>
 

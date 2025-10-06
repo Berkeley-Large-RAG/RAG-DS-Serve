@@ -23,7 +23,13 @@ This repository contains the Compact‑DS Dive Public API and server code. It ex
 cat massiveds-pubmed--passages7_00.pkl_{aa,ab,ac,ad,ae,af,ag,ah,ai} \
   > massiveds-pubmed--passages7_00.pkl
 ```
+### 0) Prepare the repo
 
+```
+git clone https://github.com/Berkeley-Large-RAG/RAG-DS-Serve.git 
+cd RAG-DS-Serve
+git submodule update --init --recursive
+```
 
 ### 1) Download the dataset/index from Hugging Face
 
