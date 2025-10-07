@@ -1,3 +1,22 @@
+
+// Add styles at the top
+<style>
+body {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  font-size: 18px;
+  line-height: 1.6;
+}
+h2 {
+  font-size: 28px;
+}
+p {
+  font-size: 18px;
+}
+</style>
+
 # Compact-DS Dive Documentation
 
 ## 🚀 Overview

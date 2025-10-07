@@ -25,6 +25,7 @@ p {
   border-radius: 5px;
   margin-bottom: 30px;
   overflow: hidden; /* Connects buttons seamlessly */
+  align-items: center; /* Vertically center items */
 }
 .nav-buttons a {
   background-color: transparent; /* Remove individual backgrounds */
@@ -44,6 +45,7 @@ p {
 </style>
 
 <div class="nav-buttons">
+  <span style="padding: 12px 24px; font-weight: bold; font-size: 18px; border-right: 1px solid #ddd;">DS Serve</span>
   <a href="https://tinyurl.com/compact-ds-dive">Web Interface</a>
   <a href="{{ site.baseurl }}/API_DOCUMENTATION.html">API Endpoint</a>
   <a href="{{ site.baseurl }}/VOTES_DOCUMENTATION.html">Voting System</a>
@@ -74,7 +76,7 @@ For deployment, everyone can clone our **codebase and index**, and run it using 
 <p align="left"><i>Figure 1: DS SERVE converts a large dataset into a neural retrieval system: a query q retrieves relevant text via ANN, optionally reranks with exact and/or diverse search, and returns the top-k chunks with voting options for user feedback.</i></p>
 
 <p align="center">
-  <img src="Figure%201.png" style="width: 70%;" />
+  <img src="Figure 1.png" style="width: 70%;" />
 </p>
 
 **Key Performance**
