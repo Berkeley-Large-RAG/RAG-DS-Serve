@@ -18,6 +18,31 @@ h2 {
 p {
   font-size: 18px;
 }
+/* Code styling */
+pre {
+  background: #f6f8fa;
+  border: 1px solid #eaecef;
+  border-radius: 8px;
+  padding: 12px 14px;
+  overflow: auto;
+  margin: 12px 0;
+}
+code {
+  background: #f6f8fa;
+  border: 1px solid #eaecef;
+  border-radius: 4px;
+  padding: 0 4px;
+}
+pre code {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  font-size: 0.95em;
+}
+/* Table styling for param sections */
+table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+th, td { border: 1px solid #eaecef; padding: 8px 10px; text-align: left; }
+th { background: #fafbfc; }
 </style>
 
 # 🚀 Compact-DS Dive Documentation

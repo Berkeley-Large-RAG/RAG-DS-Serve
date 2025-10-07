@@ -3,13 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Compact-DS Dive</title>
+  <title>DS Serve</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body {
       font-family: 'Inter', sans-serif;
       background-color: #f7f9fc;
+    }
+    
+    /* Hide scrollbar on parameter panel */
+    #paramPanel {
+      scrollbar-width: none; /* Firefox */
+      -ms-overflow-style: none; /* IE and Edge */
+    }
+    #paramPanel::-webkit-scrollbar {
+      display: none; /* Chrome, Safari, Opera */
     }
     .rounded-highlight {
       background-color: #fff8b3;
@@ -147,19 +156,36 @@
       background: rgba(0,0,0,0.5) !important;
       z-index: 9999 !important;
     }
+
+    /* Typewriter caret for welcome headline while typing */
+    @keyframes caretBlink {
+      0%, 49% { opacity: 1; }
+      50%, 100% { opacity: 0; }
+    }
+    .typewriter-caret::after {
+      content: "";
+      display: inline-block;
+      width: 0.3ch;            /* wider block caret */
+      height: 0.95em;          /* near full line height */
+      background-color: #111827; /* black/gray-900 */
+      border-radius: 2px;      /* soften edges slightly */
+      margin-left: 4px;
+      animation: caretBlink 1s step-end infinite;
+      vertical-align: -0.1em;
+    }
   </style>
 </head>
 <body>
 
   <div id="welcomeMessage" class="absolute inset-0 flex flex-col items-center justify-center text-center px-2 sm:px-4 lg:px-6 text-gray-700 pointer-events-none">
     <img src="./styles/capsule.png" alt="Icon" class="w-24 h-24 sm:w-32 sm:h-32 lg:w-48 lg:h-48 xl:w-64 xl:h-64 mb-2 sm:mb-4 drop-pod-animation" />
-    <h2 class="text-lg sm:text-2xl lg:text-3xl xl:text-4xl font-bold mb-1 sm:mb-2">Dive into Compact-DS!</h2>
-    <p class="text-xs sm:text-sm lg:text-base text-gray-700">Query and cast your valuable vote for relevance!</p>
+    <h2 id="welcomeTitle" class="text-lg sm:text-2xl lg:text-3xl xl:text-4xl font-bold mb-1 sm:mb-2">Dive into DS Serve!</h2>
+    <p id="welcomeSubtitle" class="text-xs sm:text-sm lg:text-base text-gray-700">Query and cast your valuable vote for relevance!</p>
   </div>
 
   <!-- Centered Search Group -->
-  <div id="centeredSearchGroup" class="fixed bottom-2 sm:bottom-4 left-2 right-2 sm:left-4 sm:right-4 lg:left-[calc(25%+1rem)] flex justify-center pointer-events-none z-20 overflow-visible">
-    <div class="pointer-events-auto bg-white rounded-xl shadow-lg p-2 sm:p-3 lg:p-4 border w-full max-w-5xl overflow-visible">
+  <div id="centeredSearchGroup" class="fixed bottom-2 sm:bottom-4 left-0 right-0 lg:left-[25%] px-2 sm:px-4 flex justify-center pointer-events-none z-20 overflow-visible">
+    <div class="pointer-events-auto bg-white rounded-xl shadow-lg p-2 sm:p-3 lg:p-4 border w-full max-w-5xl mx-auto overflow-visible">
       <div class="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 lg:gap-3 justify-center">
         <div class="relative">
           <button id="toggleParamsBtn" class="text-xs sm:text-sm bg-gray-100 hover:bg-gray-200 px-2 sm:px-3 py-1 sm:py-2 rounded-md font-medium flex items-center gap-1">
@@ -172,7 +198,7 @@
             <span class="hidden sm:inline">Parameters</span>
             <span class="sm:hidden">Params</span>
           </button>
-          <div id="paramPanel" class="hidden absolute bottom-full left-2 right-2 sm:left-auto sm:right-auto mb-2 bg-white border rounded-lg shadow-lg p-2 sm:p-3 lg:p-4 w-auto sm:w-[320px] lg:w-[360px] space-y-1 sm:space-y-3 lg:space-y-4 max-h-[35vh] sm:max-h-[50vh] overflow-y-auto overflow-x-visible z-30">
+          <div id="paramPanel" class="hidden absolute bottom-full left-2 right-2 sm:left-auto sm:right-auto mb-2 bg-white border rounded-lg shadow-lg p-2 sm:p-3 lg:p-4 w-auto sm:w-[360px] lg:w-[400px] space-y-1 sm:space-y-3 lg:space-y-4 max-h-[35vh] sm:max-h-[50vh] overflow-y-auto overflow-x-hidden z-30">
             <!-- Help button (opens centered modal with all descriptions) -->
             <div class="flex justify-end mb-2">
               <button id="helpBtn" class="text-xs sm:text-sm bg-blue-100 hover:bg-blue-200 w-6 h-6 sm:w-8 sm:h-8 rounded-full font-medium flex items-center justify-center">
@@ -191,6 +217,10 @@
               <input type="number" id="k" min="1" max="1000" value="5" class="border rounded-md p-1 text-sm w-16 text-center">
             </div>
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
+              <label class="text-sm font-medium text-gray-700" title="Minimum passage length in words. Applied to big-K candidates before selecting top-k.">Min words</label>
+              <input type="number" id="minWords" min="0" value="30" class="border rounded-md p-1 text-sm w-16 text-center">
+            </div>
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
               <label class="text-sm font-medium text-gray-700">Exact Search</label>
               <button id="rerankToggle" class="toggle-switch disabled self-start sm:self-auto" data-exact-rerank>
                 <span class="toggle-switch-thumb"></span>
@@ -204,7 +234,7 @@
             </div>
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
               <label class="text-sm font-medium text-gray-700">λ (lambda)</label>
-              <div class="flex items-center gap-2 w-full sm:w-32 pr-2 sm:pr-0">
+              <div class="flex items-center gap-2 w-full sm:w-40 pr-2 sm:pr-1">
                 <input type="range" id="lambda" min="0" max="100" value="50" step="1" class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider" disabled>
                 <span id="lambdaValue" class="text-sm text-gray-600 w-10 text-right">0.50</span>
               </div>
@@ -254,8 +284,10 @@
   <!-- Main Content Area (adjusted for sidebar) -->
   <div class="flex-1 flex flex-col items-stretch ml-0 lg:ml-[25%]">
     <!-- Rounded Header -->
-    <header class="w-full bg-white border-b py-2 sm:py-3 px-3 sm:px-4 rounded-b-xl shadow-sm fixed top-0 left-0 lg:left-[25%] right-0 z-20">
-      <h1 class="text-lg sm:text-2xl lg:text-3xl font-bold text-gray-900">Compact-DS Dive</h1>
+    <header class="fixed top-0 left-0 right-0 z-20 bg-gradient-to-b from-white to-gray-50 border-b border-gray-200 shadow-sm">
+      <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-center">
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">DS Serve</h1>
+      </div>
     </header>
     
     <!-- Main results container that scrolls till the top edge -->
@@ -351,6 +383,10 @@
           <div class="p-3 bg-gray-50 rounded-lg border-l-4 border-teal-500">
             <span class="font-semibold text-teal-700">λ (lambda):</span> 
             <span class="text-gray-700">Diversity tradeoff parameter: higher for diversity, lower for relevance.</span>
+          </div>
+          <div class="p-3 bg-gray-50 rounded-lg border-l-4 border-teal-500">
+            <span class="font-semibold text-teal-700">Min words:</span> 
+            <span class="text-gray-700">Minimum passage length (in words). Applied on the big-K pool before picking top-k.</span>
           </div>
         </div>
       `;
@@ -523,6 +559,7 @@
         const useRerank = searchParams?.useRerank !== undefined ? searchParams.useRerank : document.getElementById('rerankToggle').classList.contains('enabled');
         const useDiverse = searchParams?.useDiverse !== undefined ? searchParams.useDiverse : document.getElementById('diverseToggle').classList.contains('enabled');
         const lambdaVal = searchParams?.lambdaVal || document.getElementById('lambda').value;
+        const minWords = searchParams?.minWords || document.getElementById('minWords').value;
         
         const isLongQuery = (query || '').length > 25; // fallback; actual collapse decided after measuring
         const safeQuery = escapeHtml(query || '');
@@ -561,6 +598,7 @@
             ${useRerank ? '<span class="bg-teal-100 text-teal-700 text-sm px-2 py-1 rounded-full">Exact Search</span>' : ''}
             ${useDiverse ? '<span class="bg-blue-100 text-blue-700 text-sm px-2 py-1 rounded-full">Diverse Search</span>' : ''}
             ${useDiverse ? `<span class="bg-blue-100 text-blue-700 text-sm px-2 py-1 rounded-full">λ: ${lambdaVal}</span>` : ''}
+            ${minWords ? `<span class="bg-gray-200 text-gray-700 text-sm px-2 py-1 rounded-full">min words: ${minWords}</span>` : ''}
             ${latency ? `<span class="bg-green-100 text-green-700 text-sm px-2 py-1 rounded-full flex items-center gap-1"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path></svg>${latency}s</span>` : ''}
           </div>
         `;
@@ -579,8 +617,15 @@
           const div = document.createElement('div');
           div.className = 'bg-white p-3 sm:p-4 rounded-2xl shadow-md mb-3 sm:mb-4 relative overflow-hidden';
           div.setAttribute('data-passage-id', p.index_id || i);
+          // Prefer per-passage scores: exact score (when exact search), else retrieval score (ANN)
+          let scoreText = '';
+          if (typeof p["exact score"] === 'number') {
+            scoreText = ` • Exact Score: <span class='font-medium text-blue-600'>${p["exact score"].toFixed(8)}</span>`;
+          } else if (typeof p["retrieval score"] === 'number') {
+            scoreText = ` • ANN Score: <span class='font-medium text-blue-600'>${p["retrieval score"].toFixed(8)}</span>`;
+          }
           div.innerHTML = `
-            <div class='text-sm text-gray-600 mb-2'>#${i + 1} • Source: <span class='font-medium'>${p.source || 'unknown'}</span>${data?.results?.scores?.[0]?.[i] ? ` • Score: <span class='font-medium text-blue-600'>${data.results.scores[0][i].toFixed(8)}</span> <span class='text-xs text-gray-500'> </span>` : ''}</div>
+            <div class='text-sm text-gray-600 mb-2'>#${i + 1} • Source: <span class='font-medium'>${p.source || 'unknown'}</span>${scoreText}</div>
             <div class='text-gray-900 leading-relaxed mb-4 whitespace-pre-wrap break-words' data-original-raw="${p.text.replace(/"/g, '&quot;')}">${escapeHtml(p.text)}</div>
             
             <!-- Show More/Less Section -->
@@ -722,6 +767,7 @@
       const query = candidate.replace(/\r\n|\r/g, "\n").trim();
       const nprobe = document.getElementById('nprobe').value;
       const k = document.getElementById('k').value;
+      const minWords = document.getElementById('minWords').value;
       const useRerank = document.getElementById('rerankToggle').classList.contains('enabled');
       const useDiverse = document.getElementById('diverseToggle').classList.contains('enabled');
       const lambdaVal = parseFloat(document.getElementById('lambda').value) / 100;
@@ -764,7 +810,8 @@
             // use_diverse: useDiverse,  // ORIGINAL - commented out
             exact_search: useRerank,
             diverse_search: useDiverse,
-            lambda: lambdaVal
+            lambda: lambdaVal,
+            min_words: parseInt(minWords)
           })
         });
         
@@ -775,11 +822,11 @@
         container.innerHTML = '';
         
                  if (addToHist) {
-           const searchParams = { nprobe, k, useRerank, useDiverse, lambdaVal };
+           const searchParams = { nprobe, k, useRerank, useDiverse, lambdaVal, minWords };
            addToHistory(query, data, searchParams, latency);
          }
          
-         displayResults(data, query, { nprobe, k, useRerank, useDiverse, lambdaVal }, latency);
+         displayResults(data, query, { nprobe, k, useRerank, useDiverse, lambdaVal, minWords }, latency);
         
       } catch (err) {
         container.innerHTML = '<div class="text-red-500 text-sm">Error fetching result.</div>';
@@ -1068,15 +1115,13 @@
       const escapedExpanded = escapeHtml(expandedText);
       const escapedOriginal = escapeHtml(originalText);
 
-      // Attempt exact substring match
       if (escapedExpanded.includes(escapedOriginal)) {
         return escapedExpanded.replace(
           escapedOriginal,
-          `<span class="border-b-2 border-green-500">${escapedOriginal}</span>`
+          `<span class="rounded-highlight">${escapedOriginal}</span>`
         );
       }
 
-      // Fallback: do not highlight
       console.warn("Exact match for original passage not found in expanded text");
       return escapedExpanded;
     }
@@ -1085,7 +1130,7 @@
     function highlightOriginalTextOptimized(expandedText, originalText) {
       // Early exit if texts are identical
       if (expandedText === originalText) {
-        return `<span class="border-b-2 border-green-500">${escapeHtml(originalText)}</span>`;
+        return `<span class="rounded-highlight">${escapeHtml(originalText)}</span>`;
       }
       
       // Quick check if original text is contained in expanded text
@@ -1100,7 +1145,7 @@
       if (escapedExpanded.includes(escapedOriginal)) {
         return escapedExpanded.replace(
           escapedOriginal,
-          `<span class="border-b-2 border-green-500">${escapedOriginal}</span>`
+          `<span class="rounded-highlight">${escapedOriginal}</span>`
         );
       }
       
@@ -1120,15 +1165,15 @@
         // Close sidebar
         sidebar.classList.add('-translate-x-full');
         menuToggle.style.transform = 'translateX(0)';
-        searchGroup.style.left = '0.5rem';
-        searchGroup.style.right = '0.5rem';
+        // Reposition search group for mobile overlay state
+        adjustSearchGroupPosition();
       } else {
         // Open sidebar
         sidebar.classList.remove('-translate-x-full');
         const sidebarWidth = sidebar.offsetWidth;
         menuToggle.style.transform = `translateX(${sidebarWidth}px)`;
-        searchGroup.style.left = `${sidebarWidth + 8}px`;
-        searchGroup.style.right = '0.5rem';
+        // Reposition search group for mobile overlay state
+        adjustSearchGroupPosition();
       }
     });
 
@@ -1136,12 +1181,11 @@
     document.getElementById('sidebarCloseBtn').addEventListener('click', () => {
       const sidebar = document.getElementById('historySidebar');
       const menuToggle = document.getElementById('mobileMenuToggle');
-      const searchGroup = document.getElementById('centeredSearchGroup');
       
       sidebar.classList.add('-translate-x-full');
       menuToggle.style.transform = 'translateX(0)';
-      searchGroup.style.left = '0.5rem';
-      searchGroup.style.right = '0.5rem';
+      // Ensure search group recenters when sidebar closes
+      adjustSearchGroupPosition();
     });
 
     // Close sidebar when clicking outside on mobile
@@ -1156,8 +1200,7 @@
           !sidebar.classList.contains('-translate-x-full')) {
         sidebar.classList.add('-translate-x-full');
         menuToggle.style.transform = 'translateX(0)';
-        searchGroup.style.left = '0.5rem';
-        searchGroup.style.right = '0.5rem';
+        adjustSearchGroupPosition();
       }
     });
 
@@ -1200,6 +1243,50 @@
       if (welcomeMessage) welcomeMessage.style.display = 'flex';
       if (centeredSearchGroup) centeredSearchGroup.style.display = 'flex';
 
+      // Typewriter effect for welcome title/subtitle (repeats every 8s)
+      try {
+        const titleEl = document.getElementById('welcomeTitle');
+        const subtitleEl = document.getElementById('welcomeSubtitle');
+        if (titleEl && subtitleEl) {
+          const fullTitle = titleEl.getAttribute('data-full') || titleEl.textContent || '';
+          const fullSub = subtitleEl.getAttribute('data-full') || subtitleEl.textContent || '';
+          titleEl.setAttribute('data-full', fullTitle);
+          subtitleEl.setAttribute('data-full', fullSub);
+
+          const type = (el, text, speed=35) => new Promise((resolve) => {
+            let i = 0;
+            const step = () => {
+              if (i <= text.length) {
+                el.textContent = text.slice(0, i);
+                i += 1;
+                setTimeout(step, speed);
+              } else {
+                resolve();
+              }
+            };
+            step();
+          });
+
+          const runTypewriter = async () => {
+            // reset
+            titleEl.classList.remove('typewriter-caret');
+            subtitleEl.classList.remove('typewriter-caret');
+            titleEl.textContent = '';
+            subtitleEl.textContent = '';
+            // type title then subtitle
+            titleEl.classList.add('typewriter-caret');
+            await type(titleEl, fullTitle, 28);
+            titleEl.classList.remove('typewriter-caret');
+            subtitleEl.classList.add('typewriter-caret');
+            await type(subtitleEl, fullSub, 24);
+            subtitleEl.classList.remove('typewriter-caret');
+          };
+
+          runTypewriter();
+          setInterval(runTypewriter, 24001);
+        }
+      } catch (_) { /* no-op */ }
+
       // Wire help button
       const helpBtn = document.getElementById('helpBtn');
       if (helpBtn) {
@@ -1223,6 +1310,9 @@
       // Position parameter panel on load and resize
       positionParamPanel();
       window.addEventListener('resize', positionParamPanel);
+      // Adjust search group position on load and resize
+      adjustSearchGroupPosition();
+      window.addEventListener('resize', adjustSearchGroupPosition);
       
       // Position panel when it becomes visible
       const toggleParamsBtn = document.getElementById('toggleParamsBtn');
@@ -1253,6 +1343,34 @@
         });
       }
     });
+
+    // Adjust the bottom search bar to avoid overlapping the sidebar on mobile
+    function adjustSearchGroupPosition() {
+      try {
+        const sidebar = document.getElementById('historySidebar');
+        const searchGroup = document.getElementById('centeredSearchGroup');
+        if (!sidebar || !searchGroup) return;
+
+        // On desktop, rely on lg:left-[25%] class (no inline overrides)
+        if (window.innerWidth >= 1024) {
+          searchGroup.style.left = '';
+          searchGroup.style.right = '';
+          return;
+        }
+
+        // On mobile/tablet, if sidebar is open, offset search bar to the right of it
+        const isSidebarOpen = !sidebar.classList.contains('-translate-x-full');
+        if (isSidebarOpen) {
+          const sidebarWidth = sidebar.offsetWidth || 0;
+          searchGroup.style.left = `${sidebarWidth}px`;
+          searchGroup.style.right = '0px';
+        } else {
+          // Reset to default centered full width
+          searchGroup.style.left = '';
+          searchGroup.style.right = '';
+        }
+      } catch (_) { /* no-op */ }
+    }
   </script>
 </body>
 </html>
