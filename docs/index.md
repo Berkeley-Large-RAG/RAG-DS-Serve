@@ -93,7 +93,7 @@ For deployment, everyone can clone our **codebase and index**, and run it using 
 <p align="left"><i>Figure 1: DS SERVE converts a large dataset into a neural retrieval system: a query q retrieves relevant text via ANN, optionally reranks with exact and/or diverse search, and returns the top-k chunks with voting options for user feedback.</i></p>
 
 <p align="center">
-  <img src="{{ 'Figure%201.png' | relative_url }}" style="width: 70%;" />
+  <img src="{{ 'Figure-1.png' | relative_url }}" style="width: 70%;" />
 </p>
 
 **Key Performance**
@@ -140,7 +140,7 @@ Because IVFPQ inevitably sacrifices accuracy, we introduce Exact Search as an op
 <p align="left"><i>Figure 2: Control panel with tunable parameters and tooltips.</i></p>
 
 <p align="center">
-  <img src="{{ 'parameter%20panel.png' | relative_url }}" style="width: 60%;" />
+  <img src="{{ 'parameter-panel.png' | relative_url }}" style="width: 60%;" />
 </p>
 
 Search results often suffer from information overlap, like nearly identical text chunks, so we offer a Diverse Search option to improve overall coverage of the results. To do this, we apply maximal marginal relevance (MMR) on candidates returned by ANN to penalize redundant information. In our use cases, we find Diverse Search substantially improves user experience by eliminating redundant texts.
@@ -152,7 +152,7 @@ During search, DS SERVE initially fetches a very large pool of K candidates (K =
 <p align="left"><i>Figure 3: Example failure mode and user guidance.</i></p>
 
 <p align="center">
-  <img src="{{ 'failure%20mode.png' | relative_url }}" style="width: 70%;" />
+  <img src="{{ 'failure-mode.png' | relative_url }}" style="width: 70%;" />
 </p>
 
 <p align="left"><i>Table 1: Evaluation of DS SERVE on five established benchmarks. ‘Acc’ is accuracy (%), and t is end-to-end retrieval latency (s). For Exact Search, we report t without cache and tcache with cache. We use K = 1000, k = 10, and nprobe = 256 for all tasks.</i></p>
