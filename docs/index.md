@@ -115,6 +115,7 @@ Additionally, our framework enables you to convert your **in-house large-scale d
 - **DiskANN-powered serving:** Achieve **~1000 QPS** on a **500B-token** scale — all with a **minimal RAM footprint** ⚙️  
 - **Swap your Serper API** for the **CompactDS API** — it’s **free** and delivers **10× higher throughput!** 🚀  
 - **Fine-tune your results** by toggling between **Exact** and **Diverse** search modes 🔍  
+
 ---
 <br/>
 
