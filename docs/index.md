@@ -60,8 +60,8 @@ p { font-size: 18px; margin: 6px 0; }
   <div class="nav-inner">
     <span class="brand">DS Serve</span>
     <a class="nav-link" href="https://tinyurl.com/compact-ds-dive">Web Interface</a>
-    <a class="nav-link" href="{{ 'API_DOCUMENTATION.md' | relative_url }}">API Endpoint</a>
-    <a class="nav-link" href="{{ 'VOTES_DOCUMENTATION.md' | relative_url }}">Voting System</a>
+    <a class="nav-link" href="{{ 'API_DOCUMENTATION.html' | relative_url }}">API Endpoint</a>
+    <a class="nav-link" href="{{ 'VOTES_DOCUMENTATION.html' | relative_url }}">Voting System</a>
     <a class="nav-link" href="https://github.com/Berkeley-Large-RAG/RAG-DS-Serve">Code</a>
     <a class="nav-link" href="https://openreview.net/forum?id=nQBZKcF2bo">Paper</a>
   </div>
