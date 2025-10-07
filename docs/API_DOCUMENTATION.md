@@ -1,5 +1,8 @@
+---
+layout: page
+title: API Documentation
+---
 
-// Add styles at the top
 <style>
 body {
   max-width: 800px;

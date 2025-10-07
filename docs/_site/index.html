@@ -70,7 +70,7 @@ p { font-size: 18px; margin: 6px 0; }
 <p align="center"><sup>1</sup>University of California, Berkeley <sup>2</sup>University of Illinois Urbana–Champaign <sup>3</sup>University of Washington</p>
 <p align="center" class="small-note"><sup>*</sup>Equal contribution.</p>
 
-<p class="bracket-links">[<a href="https://tinyurl.com/compact-ds-dive">Web Interface</a>] [<a href="/RAG-DS-Serve/API_DOCUMENTATION.md">API Endpoint</a>] [<a href="/RAG-DS-Serve/VOTES_DOCUMENTATION.md">Voting System</a>] [<a href="https://github.com/Berkeley-Large-RAG/RAG-DS-Serve">Code</a>] [<a href="https://openreview.net/forum?id=nQBZKcF2bo">Paper</a>]</p>
+<p class="bracket-links">[<a href="https://tinyurl.com/compact-ds-dive">Web Interface</a>] [<a href="/RAG-DS-Serve/API_DOCUMENTATION.html">API Endpoint</a>] [<a href="/RAG-DS-Serve/VOTES_DOCUMENTATION.html">Voting System</a>] [<a href="https://github.com/Berkeley-Large-RAG/RAG-DS-Serve">Code</a>] [<a href="https://openreview.net/forum?id=nQBZKcF2bo">Paper</a>]</p>
 
 <!-- **[✨NEW]** DiskANN integration: ~1000 QPS at 500B-token scale with low RAM.
 
@@ -90,7 +90,7 @@ For deployment, everyone can clone our <strong>codebase and index</strong>, and 
 <p align="left"><i>Figure 1: DS SERVE converts a large dataset into a neural retrieval system: a query q retrieves relevant text via ANN, optionally reranks with exact and/or diverse search, and returns the top-k chunks with voting options for user feedback.</i></p>
 
 <p align="center">
-  <img src="/RAG-DS-Serve/Figure-1.png" style="width: 70%;" />
+  <img src="/RAG-DS-Serve/Figure%201.png" style="width: 70%;" />
 </p>
 
 <p><strong>Key Performance</strong></p>
@@ -145,7 +145,7 @@ For deployment, everyone can clone our <strong>codebase and index</strong>, and 
 <p align="left"><i>Figure 2: Control panel with tunable parameters and tooltips.</i></p>
 
 <p align="center">
-  <img src="/RAG-DS-Serve/parameter-panel.png" style="width: 60%;" />
+  <img src="/RAG-DS-Serve/parameter%20panel.png" style="width: 60%;" />
 </p>
 
 <p>Search results often suffer from information overlap, like nearly identical text chunks, so we offer a Diverse Search option to improve overall coverage of the results. To do this, we apply maximal marginal relevance (MMR) on candidates returned by ANN to penalize redundant information. In our use cases, we find Diverse Search substantially improves user experience by eliminating redundant texts.</p>
@@ -157,7 +157,7 @@ For deployment, everyone can clone our <strong>codebase and index</strong>, and 
 <p align="left"><i>Figure 3: Example failure mode and user guidance.</i></p>
 
 <p align="center">
-  <img src="/RAG-DS-Serve/failure-mode.png" style="width: 70%;" />
+  <img src="/RAG-DS-Serve/failure%20mode.png" style="width: 70%;" />
 </p>
 
 <p align="left"><i>Table 1: Evaluation of DS SERVE on five established benchmarks. ‘Acc’ is accuracy (%), and t is end-to-end retrieval latency (s). For Exact Search, we report t without cache and tcache with cache. We use K = 1000, k = 10, and nprobe = 256 for all tasks.</i></p>
