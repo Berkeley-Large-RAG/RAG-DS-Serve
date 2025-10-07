@@ -1,0 +1,168 @@
+<article class="post">
+  <div class="post-content">
+    <style>
+body {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  font-size: 18px; /* Larger base font for readability */
+  line-height: 1.6;
+}
+h2 {
+  font-size: 28px; /* Bigger headings */
+}
+p {
+  font-size: 18px;
+}
+.nav-buttons {
+  display: flex;
+  justify-content: center;
+  background-color: #f0f0f0; /* Shared background to make them flow as one unit */
+  border-radius: 5px;
+  margin-bottom: 30px;
+  overflow: hidden; /* Connects buttons seamlessly */
+}
+.nav-buttons a {
+  background-color: transparent; /* Remove individual backgrounds */
+  padding: 12px 24px; /* Slightly larger padding */
+  text-decoration: none;
+  color: black;
+  font-weight: bold;
+  font-size: 16px; /* Clear, readable button text */
+  border-right: 1px solid #ddd; /* Separators between buttons */
+}
+.nav-buttons a:last-child {
+  border-right: none; /* No separator on last button */
+}
+.nav-buttons a:hover {
+  background-color: #ddd;
+}
+</style>
+
+<div class="nav-buttons">
+  <a href="https://tinyurl.com/compact-ds-dive">Web Interface</a>
+  <a href="/RAG-DS-Serve/API_DOCUMENTATION.html">API Endpoint</a>
+  <a href="/RAG-DS-Serve/VOTES_DOCUMENTATION.html">Voting System</a>
+  <a href="https://github.com/Berkeley-Large-RAG/RAG-DS-Serve">Code</a>
+  <a href="https://openreview.net/forum?id=nQBZKcF2bo">Paper</a>
+</div>
+
+<h2 align="center">🚀 <b>DS SERVE: A Framework for Efficient and Scalable Neural Retrieval</b></h2>
+
+<p align="center">Jinjian Liu<sup>1*</sup>, Yichuan Wang<sup>1*</sup>, Xinxi Lyu<sup>2</sup>, Rulin Shao<sup>3</sup>, Joseph E. Gonzalez<sup>1</sup>, Matei Zaharia<sup>1</sup>, Sewon Min<sup>1</sup></p>
+<p align="center"><sup>1</sup>University of California, Berkeley <sup>2</sup>University of Illinois Urbana–Champaign <sup>3</sup>University of Washington</p>
+
+<!-- **[✨NEW]** DiskANN integration: ~1000 QPS at 500B-token scale with low RAM.
+
+**[✨NEW]** Exact + Diverse modes: tune accuracy–diversity–latency on demand. -->
+
+<hr />
+<p><br /></p>
+
+<h2 id="overview">Overview</h2>
+
+<p>We introduce DS Serve, a framework that transforms large-scale text corpus into a high-performance neural retrieval system, aka search engines without daunting hardware requirements. DS Serve achieves low latency with modest memory overhead, and it also supports inference time tradeoff across accuracy, diversity, and latency.</p>
+
+<p>To the best of our knowledge, <strong>DS Serve</strong> is the <strong>largest datastore</strong> (~<strong>500B tokens</strong>, ~<strong>2B vectors</strong>, ~<strong>5T vector embeddings</strong>) in the public domain that provides <strong>free and high-performance neural retrieval endpoints</strong>.<br />
+We can offer <strong>&lt;100 ms latency</strong> and handle <strong>&gt;1000 QPS</strong>, enabling accurate search over a <strong>pre-trained-scale datastore</strong>.<br />
+For deployment, everyone can clone our <strong>codebase and index</strong>, and run it using <strong>under 200 GB RAM</strong> without any GPU.</p>
+
+<p align="left"><i>Figure 1: DS SERVE converts a large dataset into a neural retrieval system: a query q retrieves relevant text via ANN, optionally reranks with exact and/or diverse search, and returns the top-k chunks with voting options for user feedback.</i></p>
+
+<p align="center">
+  <img src="Figure%201.png" style="width: 70%;" />
+</p>
+
+<p><strong>Key Performance</strong></p>
+<ul>
+  <li>DiskANN-backed serving: ~1000 QPS at 500B-token scale with low RAM footprint</li>
+  <li>FAISS IVFPQ backbone: ~200 ms inference at ~100 GB memory overhead</li>
+  <li>Toggle accuracy/diversity with Exact and Diverse search options</li>
+</ul>
+
+<hr />
+<p><br /></p>
+
+<h2 id="use-cases">Use cases</h2>
+
+<p>We use DS Serve for fast, controllable retrieval in RAG and search applications.</p>
+
+<h3 id="application">Application</h3>
+
+<p>It’s actively useful for:</p>
+<ol>
+  <li><strong>Data attribution &amp; curation</strong>: semantic search beyond keyword overlap; complements tools like OLMoTrace</li>
+  <li><strong>Training search agents</strong>: fully controllable latency–accuracy tradeoffs without external rate limits</li>
+  <li><strong>Advancing search quality</strong>: excels on longer, complex queries where keyword engines falter</li>
+</ol>
+
+<p>Beyond these, DS Serve helps with:</p>
+<ol>
+  <li><strong>Understanding corpora</strong> and building tailored subsets</li>
+  <li><strong>Reducing redundancy</strong> via diversity-aware reranking (MMR)</li>
+  <li><strong>Collecting realistic benchmarks</strong> through built-in voting</li>
+</ol>
+
+<hr />
+<p><br /></p>
+
+<h2 id="user-guide">User guide</h2>
+
+<h3 id="quick-walkthrough">Quick walkthrough</h3>
+
+<ul>
+  <li>Use the control panel to set <code class="language-plaintext highlighter-rouge">nprobe</code>, enable Exact or Diverse search, and adjust λ.</li>
+  <li>Type a query and press Enter. Results are scored; click to expand/collapse passages. History logs each search.</li>
+</ul>
+
+<hr />
+<p><br /></p>
+
+<h2 id="case-studies">Case studies</h2>
+
+<p>Because IVFPQ inevitably sacrifices accuracy, we introduce Exact Search as an optional reranking mode. On top of ANN, we employ GritLM to compute exact similarities between queries and passage embeddings, which are then used to rerank top-k passages. As shown in our evaluation results (Table 1), Exact Search effectively enhances accuracy across all five tasks. On a cold start, embedding the results can be slow, so we’ve built an embedding cache to allow ~1000ms latency on similar queries in Exact Search.</p>
+
+<p align="left"><i>Figure 2: Control panel with tunable parameters and tooltips.</i></p>
+
+<p align="center">
+  <img src="parameter panel.png" style="width: 60%;" />
+</p>
+
+<p>Search results often suffer from information overlap, like nearly identical text chunks, so we offer a Diverse Search option to improve overall coverage of the results. To do this, we apply maximal marginal relevance (MMR) on candidates returned by ANN to penalize redundant information. In our use cases, we find Diverse Search substantially improves user experience by eliminating redundant texts.</p>
+
+<p>For queries that are less common or rely on very recent knowledge — for example “Jensen Huang” — the datastore may only contain a handful of truly relevant passages, due to its frozen state. In these situations, Exact Search performs well because it prioritizes those relevant results at the top. By contrast, Diverse Search doesn’t necessarily improve performance since it risks surfacing less accurate passages when there aren’t enough strong candidates to begin with.</p>
+
+<p>During search, DS SERVE initially fetches a very large pool of K candidates (K = 1000), so it always easily fills the top-k (e.g. k = 5) passage list. On the very rare occasion that retrieval does fail, a clear alert message pops up to give informative suggestions for the user.</p>
+
+<p align="left"><i>Figure 3: Example failure mode and user guidance.</i></p>
+
+<p align="center">
+  <img src="failure mode.png" style="width: 70%;" />
+</p>
+
+<p align="left"><i>Table 1: Evaluation of DS SERVE on five established benchmarks. ‘Acc’ is accuracy (%), and t is end-to-end retrieval latency (s). For Exact Search, we report t without cache and tcache with cache. We use K = 1000, k = 10, and nprobe = 256 for all tasks.</i></p>
+
+<p align="center">
+  <img src="table.png" style="width: 80%;" />
+</p>
+
+<hr />
+<p><br /></p>
+
+<h2 id="technical-design">Technical design</h2>
+
+<h3 id="search-modes">Search Modes</h3>
+
+<p><strong>Approximate Nearest Neighbor (ANN) Search</strong>: ANN is the backbone of DS Serve. In particular, DS Serve incorporates FAISS IVFPQ, which reduces memory usage and latency by partitioning the vector space into clusters and avoiding full comparisons. In our setting, the ANN backbone supports inference within 200 ms at ~100GB memory overhead.</p>
+
+<p><strong>Exact Search</strong>: Because IVFPQ inevitably sacrifices accuracy, we introduce Exact Search as an optional reranking mode. On top of ANN, we employ GritLM to compute exact similarities between queries and passage embeddings, which are then used to rerank top-k passages. As shown in our evaluation results (Table 1), Exact Search effectively enhances accuracy across all five tasks. On a cold start, embedding the results can be slow, so we’ve built an embedding cache to allow ~1000ms latency on similar queries in Exact Search.</p>
+
+<p><strong>Diversity Search</strong>: Search results often suffer from information overlap, like nearly identical text chunks, so we offer a Diverse Search option to improve overall coverage of the results. To do this, we apply maximal marginal relevance (MMR) on candidates returned by ANN to penalize redundant information. In our use cases, we find Diverse Search substantially improves user experience by eliminating redundant texts.</p>
+
+<hr />
+<p><br /></p>
+
+
+  </div>
+</article>
