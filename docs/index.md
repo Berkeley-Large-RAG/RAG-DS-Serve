@@ -3,12 +3,46 @@ layout: page
 title: DS Serve
 ---
 
+<style>
+body {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+.nav-buttons {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.nav-buttons a {
+  background-color: #f0f0f0;
+  padding: 10px 20px;
+  margin: 5px;
+  text-decoration: none;
+  color: black;
+  border-radius: 5px;
+  font-weight: bold;
+}
+.nav-buttons a:hover {
+  background-color: #ddd;
+}
+</style>
+
 <h2 align="center">🚀 <b>DS SERVE: A Framework for Efficient and Scalable Neural Retrieval</b></h2>
 
 <p align="center">Jinjian Liu<sup>1*</sup>, Yichuan Wang<sup>1*</sup>, Xinxi Lyu<sup>2</sup>, Rulin Shao<sup>3</sup>, Joseph E. Gonzalez<sup>1</sup>, Matei Zaharia<sup>1</sup>, Sewon Min<sup>1</sup></p>
 <p align="center"><sup>1</sup>University of California, Berkeley <sup>2</sup>University of Illinois Urbana–Champaign <sup>3</sup>University of Washington</p>
 
-<p align="center">[<a href="https://tinyurl.com/compact-ds-dive">Web Interface</a>] [<a href="{{ site.baseurl }}/API_DOCUMENTATION.html">API Endpoint</a>] [<a href="{{ site.baseurl }}/README.html">Server & CLI</a>] [<a href="{{ site.baseurl }}/VOTES_DOCUMENTATION.html">Voting System</a>] [<a href="https://github.com/Berkeley-Large-RAG/RAG-DS-Serve">Code</a>] [<a href="https://openreview.net/forum?id=nQBZKcF2bo">Paper</a>]</p>
+<div class="nav-buttons">
+  <a href="https://tinyurl.com/compact-ds-dive">Web Interface</a>
+  <a href="{{ site.baseurl }}/API_DOCUMENTATION.html">API Endpoint</a>
+  <a href="{{ site.baseurl }}/README.html">Server & CLI</a>
+  <a href="{{ site.baseurl }}/VOTES_DOCUMENTATION.html">Voting System</a>
+  <a href="https://github.com/Berkeley-Large-RAG/RAG-DS-Serve">Code</a>
+  <a href="https://openreview.net/forum?id=nQBZKcF2bo">Paper</a>
+</div>
 
 <!-- **[✨NEW]** DiskANN integration: ~1000 QPS at 500B-token scale with low RAM.
 
