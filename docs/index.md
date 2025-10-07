@@ -69,9 +69,21 @@ p { font-size: 18px; margin: 6px 0; }
 
 <h2 align="center">🚀 <b>DS SERVE: A Framework for Efficient and Scalable Neural Retrieval</b></h2>
 
-<p align="center">Jinjian Liu<sup>1*</sup>, Yichuan Wang<sup>1*</sup>, Xinxi Lyu<sup>2</sup>, Rulin Shao<sup>3</sup>,<br/> Joseph E. Gonzalez<sup>1</sup>, Matei Zaharia<sup>1</sup>, Sewon Min<sup>1</sup></p>
-<p align="center"><sup>1</sup>University of California, Berkeley <sup>2</sup>University of Illinois Urbana–Champaign <sup>3</sup>University of Washington</p>
-<p align="center" class="small-note"><sup>*</sup>Equal contribution.</p>
+<p align="center">
+  <a href="https://github.com/berkeleyljj" target="_blank">Jinjian Liu</a><sup>1*</sup>, 
+  <a href="https://yichuan-w.github.io/" target="_blank">Yichuan Wang</a><sup>1*</sup>, 
+  <a href="https://alrope123.github.io/" target="_blank">Xinxi Lyu</a><sup>2</sup>, 
+  <a href="https://rulinshao.github.io/" target="_blank">Rulin Shao</a><sup>3</sup>,<br/>
+  <a href="https://joeygonzalez.com/" target="_blank">Joseph E. Gonzalez</a><sup>1</sup>, 
+  <a href="https://people.eecs.berkeley.edu/~matei/" target="_blank">Matei Zaharia</a><sup>1</sup>, 
+  <a href="https://www.sewonmin.com/" target="_blank">Sewon Min</a><sup>1</sup>
+</p>
+<p align="center">
+  <sup>1</sup>University of California, Berkeley &nbsp;
+  <sup>2</sup>University of Illinois Urbana–Champaign &nbsp;
+  <sup>3</sup>University of Washington
+</p>
+<p align="center"><sup>*</sup>Equal contribution.</p>
 
 <p class="bracket-links">[<a href="https://tinyurl.com/compact-ds-dive">Web Interface</a>] [<a href="{{ 'API_DOCUMENTATION.html' | relative_url }}">API Endpoint</a>] [<a href="{{ 'VOTES_DOCUMENTATION.html' | relative_url }}">Voting System</a>] [<a href="https://github.com/Berkeley-Large-RAG/RAG-DS-Serve">Code</a>] [<a href="https://openreview.net/forum?id=nQBZKcF2bo">Paper</a>]</p>
 
@@ -84,7 +96,9 @@ p { font-size: 18px; margin: 6px 0; }
 
 ## Overview
 
-We introduce DS Serve, a framework that transforms large-scale text corpus into a high-performance neural retrieval system, aka search engines without daunting hardware requirements. DS Serve achieves low latency with modest memory overhead, and it also supports inference time tradeoff across accuracy, diversity, and latency.
+We introduce **DS Serve**, a framework that transforms a large-scale text corpus into a high-performance neural retrieval system.
+
+In one word: **Retrieve** data from **trillion-scale**, **high-quality pre-trained datasets** — **blazing fast** ⚡ and **absolutely free!** 🚀
 
 To the best of our knowledge, **DS Serve** is the **largest datastore** (~**500B tokens**, ~**2B vectors**, ~**5T vector embeddings**) in the public domain that provides **free and high-performance neural retrieval endpoints**.  
 We can offer **<100 ms latency** and handle **>1000 QPS**, enabling accurate search over a **pre-trained-scale datastore**.  
@@ -97,10 +111,9 @@ For deployment, everyone can clone our **codebase and index**, and run it using 
 </p>
 
 **Key Performance**
-- DiskANN-backed serving: ~1000 QPS at 500B-token scale with low RAM footprint
-- FAISS IVFPQ backbone: ~200 ms inference at ~100 GB memory overhead
-- Toggle accuracy/diversity with Exact and Diverse search options
-
+- **DiskANN-powered serving:** Achieve **~1000 QPS** on a **500B-token** scale — all with a **minimal RAM footprint** ⚙️  
+- **Swap your Serper API** for the **CompactDS API** — it’s **free** and delivers **10× higher throughput!** 🚀  
+- **Fine-tune your results** by toggling between **Exact** and **Diverse** search modes 🔍  
 ---
 <br/>
 
