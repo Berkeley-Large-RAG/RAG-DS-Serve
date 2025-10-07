@@ -17,15 +17,15 @@ p {
 }
 </style>
 
-# Compact-DS Dive Documentation
+# 🚀 Compact-DS Dive Documentation
 
-## 🚀 Overview
+## 🌟 Overview
 
 **Compact-DS Dive** is a easy-to-use RAG UI backed by a billion-scale high-quality datastore. Compact-DS Dive combines approximate nearest neighbor (ANN) search with Exact and Diverse Search capabilities. This demo showcases flexible search techniques: configurable search parameters, different search options, history caching, and context expansion.
 
 **🌐 Live Demo**: [https://tinyurl.com/compact-ds-dive](https://tinyurl.com/compact-ds-dive)
 
-### Key Features
+### 🔑 Key Features
 - **Fast ANN Search**: Efficient approximate search using IVF-PQ indexing
 - **Exact Reranking**: Optional exact similarity computation for higher accuracy. Note: we integrated retrieval results caching, so similar queries will have lower delay only on the second Exact Search and afterwards.
 - **Diverse Results**: Configurable diversity to avoid similar passages.

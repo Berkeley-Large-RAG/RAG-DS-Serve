@@ -17,17 +17,17 @@ p {
 }
 </style>
 
-## Votes Storage and Usage Guide
+## 📊 Votes Storage and Usage Guide
 
 This document explains where votes are stored, what each file is for, the on-disk schemas, and how to query or maintain them.
 
-### Location
+### 📍 Location
 - Directory: by default `/home/ubuntu/votes` (override with env `VOTES_DIR`)
 - Files:
   - `votes.jsonl`: append-only audit log (one JSON per line)
   - `votes.sqlite3`: fast-lookup index (with `votes.sqlite3-wal` and `votes.sqlite3-shm` managed by SQLite WAL mode)
 
-### What gets stored per vote
+### 📝 What gets stored per vote
 - We record the user’s binary relevance vote for a passage, tied to a specific query and query config.
 - Query text is normalized (lowercased, trimmed, whitespace-collapsed) and hashed to avoid key fragmentation and save space.
 
@@ -52,7 +52,7 @@ Notes:
 - `query_hash = sha1(query_norm)`. We store `query_norm` in JSONL for readability and for reconstructing the original normalized text.
 - `config` is omitted if empty; `lambda` is omitted when `diverse_search` is false.
 
-#### SQLite index schema (for efficient lookup)
+#### 🔍 SQLite index schema (for efficient lookup)
 - Database file: `votes.sqlite3`
 - Tables:
 ```sql
@@ -83,7 +83,7 @@ Key idea: (query + config) → passage_id → latest relevance.
 - `ctx_hash` is `sha1(canonical_config_json)`; canonicalization includes only the compact fields above.
 - Latest vote wins via `INSERT OR REPLACE` on the `(query_hash, ctx_hash, passage_id)` primary key.
 
-### Posting a vote
+### 📤 Posting a vote
 ```bash
 curl -X POST http://localhost:30888/vote \
   -H 'Content-Type: application/json' \
@@ -95,7 +95,7 @@ curl -X POST http://localhost:30888/vote \
       }'
 ```
 
-### Looking up votes (SQLite examples)
+### 🔎 Looking up votes (SQLite examples)
 - All votes for a specific normalized query and config:
 ```sql
 -- First compute sha1(normalized_query) and ctx_hash (sha1 of canonical config JSON)
@@ -119,7 +119,7 @@ LIMIT 50;
 - `query_hash = sha1(normalized_query)` deduplicates trivial query variants.
 - `ctx_hash = sha1(canonical_config_json)` where the JSON includes only `nprobe`, `exact_search`, `diverse_search`, and optionally `lambda` when `diverse_search` is true, with sorted keys.
 
-### Maintenance
+### 🛠️ Maintenance
 - Checkpoint and compact the SQLite index:
 ```bash
 sqlite3 /home/ubuntu/votes/votes.sqlite3 "PRAGMA wal_checkpoint(FULL); VACUUM;"

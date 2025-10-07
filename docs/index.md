@@ -45,7 +45,7 @@ p {
 </style>
 
 <div class="nav-buttons">
-  <span style="padding: 12px 24px; font-weight: bold; font-size: 18px; border-right: 1px solid #ddd;">DS Serve</span>
+  <span style="padding: 12px 24px; font-weight: bold; font-size: 20px; background-color: #ddd; color: black; border-right: 1px solid #ccc;">DS Serve</span>
   <a href="https://tinyurl.com/compact-ds-dive">Web Interface</a>
   <a href="{{ site.baseurl }}/API_DOCUMENTATION.html">API Endpoint</a>
   <a href="{{ site.baseurl }}/VOTES_DOCUMENTATION.html">Voting System</a>
