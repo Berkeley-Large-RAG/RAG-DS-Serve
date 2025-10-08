@@ -9,3 +9,5 @@ _backup_DiskANN_20250911_064525/*
 sift*
 *.bak
 blog/reference_index.md
+*npy
+data/*

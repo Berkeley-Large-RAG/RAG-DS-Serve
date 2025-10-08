@@ -205,12 +205,27 @@
                 ?
               </button>
             </div>
-            <!-- nprobe, k, rerank, diverse, lambda -->
+            <!-- engine, nprobe/L, k, rerank, diverse, lambda -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
+              <label class="text-sm font-medium text-gray-700">Engine</label>
+              <select id="engine" class="border rounded-md p-1 text-sm w-full sm:w-36">
+                <option value="faiss" selected>FAISS (IVFPQ)</option>
+                <option value="diskann">DiskANN</option>
+              </select>
+            </div>
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
               <label class="text-sm font-medium text-gray-700">nprobe</label>
               <select id="nprobe" class="border rounded-md p-1 text-sm w-full sm:w-24">
                 <option>1</option><option>8</option><option>16</option><option selected>32</option><option>64</option><option>128</option><option>256</option>
               </select>
+            </div>
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2" id="diskannLRow" style="display:none;">
+              <label class="text-sm font-medium text-gray-700" title="DiskANN search complexity L">L (DiskANN)</label>
+              <input type="number" id="diskannL" min="1" value="128" class="border rounded-md p-1 text-sm w-20 text-center">
+            </div>
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2" id="diskannWRow" style="display:none;">
+              <label class="text-sm font-medium text-gray-700" title="DiskANN beam width W">W (beam)</label>
+              <input type="number" id="diskannW" min="1" value="2" class="border rounded-md p-1 text-sm w-20 text-center">
             </div>
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
               <label class="text-sm font-medium text-gray-700">k (max: 1000)</label>
@@ -723,6 +738,14 @@
       toggleLambdaState();
     });
 
+    // Engine toggle: show FAISS vs DiskANN params
+    document.getElementById('engine').addEventListener('change', function() {
+      const isDiskANN = this.value === 'diskann';
+      document.getElementById('nprobe').parentElement.style.display = isDiskANN ? 'none' : '';
+      document.getElementById('diskannLRow').style.display = isDiskANN ? '' : 'none';
+      document.getElementById('diskannWRow').style.display = isDiskANN ? '' : 'none';
+    });
+
     document.getElementById('queryInput').addEventListener('keydown', function (e) {
       if (e.key === 'Enter') {
         submitQuery(true);
@@ -765,7 +788,10 @@
         ? window.__preservedPasteRaw
         : displayVal.replace(/\\n/g, "\n"); // allow manual \\n entry
       const query = candidate.replace(/\r\n|\r/g, "\n").trim();
+      const engine = document.getElementById('engine').value;
       const nprobe = document.getElementById('nprobe').value;
+      const diskannL = document.getElementById('diskannL').value;
+      const diskannW = document.getElementById('diskannW').value;
       const k = document.getElementById('k').value;
       const minWords = document.getElementById('minWords').value;
       const useRerank = document.getElementById('rerankToggle').classList.contains('enabled');
@@ -804,6 +830,7 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             query,
+            engine,
             nprobe: parseInt(nprobe),
             n_docs: parseInt(k),
             // use_rerank: useRerank,  // ORIGINAL - commented out
@@ -811,7 +838,9 @@
             exact_search: useRerank,
             diverse_search: useDiverse,
             lambda: lambdaVal,
-            min_words: parseInt(minWords)
+            min_words: parseInt(minWords),
+            diskann_L: engine === 'diskann' ? parseInt(diskannL) : undefined,
+            diskann_W: engine === 'diskann' ? parseInt(diskannW) : undefined
           })
         });
         
@@ -822,11 +851,11 @@
         container.innerHTML = '';
         
                  if (addToHist) {
-           const searchParams = { nprobe, k, useRerank, useDiverse, lambdaVal, minWords };
+           const searchParams = { engine, nprobe, diskannL, diskannW, k, useRerank, useDiverse, lambdaVal, minWords };
            addToHistory(query, data, searchParams, latency);
          }
          
-         displayResults(data, query, { nprobe, k, useRerank, useDiverse, lambdaVal, minWords }, latency);
+         displayResults(data, query, { engine, nprobe, diskannL, diskannW, k, useRerank, useDiverse, lambdaVal, minWords }, latency);
         
       } catch (err) {
         container.innerHTML = '<div class="text-red-500 text-sm">Error fetching result.</div>';

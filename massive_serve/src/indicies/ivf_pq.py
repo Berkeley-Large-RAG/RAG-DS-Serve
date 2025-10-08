@@ -12,6 +12,11 @@ from rerank.diverse_rerank import diverse_rerank_topk
 import pdb
 import re
 import faiss
+# Optional DiskANN (diskannpy) support
+try:
+    import diskannpy as dap  # type: ignore
+except Exception:
+    dap = None
 import numpy as np
 import torch
 from massive_serve.api.serve import query_encoder
@@ -102,6 +107,10 @@ class IVFPQIndexer(object):
                 DSTORE_SIZE_BATCH=51200000,
                 n_subquantizers=16,
                 code_size=8,
+                # --- Optional DiskANN integration (minimal) ---
+                diskann_index_dir=None,
+                diskann_num_threads=0,
+                diskann_nodes_to_cache=0,
                 ):
     
         self.embed_paths = embed_paths  # list of paths where saved the embedding of all shards
@@ -112,6 +121,12 @@ class IVFPQIndexer(object):
         self.passage_dir = passage_dir
         self.pos_map_save_path = "/home/ubuntu/Jinjian/retrieval-scaling/built_index/index_mapping.np.npy"
         self.cuda = False
+
+        # DiskANN optional
+        self.diskann_index_dir = diskann_index_dir or os.environ.get("DISKANN_INDEX_DIR")
+        self.diskann_num_threads = int(diskann_num_threads or os.environ.get("DISKANN_NUM_THREADS", 0))
+        self.diskann_nodes_to_cache = int(diskann_nodes_to_cache or os.environ.get("DISKANN_NODES_TO_CACHE", 0))
+        self._diskann = None  # lazy-load StaticDiskIndex
 
         self.sample_size = sample_train_size
         self.dimension = dimension
@@ -195,6 +210,21 @@ class IVFPQIndexer(object):
         embs = self.get_embs(indices) # [batch_size, k, dimension]
         scores = - np.sqrt(np.sum((np.expand_dims(query_emb, 1)-embs)**2, -1)) # [batch_size, k]
         return scores
+
+    # ------------ DiskANN helpers ------------
+    def _ensure_diskann_loaded(self):
+        if self._diskann is not None:
+            return
+        if self.diskann_index_dir is None:
+            raise RuntimeError("DiskANN requested but diskann_index_dir is not set")
+        if dap is None:
+            raise RuntimeError("diskannpy is not available. Install diskannpy or set DISKANN_INDEX_DIR off.")
+        # Rely on index metadata on disk; if absent, user must supply distance/dtype via environment (not handled here)
+        self._diskann = dap.StaticDiskIndex(
+            index_directory=self.diskann_index_dir,
+            num_threads=self.diskann_num_threads,
+            num_nodes_to_cache=self.diskann_nodes_to_cache,
+        )
 
     def _sample_and_train_index(self,):
         print(f"Sampling {self.sample_size} examples from {len(self.embed_paths)} files...")
@@ -444,7 +474,9 @@ class IVFPQIndexer(object):
 
     
     # Batched search from concurrent.futures import ThreadPoolExecutor
-    def search(self, raw_query, query_embs, k, nprobe, expand_index_id=None, expand_offset=1, exact_rerank=False, diverse_rerank=False, lambda_val=0.5):
+    def search(self, raw_query, query_embs, k, nprobe, expand_index_id=None, expand_offset=1, exact_rerank=False, diverse_rerank=False, lambda_val=0.5,
+               # --- minimal DiskANN toggle and params ---
+               use_diskann=False, diskann_L=None, diskann_beam_width=2):
         if expand_index_id is not None:
             print(f"[EXPANSION MODE] Expanding index_id={expand_index_id} with offset={expand_offset}")
             result = self.expand_passage(expand_index_id, offset=expand_offset)
@@ -457,6 +489,53 @@ class IVFPQIndexer(object):
 
         t0 = time.time()
         query_embs = query_embs.astype(np.float32)
+
+        # --- DiskANN path (minimal) ---
+        if use_diskann:
+            self._ensure_diskann_loaded()
+            k = int(k)
+            L = int(diskann_L) if diskann_L is not None else max(k, 64)
+            W = int(diskann_beam_width) if diskann_beam_width is not None else 2
+            print(f"[DiskANN] batch_search k={k} L={L} W={W} threads={self.diskann_num_threads}")
+            # Use batch_search for efficiency
+            ids, dists = self._diskann.batch_search(
+                queries=query_embs,
+                k_neighbors=k,
+                complexity=L,
+                beam_width=W,
+                num_threads=max(self.diskann_num_threads, 0),
+            )
+            # Map to passages using existing helper
+            all_raw_passages = []
+            for i in range(ids.shape[0]):
+                top_ids = ids[i]
+                q_text = raw_query[i] if isinstance(raw_query, list) else raw_query
+                all_raw_passages.append(self.get_retrieved_passages(top_ids, raw_query=q_text))
+
+            # Optional rerank/diverse reuse of existing logic
+            all_batch_passages = []
+            for i, raw_passages in enumerate(all_raw_passages):
+                if exact_rerank:
+                    try:
+                        raw_passages = exact_rerank_topk(raw_passages, query_encoder)
+                        print(f"[SEARCH] [QUERY {i}] Used Exact Rerank (DiskANN)")
+                    except Exception as e:
+                        print(f"[SEARCH] [QUERY {i}] Exact Rerank failed: {e}")
+                if diverse_rerank:
+                    try:
+                        raw_passages = diverse_rerank_topk(raw_passages, query_encoder, lambda_val=lambda_val)
+                        print(f"[SEARCH] [QUERY {i}] Used Diverse Rerank (DiskANN)")
+                    except Exception as e:
+                        print(f"[SEARCH] [QUERY {i}] Diverse Rerank failed: {e}")
+                # Truncate to k
+                all_batch_passages.append(raw_passages[: int(k)])
+
+            t1 = time.time()
+            print(f"[DiskANN] Completed batch of {len(all_batch_passages)} in {t1 - t0:.2f}s")
+            all_final_scores = [dists[i][: len(all_batch_passages[i])] for i in range(len(all_batch_passages))]
+            return all_final_scores, all_batch_passages
+
+        # --- FAISS path (existing behavior) ---
         if nprobe is not None:
             self.index.nprobe = nprobe
             print(f"[IVFPQIndexer] nprobe dynamically set to {nprobe}")
