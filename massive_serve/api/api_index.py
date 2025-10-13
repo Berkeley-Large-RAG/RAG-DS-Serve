@@ -7,6 +7,7 @@ import torch
 
 from massive_serve.src.search import embed_queries
 from massive_serve.src.indicies.base import Indexer
+from massive_serve.src.indicies.diskann_backend import DiskANNBackend
 
 import psutil
 
@@ -25,9 +26,11 @@ class DatastoreAPI():
         self.domain_name = cfg.domain_name
         self._index = Indexer(cfg)
         self.index = self._index.datastore
+        self.diskann = DiskANNBackend()
         
-        model_name_or_path = cfg.query_encoder
-        tokenizer_name_or_path = cfg.query_tokenizer
+        # Hardcode Contriever for ANN embedding to match the built index
+        model_name_or_path = "facebook/contriever-msmarco"
+        tokenizer_name_or_path = "facebook/contriever-msmarco"
         if "contriever" in model_name_or_path:
             query_encoder, query_tokenizer, _ = load_retriever(model_name_or_path)
         elif "dragon" in model_name_or_path or "drama" in model_name_or_path or "ReasonIR" in model_name_or_path:
@@ -46,10 +49,41 @@ class DatastoreAPI():
         self.query_encoder = self.query_encoder.to(device)
         self.cfg = cfg
     
-    def search(self, query, n_docs, nprobe=None, expand_index_id=None, expand_offset=1, exact_rerank=False, use_diverse=False, lambda_val=0.5):
+    def search(self, query, n_docs, nprobe=None, expand_index_id=None, expand_offset=1, exact_rerank=False, use_diverse=False, lambda_val=0.5, backend=None, diskann_L=None, diskann_W=None, diskann_threads=None, min_words=None):
         print("✅ START OF search()")
         query_embedding = self.embed_query(query)
-        searched_scores, searched_passages  = self.index.search(query, query_embedding, n_docs, nprobe, expand_index_id, expand_offset, exact_rerank, use_diverse, lambda_val)
+        if backend == 'diskann':
+            L = int(diskann_L or 150)
+            W = int(diskann_W or 2)
+            threads = int(diskann_threads) if diskann_threads is not None else None
+            searched_scores, searched_passages = self.diskann.search(query, query_embedding, int(n_docs), L, W, threads=threads)
+            # Apply length filter similar to FAISS path
+            if isinstance(searched_passages, list) and len(searched_passages) > 0 and min_words is not None:
+                try:
+                    mw = int(min_words)
+                    for i in range(len(searched_passages)):
+                        filtered = []
+                        for p in searched_passages[i]:
+                            text = (p.get('text') or '').strip()
+                            if mw <= 0 or len(text.split()) >= mw:
+                                filtered.append(p)
+                        searched_passages[i] = filtered
+                except Exception:
+                    pass
+        else:
+            searched_scores, searched_passages  = self.index.search(
+                query,
+                query_embedding,
+                n_docs,
+                nprobe,
+                expand_index_id,
+                expand_offset,
+                exact_rerank,
+                use_diverse,
+                lambda_val,
+                use_diskann=False,
+                min_words=min_words,
+            )
         results = {'scores': searched_scores, 'passages': searched_passages}
         return results
 

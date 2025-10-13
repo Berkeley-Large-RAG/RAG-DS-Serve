@@ -52,7 +52,7 @@ p { font-size: 18px; margin: 6px 0; }
 /* Bracket links under title */
 .bracket-links { text-align: center; word-spacing: 14px; margin: 6px 0 12px 0; }
 .bracket-links a, .bracket-links a:visited { color: #1a73e8; text-decoration: none; word-spacing: normal; }
-.bracket-links a:hover { text-decoration: underline; }
+.bracket-links a:hover { text-decoration: none; }
 .small-note { font-size: 14px; color: #666; margin-top: 2px; }
 </style>
 
@@ -98,7 +98,7 @@ p { font-size: 18px; margin: 6px 0; }
 
 We introduce **DS Serve**, a framework that transforms a large-scale text corpus into a high-performance neural retrieval system.
 
-In one word: **Retrieve** data from **trillion-scale**, **high-quality pre-trained datasets** — **blazing fast** ⚡ and **absolutely free!** 🚀
+In one word: **Retrieve** data from **xx billion-scale**, **high-quality pre-trained datasets** — **blazing fast** ⚡ and **absolutely free!** 🚀
 
 To the best of our knowledge, **DS Serve** is the **largest datastore** (~**500B tokens**, ~**2B vectors**, ~**5T vector embeddings**) in the public domain that provides **free and high-performance neural retrieval endpoints**.  
 We can offer **<100 ms latency** and handle **>1000 QPS**, enabling accurate search over a **pre-trained-scale datastore**.  
@@ -148,7 +148,7 @@ Beyond these, DS Serve helps with:
 ---
 <br/>
 
-## Case studies
+## Examples
 
 Because IVFPQ inevitably sacrifices accuracy, we introduce Exact Search as an optional reranking mode. On top of ANN, we employ GritLM to compute exact similarities between queries and passage embeddings, which are then used to rerank top-k passages. As shown in our evaluation results (Table 1), Exact Search effectively enhances accuracy across all five tasks. On a cold start, embedding the results can be slow, so we've built an embedding cache to allow ~1000ms latency on similar queries in Exact Search.
 

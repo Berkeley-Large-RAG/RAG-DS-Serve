@@ -28,14 +28,16 @@ except Exception:
 import torch
 import numpy as np
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-from gritlm import GritLM
+from sentence_transformers import SentenceTransformer
 
 
 startup_start = time.time()
 query_tokenizer  = None
-query_encoder = GritLM("GritLM/GritLM-7B", torch_dtype="auto", mode="embedding")
-query_encoder.eval()
-query_encoder = query_encoder.to(device)
+query_encoder = SentenceTransformer("facebook/contriever-msmarco")
+try:
+    query_encoder.eval()
+except Exception:
+    pass
 
 # Function to measure memory usage (no-op if psutil unavailable)
 def print_mem_use(label=""):
@@ -337,7 +339,7 @@ except Exception:
 
  
 class Item:
-    def __init__(self, query=None, query_embed=None, domains=ds_cfg.domain_name, n_docs=1, nprobe=None, expand_index_id=None, expand_offset=None, exact_rerank=False, use_diverse=False, lambda_val=None) -> None:
+    def __init__(self, query=None, query_embed=None, domains=ds_cfg.domain_name, n_docs=1, nprobe=None, expand_index_id=None, expand_offset=None, exact_rerank=False, use_diverse=False, lambda_val=None, backend=None, diskann_L=None, diskann_W=None, diskann_threads=None, min_words=None) -> None:
         self.query = query
         self.query_embed = query_embed
         self.domains = domains
@@ -349,6 +351,12 @@ class Item:
         self.exact_rerank = exact_rerank
         self.use_diverse = use_diverse
         self.lambda_val = lambda_val
+        # ANN backend (faiss|diskann)
+        self.backend = backend
+        self.diskann_L = diskann_L
+        self.diskann_W = diskann_W
+        self.diskann_threads = diskann_threads
+        self.min_words = min_words
     
     def get_dict(self,):
         dict_item = {
@@ -382,7 +390,21 @@ class SearchQueue:
                 self.current_search = item
                 if item.nprobe is not None:
                     self.datastore.index.nprobe = item.nprobe
-                results = self.datastore.search(item.query, item.n_docs, item.nprobe, item.expand_index_id, item.expand_offset, item.exact_rerank, item.use_diverse, item.lambda_val)
+                results = self.datastore.search(
+                    item.query,
+                    item.n_docs,
+                    item.nprobe,
+                    item.expand_index_id,
+                    item.expand_offset,
+                    item.exact_rerank,
+                    item.use_diverse,
+                    item.lambda_val,
+                    backend=item.backend,
+                    diskann_L=item.diskann_L,
+                    diskann_W=item.diskann_W,
+                    diskann_threads=item.diskann_threads,
+                    min_words=item.min_words,
+                )
                 self.current_search = None
                 return results
             else:
@@ -413,30 +435,45 @@ def search():
         else:
             print("Processing a single query at once. ")
             query_input=request.json['query']
-        # Build canonical config for caching key
+        # Build canonical config for caching key; suppress FAISS-only knobs when method=diskann
+        method = request.json.get('backend') or request.json.get('method') or request.json.get('engine')
+        if method == 'diskann':
+            try:
+                print(f"[DiskANN] Params: k={int(request.json.get('n_docs', 1))} L={request.json.get('diskann_L')} W={request.json.get('diskann_W')} threads={request.json.get('diskann_threads')}")
+            except Exception:
+                pass
         request_cfg = {
-            'nprobe': request.json.get('nprobe', None),
-            'exact_search': request.json.get('exact_search', False),
-            'diverse_search': request.json.get('diverse_search', False),
-            'lambda': request.json.get('lambda', 0.5),
+            'nprobe': request.json.get('nprobe', None) if method != 'diskann' else None,
+            'exact_search': request.json.get('exact_search', False) if method != 'diskann' else False,
+            'diverse_search': request.json.get('diverse_search', False) if method != 'diskann' else False,
+            'lambda': request.json.get('lambda', 0.5) if method != 'diskann' else None,
         }
         canon_cfg = DiskVoteStore._canonicalize_ctx(request_cfg)
         item = Item(
             query=query_input,
             n_docs=request.json.get('n_docs', 1),
-            nprobe=request.json.get('nprobe', None),
+            nprobe=request.json.get('nprobe', None) if method != 'diskann' else None,
             expand_index_id = request.json.get('expand_index_id'),
             expand_offset = request.json.get('expand_offset', 1),
             domains=ds_cfg.domain_name,
             # exact_rerank = request.json.get('use_rerank', False),  # ORIGINAL - commented out
             # use_diverse=request.json.get('use_diverse', False),  # ORIGINAL - commented out
-            exact_rerank = request.json.get('exact_search', False),
-            use_diverse=request.json.get('diverse_search', False),
-            lambda_val=request.json.get('lambda', 0.5),
+            exact_rerank = request.json.get('exact_search', False) if method != 'diskann' else False,
+            use_diverse=request.json.get('diverse_search', False) if method != 'diskann' else False,
+            lambda_val=request.json.get('lambda', 0.5) if method != 'diskann' else None,
+            backend=method,
+            diskann_L=request.json.get('diskann_L'),
+            diskann_W=request.json.get('diskann_W'),
+            diskann_threads=request.json.get('diskann_threads'),
+            min_words=request.json.get('min_words'),
         )
 
-        # Perform the search synchronously with 600s timeout
-        timer = threading.Timer(600.0, lambda: (_ for _ in ()).throw(TimeoutError('Search timed out after 600 seconds')))
+        # Perform the search synchronously with configurable timeout (default: 1800s)
+        try:
+            timeout_s = float(os.environ.get('SEARCH_TIMEOUT_SECONDS', '1800'))
+        except Exception:
+            timeout_s = 1800.0
+        timer = threading.Timer(timeout_s, lambda: (_ for _ in ()).throw(TimeoutError(f'Search timed out after {int(timeout_s)} seconds')))
         timer.start()
         try:
             start_time = time.time()
@@ -590,7 +627,8 @@ def main():
     print(test_request)
     print(f"Deployment completed in {time.time() - startup_start:.2f} seconds")
 
-    app.run(host='0.0.0.0', port=port)
+    # Bind to IPv6 to allow public IPv6 access (also serves IPv4 on dual-stack systems)
+    app.run(host='::', port=port)
     # app.run(host='0.0.0.0', port=port, debug=True, use_reloader=True)
 
 

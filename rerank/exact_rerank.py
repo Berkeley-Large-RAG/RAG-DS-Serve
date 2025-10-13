@@ -91,11 +91,23 @@ def embed_passages(args, raw_query, texts, passage_ids, model):
 
     # Actually embed the (query + cache-miss passages)
     if texts_to_embed:
-        encoded = model.encode(
-            texts_to_embed,
-            batch_size=min(128, args.per_gpu_batch_size),
-            instruction="<|embed|>\n"
-        )
+        # Some models (e.g., GritLM) accept 'instruction'; SentenceTransformer does not.
+        try:
+            encoded = model.encode(
+                texts_to_embed,
+                batch_size=min(128, args.per_gpu_batch_size),
+                instruction="<|embed|>\n",
+                device=device,
+                convert_to_numpy=True
+            )
+        except Exception:
+            # Fallback for SentenceTransformer-like models (CPU only)
+            encoded = model.encode(
+                texts_to_embed,
+                batch_size=min(128, args.per_gpu_batch_size),
+                device=device,
+                convert_to_numpy=True
+            )
         saved_count = 0
         for pid, emb, original_text in zip(ids_to_embed, encoded, texts_to_embed):
             if np.isnan(emb).any():

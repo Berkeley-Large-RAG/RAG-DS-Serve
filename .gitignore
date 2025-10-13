@@ -11,3 +11,4 @@ sift*
 blog/reference_index.md
 *npy
 data/*
+test*.py

@@ -3,6 +3,9 @@ layout: base
 ---
 <article class="post">
   <div class="post-content">
+    {%- if page.path != 'index.md' -%}
+    <p><a href="{{ '/' | relative_url }}" style="text-decoration:none">← Back</a></p>
+    {%- endif -%}
     {{ content }}
   </div>
 </article>
