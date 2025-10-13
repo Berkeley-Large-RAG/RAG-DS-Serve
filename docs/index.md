@@ -4,6 +4,9 @@ title: DS Serve
 ---
 
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+/* Use Infinigram base styles */
+@import url('{{ "assets/infini-gram.css" | relative_url }}');
 body {
   max-width: 800px;
   margin: 0 auto;
@@ -12,7 +15,7 @@ body {
   font-size: 18px;
   line-height: 1.6;
 }
-h2 { font-size: 28px; margin: 10px 0 6px 0; }
+h2 { }
 p { font-size: 18px; margin: 6px 0; }
 
 /* Top navigation */
@@ -40,6 +43,9 @@ p { font-size: 18px; margin: 6px 0; }
   letter-spacing: 0.2px;
   color: #111;
 }
+.nav-inner, .brand, .nav-link {
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
+}
 .nav-link {
   text-decoration: none;
   color: #333;
@@ -54,6 +60,10 @@ p { font-size: 18px; margin: 6px 0; }
 .bracket-links a, .bracket-links a:visited { color: #1a73e8; text-decoration: none; word-spacing: normal; }
 .bracket-links a:hover { text-decoration: none; }
 .small-note { font-size: 14px; color: #666; margin-top: 2px; }
+
+/* Author links like Infinigram: no underline */
+.authors a, .authors a:visited { text-decoration: none; color: #1a73e8; }
+.authors a:hover { text-decoration: none; }
 </style>
 
 <div class="top-nav">
@@ -69,7 +79,7 @@ p { font-size: 18px; margin: 6px 0; }
 
 <h2 align="center">🚀 <b>DS SERVE: A Framework for Efficient and Scalable Neural Retrieval</b></h2>
 
-<p align="center">
+<p align="center" class="authors">
   <a href="https://github.com/berkeleyljj" target="_blank">Jinjian Liu</a><sup>1*</sup>, 
   <a href="https://yichuan-w.github.io/" target="_blank">Yichuan Wang</a><sup>1*</sup>, 
   <a href="https://alrope123.github.io/" target="_blank">Xinxi Lyu</a><sup>2</sup>, 
