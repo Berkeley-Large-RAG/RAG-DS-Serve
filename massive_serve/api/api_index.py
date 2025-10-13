@@ -56,20 +56,15 @@ class DatastoreAPI():
             L = int(diskann_L or 150)
             W = int(diskann_W or 2)
             threads = int(diskann_threads) if diskann_threads is not None else None
-            searched_scores, searched_passages = self.diskann.search(query, query_embedding, int(n_docs), L, W, threads=threads)
-            # Apply length filter similar to FAISS path
-            if isinstance(searched_passages, list) and len(searched_passages) > 0 and min_words is not None:
-                try:
-                    mw = int(min_words)
-                    for i in range(len(searched_passages)):
-                        filtered = []
-                        for p in searched_passages[i]:
-                            text = (p.get('text') or '').strip()
-                            if mw <= 0 or len(text.split()) >= mw:
-                                filtered.append(p)
-                        searched_passages[i] = filtered
-                except Exception:
-                    pass
+            searched_scores, searched_passages = self.diskann.search(
+                query,
+                query_embedding,
+                int(n_docs),
+                L,
+                W,
+                threads=threads,
+                min_words=min_words,
+            )
         else:
             searched_scores, searched_passages  = self.index.search(
                 query,

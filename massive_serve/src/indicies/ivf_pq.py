@@ -497,8 +497,6 @@ class IVFPQIndexer(object):
         else:
             print("nprobe is set to None")
 
-        # Optimize for speed: cap at 3200 for maximum speed
-        MAX_K = 3200  # Capped for speed
         base_Ks = [1000]  # Always search with K=1000 for testing; slice later
         
         print(f"[DEBUG] Input k={k}, type={type(k)}")

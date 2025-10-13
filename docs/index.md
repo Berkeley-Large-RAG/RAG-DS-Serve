@@ -53,6 +53,7 @@ p { font-size: 18px; margin: 6px 0; }
   font-size: 16px;
   padding: 6px 0;
 }
+.nav-link:visited { color: #333; text-decoration: none; }
 .nav-link:hover { color: #000; text-decoration: underline; text-underline-offset: 3px; }
 
 /* Bracket links under title */
@@ -110,7 +111,7 @@ We introduce **DS Serve**, a framework that transforms a large-scale text corpus
 
 In one word: **Retrieve** data from **xx billion-scale**, **high-quality pre-trained datasets** — **blazing fast** ⚡ and **absolutely free!** 🚀
 
-To the best of our knowledge, **DS Serve** is the **largest datastore** (~**500B tokens**, ~**2B vectors**, ~**5T vector embeddings**) in the public domain that provides **free and high-performance neural retrieval endpoints**.  
+To the best of our knowledge, our framework transforms **DS Serve**, the **largest datastore** (~**500B tokens**, ~**2B vectors**, ~**5T vector embeddings**), into a public domain that provides **free and high-performance neural retrieval endpoints**.  
 We can offer **<100 ms latency** and handle **>1000 QPS**, enabling accurate search over a **pre-trained-scale datastore**.  
 For deployment, everyone can clone our **codebase and index**, and run it using **under 200 GB RAM** without any GPU.
 Additionally, our framework enables you to convert your **in-house large-scale data** into a **high-performance, controllable** neural retrieval endpoint that you manage.

@@ -100,7 +100,7 @@ class DiskANNBackend:
             dimensions=self.dimensions,
         )
 
-    def search(self, raw_query, query_embs: np.ndarray, k: int, L: int, W: int, threads: int | None = None):
+    def search(self, raw_query, query_embs: np.ndarray, k: int, L: int, W: int, threads: int | None = None, min_words: int | None = None):
         self._ensure_loaded()
         # Ensure float32 contiguous
         q = np.ascontiguousarray(query_embs.astype(np.float32))
@@ -110,18 +110,48 @@ class DiskANNBackend:
         # conservative threads to avoid AIO stalls; allow per-call override
         chosen = threads if (threads is not None) else self.num_threads
         eff_threads = max(min(int(chosen), 2), 1)
+        # Fetch a large candidate pool like FAISS (K=1000), then slice to k after filtering
+        K_FETCH = 1000
         ids, dists = self._index.batch_search(
             queries=q,
-            k_neighbors=k,
+            k_neighbors=K_FETCH,
             complexity=L,
             beam_width=W,
             num_threads=eff_threads,
         )
         all_passages = []
+        all_scores = []
         for i in range(ids.shape[0]):
             q_text = raw_query[i] if isinstance(raw_query, list) else raw_query
-            all_passages.append(self._ids_to_passages(ids[i], raw_query=q_text)[:k])
-        all_scores = [dists[i][: len(all_passages[i])] for i in range(len(all_passages))]
+            mapped = self._ids_to_passages(ids[i], raw_query=q_text)
+            # Filter by min_words before slicing to k
+            selected = []
+            selected_scores = []
+            for j, rec in enumerate(mapped):
+                if min_words is not None:
+                    try:
+                        mw = int(min_words)
+                    except Exception:
+                        mw = 0
+                    if mw > 0:
+                        text = (rec.get("text") or "").strip()
+                        if len(text.split()) < mw:
+                            continue
+                selected.append(rec)
+                selected_scores.append(dists[i][j])
+                if len(selected) >= k:
+                    break
+
+            all_passages.append(selected)
+            all_scores.append(np.array(selected_scores))
+
+        # Light debug to confirm parameters match expectations
+        try:
+            first_len = len(all_passages[0]) if all_passages else 0
+            print(f"[DiskANN] L={L} W={W} threads={eff_threads} K_FETCH={K_FETCH} -> returned ~{first_len} after filter; target k={k}; min_words={min_words}")
+        except Exception:
+            pass
+
         return all_scores, all_passages
 
 
