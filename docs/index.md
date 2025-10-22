@@ -133,11 +133,9 @@ Additionally, our framework enables you to convert your **in-house large-scale d
 ## Application
 
 We envision the use of DS Serve for fast, controllable retrieval in RAG and search applications.
-1. **Data attribution & curation**: **DS Serve** can readily be used for training data attribution by indexing the entire pretraining corpus, as a complementary or improvement over OLMoTrace (). In addition, the framework enables improved data curation through semantic deduplication, decontamination, and customized filtering 
+1. **Data attribution & curation**: **DS Serve** can readily be used for training data attribution by indexing the entire pretraining corpus, as a complementary or improvement over OLMoTrace (). In addition, the framework enables improved data curation through semantic deduplication, decontamination, and customized filtering. 
 2. **Training search agents**: **DS Serve** addresses difficulties in search agent training by providing a fully controllable search backend, allowing developers to set their own latency-accuracy tradeoffs without incurring costs or rate limits.
-3. **Pushing the frontier of search**: excels on longer, complex queries where keyword engines falter
-
-
+3. **Pushing the frontier of search**: Commercial web search engines (e.g., Google) perform well on short keyword queries but struggle with long or complex inputs. Our vector-based framework is more effective in such cases (Lyu et al. (2025)) also collects labeled data in real-time with the voting option. 
 
 ---
 <br/>
@@ -171,7 +169,7 @@ The **approximate** nature of the search backend inevitably sacrifices accuracy,
   <img src="{{ 'parameter-panel.png' | relative_url }}" style="width: 60%;" />
 </p>
 
-Additionally, search results often suffer from information overlap, i.e. nearly identical text chunks. To address this problem we offer a Diverse Search option that penalizez redundant information. In our use cases, we find Diverse Search substantially improves user experience by eliminating redundant texts and improving overall coverage. 
+Additionally, search results often suffer from information overlap, i.e. nearly identical text chunks. To address this problem we offer a Diverse Search option that penalizes redundant information. In our use cases, we find Diverse Search substantially improves user experience by eliminating redundant texts and improving overall coverage. 
 
 For queries that are less common or rely on very recent knowledge — for example “Jensen Huang” — the datastore may only contain a handful of truly relevant passages, due to its frozen state. In these situations, Exact Search performs well because it prioritizes those relevant results at the top. By contrast, Diverse Search doesn’t necessarily improve performance since it risks surfacing less accurate passages when there aren’t enough strong candidates to begin with.
 
