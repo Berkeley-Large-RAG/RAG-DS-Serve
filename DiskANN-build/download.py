@@ -28,7 +28,7 @@ def main():
         revision=args.revision,
         allow_patterns=args.patterns,   # None = no filter (download everything)
         resume_download=True,
-        max_workers=8                   # tweak for your I/O
+        max_workers=100                   # tweak for your I/O
     )
     print(f"Downloaded to: {path}")
 

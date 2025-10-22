@@ -33,11 +33,12 @@ class DiskANNBackend:
         except Exception:
             pass
         self.filenames = np.load(str(repo_root / "filename_list.npy"), allow_pickle=True).tolist()
-
+ 
         # DiskANN params (env-overridable)
         self.index_dir = os.environ.get("DISKANN_INDEX_DIR", "/mnt/md-256k/jinjian/DiskANN_embeddings")
         self.index_prefix = os.environ.get("DISKANN_INDEX_PREFIX", "disk_index_compactDS_learn_R60_L80_B180_M600")
-        self.metric = os.environ.get("DISKANN_DISTANCE", "l2")
+        # Metric: default to L2 (euclidean) to match L2-built indices
+        self.metric = "l2"
         self.dimensions = int(os.environ.get("DISKANN_DIMENSIONS", "768"))
         self.vector_dtype = np.float32 if os.environ.get("DISKANN_VECTOR_DTYPE", "float32").lower() == "float32" else np.float16
         # Keep conservative default to avoid io_setup() EAGAIN on AIO
@@ -99,19 +100,65 @@ class DiskANNBackend:
             vector_dtype=self.vector_dtype,
             dimensions=self.dimensions,
         )
+        try:
+            print(
+                f"[DiskANN] Index loaded | dir={self.index_dir} prefix={self.index_prefix} "
+                f"metric={self.metric} dim={self.dimensions} dtype={self.vector_dtype} "
+                f"threads={self.num_threads} nodes_to_cache={self.nodes_to_cache}"
+            )
+        except Exception:
+            pass
 
     def search(self, raw_query, query_embs: np.ndarray, k: int, L: int, W: int, threads: int | None = None, min_words: int | None = None):
         self._ensure_loaded()
         # Ensure float32 contiguous
         q = np.ascontiguousarray(query_embs.astype(np.float32))
+        # Optional query normalization for L2/cosine
+        try:
+            do_norm = False
+            if str(self.metric).lower() in ("cosine",):
+                do_norm = True
+            else:
+                flag = os.environ.get("DISKANN_NORMALIZE_QUERY", "0")
+                do_norm = flag.strip() in ("1", "true", "True")
+            if do_norm:
+                norms = np.linalg.norm(q, axis=1, keepdims=True)
+                norms = np.maximum(norms, 1e-12)
+                q = q / norms
+                try:
+                    print(f"[DiskANN] Applied unit L2 normalization to query embeddings (metric={self.metric}, shape={q.shape})")
+                except Exception:
+                    pass
+        except Exception:
+            # Best-effort normalization; proceed unnormalized on any error
+            pass
         k = int(k)
         L = int(L)
         W = int(W) if W is not None else 2
-        # conservative threads to avoid AIO stalls; allow per-call override
+        # threads: allow higher parallelism but keep an upper bound to avoid AIO saturation
         chosen = threads if (threads is not None) else self.num_threads
-        eff_threads = max(min(int(chosen), 2), 1)
-        # Fetch a large candidate pool like FAISS (K=1000), then slice to k after filtering
-        K_FETCH = 1000
+        try:
+            eff_threads = max(1, min(int(chosen), 40))  # cap at 40
+        except Exception:
+            eff_threads = max(1, min(self.num_threads, 40))
+        try:
+            print(
+                f"[DiskANN] Search request | batch={q.shape[0]} dim={q.shape[1]} k={k} "
+                f"L={L} W={W} threads={eff_threads} min_words={min_words} dtype={q.dtype} "
+                f"contiguous={q.flags['C_CONTIGUOUS']}"
+            )
+        except Exception:
+            pass
+        # Fetch a candidate pool, then slice to k after filtering (tunable via env)
+        try:
+            kfetch_env = os.environ.get("DISKANN_K_FETCH")
+            if kfetch_env is not None and kfetch_env != "":
+                K_FETCH = max(1, int(kfetch_env))
+            else:
+                # Heuristic: 4x requested k, bounded [64, 1000]
+                K_FETCH = max(64, min(1000, int(max(k * 4, k))))
+        except Exception:
+            K_FETCH = 1000
         ids, dists = self._index.batch_search(
             queries=q,
             k_neighbors=K_FETCH,
@@ -119,6 +166,11 @@ class DiskANNBackend:
             beam_width=W,
             num_threads=eff_threads,
         )
+        try:
+            ex = dists[0][:3].tolist() if hasattr(dists, "shape") and dists.size else []
+            print(f"[DiskANN] batch_search -> K_FETCH={K_FETCH} ids.shape={getattr(ids,'shape',None)} dists.shape={getattr(dists,'shape',None)} dists_head={ex}")
+        except Exception:
+            pass
         all_passages = []
         all_scores = []
         for i in range(ids.shape[0]):

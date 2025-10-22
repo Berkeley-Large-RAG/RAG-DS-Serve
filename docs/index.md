@@ -109,9 +109,9 @@ p { font-size: 18px; margin: 6px 0; }
 
 We introduce **DS Serve**, a framework that transforms a large-scale text corpus into a high-performance neural retrieval system.
 
-In one word: **Retrieve** data from **xx billion-scale**, **high-quality pre-trained datasets** — **blazing fast** ⚡ and **absolutely free!** 🚀
+In one word: Use our framework to **retrieve** data from **xx billion-scale**, **high-quality pre-trained datasets** — **blazing fast** ⚡ and **absolutely free!** 🚀
 
-To the best of our knowledge, our framework transforms **DS Serve**, the **largest datastore** (~**500B tokens**, ~**2B vectors**, ~**5T vector embeddings**), into a public domain that provides **free and high-performance neural retrieval endpoints**.  
+Our framework **DS Serve** realizes the transformation of the **largest datastore** (~**500B tokens**, ~**2B vectors**, ~**5T vector embeddings**), into a public domain that provides **free and high-performance neural retrieval endpoints**.  
 We can offer **<100 ms latency** and handle **>1000 QPS**, enabling accurate search over a **pre-trained-scale datastore**.  
 For deployment, everyone can clone our **codebase and index**, and run it using **under 200 GB RAM** without any GPU.
 Additionally, our framework enables you to convert your **in-house large-scale data** into a **high-performance, controllable** neural retrieval endpoint that you manage.
@@ -122,46 +122,48 @@ Additionally, our framework enables you to convert your **in-house large-scale d
   <img src="{{ 'Figure-1.png' | relative_url }}" style="width: 70%;" />
 </p>
 
-**Key Performance**
-- **DiskANN-powered serving:** Achieve **~1000 QPS** on a **500B-token** scale — all with a **minimal RAM footprint** ⚙️  
-- **Swap your Serper API** for the **CompactDS API** — it’s **free** and delivers **10× higher throughput!** 🚀  
-- **Fine-tune your results** by toggling between **Exact** and **Diverse** search modes 🔍  
+**Key Contributions**
+- We present the **DS Serve** framework to convert any text corpus into a high-performance, fully controllable in-house neural datastore, with a web interface and API endpoints.  
+- Through this framework, we enable access to and controlled experiemtation on the largest publicly-deployed datastore, featuring 500B tokens and achieving ~1000 QPS. 
+- Furthermore, **DS Serve** contributes to practical applications including data attribution, training search agents, and pushing the frontier of search. For detail please refer to the Application section below. 
 
 ---
 <br/>
 
-## Use cases
+## Application
 
-We use DS Serve for fast, controllable retrieval in RAG and search applications.
+We envision the use of DS Serve for fast, controllable retrieval in RAG and search applications.
+1. **Data attribution & curation**: **DS Serve** can readily be used for training data attribution by indexing the entire pretraining corpus, as a complementary or improvement over OLMoTrace (). In addition, the framework enables improved data curation through semantic deduplication, decontamination, and customized filtering 
+2. **Training search agents**: **DS Serve** addresses difficulties in search agent training by providing a fully controllable search backend, allowing developers to set their own latency-accuracy tradeoffs without incurring costs or rate limits.
+3. **Pushing the frontier of search**: excels on longer, complex queries where keyword engines falter
 
-### Application
 
-It’s actively useful for:
-1. **Data attribution & curation**: semantic search beyond keyword overlap; complements tools like OLMoTrace
-2. **Training search agents**: fully controllable latency–accuracy tradeoffs without external rate limits
-3. **Advancing search quality**: excels on longer, complex queries where keyword engines falter
-
-Beyond these, DS Serve helps with:
-1. **Understanding corpora** and building tailored subsets
-2. **Reducing redundancy** via diversity-aware reranking (MMR)
-3. **Collecting realistic benchmarks** through built-in voting
 
 ---
 <br/>
 
 ## User guide
 
-### Quick walkthrough
+- Use the parameters panel (see Figure 2) to control search behavior. The following parameters are all tunable:
+  - **nprobe**: Higher values increase recall but marginally add latency. Therefore a large value is generally recommended.
+  - **k (max: 1000)**: number of top passages to display. 
+  - **Min words**: filter out passages shorter than this before display to encourage more context-rich results.
+  - **Exact Search**: improves accuracy at the cost of increased compute and overhead.
+  - **Diverse Search**: reduces redundant results for better coverage. 
+  - **λ (lambda)**: diversity weight used only for **Diverse Search**. Higher leads to more diversity, and lower more relevance/accuracy.
+  - **? icon**：click to reveal inline tooltips explaining each control parameter.
 
-- Use the control panel to set `nprobe`, enable Exact or Diverse search, and adjust λ.
-- Type a query and press Enter. Results are scored; click to expand/collapse passages. History logs each search.
+- Quick Walkthrough
+  - Type a query. Optionally enable either or both of **Exact Search** to prioritize accuracy and **Diverse Search** to prioritize diversity. Then press "Enter" or click the arrow icon to search.
+  - After results are shown. Click the expand/collapse button to control the displayed chunk. And the bottom-right of each passage features a voting option that allows users to vote **YES/NO** on the relevance of each result.
+
 
 ---
 <br/>
 
 ## Examples
 
-Because IVFPQ inevitably sacrifices accuracy, we introduce Exact Search as an optional reranking mode. On top of ANN, we employ GritLM to compute exact similarities between queries and passage embeddings, which are then used to rerank top-k passages. As shown in our evaluation results (Table 1), Exact Search effectively enhances accuracy across all five tasks. On a cold start, embedding the results can be slow, so we've built an embedding cache to allow ~1000ms latency on similar queries in Exact Search.
+The **approximate** nature of the search backend inevitably sacrifices accuracy, thus we introduce Exact Search as an optional reranking mode. To do so, we compute **exact** similarities, instead of using **approximation**, between queries and passages. Then search results are reranked according to the newly computed **exact** scores. As shown in our evaluation results (Table 1), Exact Search effectively enhances accuracy across all five tasks. On a cold start, embedding the results can be slow, so we've built an embedding cache to allow ~1000ms latency on similar queries in Exact Search.
 
 <p align="left"><i>Figure 2: Control panel with tunable parameters and tooltips.</i></p>
 
@@ -169,11 +171,11 @@ Because IVFPQ inevitably sacrifices accuracy, we introduce Exact Search as an op
   <img src="{{ 'parameter-panel.png' | relative_url }}" style="width: 60%;" />
 </p>
 
-Search results often suffer from information overlap, like nearly identical text chunks, so we offer a Diverse Search option to improve overall coverage of the results. To do this, we apply maximal marginal relevance (MMR) on candidates returned by ANN to penalize redundant information. In our use cases, we find Diverse Search substantially improves user experience by eliminating redundant texts.
+Additionally, search results often suffer from information overlap, i.e. nearly identical text chunks. To address this problem we offer a Diverse Search option that penalizez redundant information. In our use cases, we find Diverse Search substantially improves user experience by eliminating redundant texts and improving overall coverage. 
 
 For queries that are less common or rely on very recent knowledge — for example “Jensen Huang” — the datastore may only contain a handful of truly relevant passages, due to its frozen state. In these situations, Exact Search performs well because it prioritizes those relevant results at the top. By contrast, Diverse Search doesn’t necessarily improve performance since it risks surfacing less accurate passages when there aren’t enough strong candidates to begin with.
 
-During search, DS SERVE initially fetches a very large pool of K candidates (K = 1000), so it always easily fills the top-k (e.g. k = 5) passage list. On the very rare occasion that retrieval does fail, a clear alert message pops up to give informative suggestions for the user.
+During search, **DS Serve** initially fetches a very large pool of candidates, and then easily finds top results among them. On the very rare occasion that retrieval fails, an alert message pops up to give improvement suggestions.
 
 <p align="left"><i>Figure 3: Example failure mode and user guidance.</i></p>
 
@@ -190,13 +192,12 @@ During search, DS SERVE initially fetches a very large pool of K candidates (K =
 ---
 <br/>
 
-## Technical design
+## Technical design -- TO BE EXPANDED 
 
 ### Search Modes
-
 **Approximate Nearest Neighbor (ANN) Search**: ANN is the backbone of DS Serve. In particular, DS Serve incorporates FAISS IVFPQ, which reduces memory usage and latency by partitioning the vector space into clusters and avoiding full comparisons. In our setting, the ANN backbone supports inference within 200 ms at ~100GB memory overhead.
 
-**Exact Search**: Because IVFPQ inevitably sacrifices accuracy, we introduce Exact Search as an optional reranking mode. On top of ANN, we employ GritLM to compute exact similarities between queries and passage embeddings, which are then used to rerank top-k passages. As shown in our evaluation results (Table 1), Exact Search effectively enhances accuracy across all five tasks. On a cold start, embedding the results can be slow, so we’ve built an embedding cache to allow ~1000ms latency on similar queries in Exact Search.
+**Exact Search**: This mode is used to boost search accuracy. 
 
 **Diversity Search**: Search results often suffer from information overlap, like nearly identical text chunks, so we offer a Diverse Search option to improve overall coverage of the results. To do this, we apply maximal marginal relevance (MMR) on candidates returned by ANN to penalize redundant information. In our use cases, we find Diverse Search substantially improves user experience by eliminating redundant texts.
 

@@ -53,8 +53,8 @@ class DatastoreAPI():
         print("✅ START OF search()")
         query_embedding = self.embed_query(query)
         if backend == 'diskann':
-            L = int(diskann_L or 150)
-            W = int(diskann_W or 2)
+            L = int(diskann_L or 1000)
+            W = int(diskann_W or 4)
             threads = int(diskann_threads) if diskann_threads is not None else None
             searched_scores, searched_passages = self.diskann.search(
                 query,

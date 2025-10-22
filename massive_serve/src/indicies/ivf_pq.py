@@ -97,7 +97,7 @@ class IVFPQIndexer(object):
                 dimension=768,
                 dtype=np.float16,
                 ncentroids=4096,
-                probe=2048,
+                probe=256,
                 num_keys_to_add_at_a_time=1000000,
                 DSTORE_SIZE_BATCH=51200000,
                 n_subquantizers=16,
@@ -122,7 +122,10 @@ class IVFPQIndexer(object):
         self.sample_size = sample_train_size
         self.dimension = dimension
         self.ncentroids = ncentroids
-        self.probe = 32
+        try:
+            self.probe = int(probe) if probe is not None else 256
+        except Exception:
+            self.probe = 256
         self.num_keys_to_add_at_a_time = num_keys_to_add_at_a_time
         self.n_subquantizers = n_subquantizers
         self.code_size = code_size
@@ -152,6 +155,25 @@ class IVFPQIndexer(object):
         #print_mem_use("load_index after faiss.read_index")
         self.index.nprobe = self.probe
         print(f"[load_index] Set nprobe to {self.probe}")
+        # Enable direct map to allow reconstruct(id) for rerank experiments
+        self._can_reconstruct = True
+        try:
+            # Try directly (works if index is IndexIVF*)
+            if hasattr(self.index, "make_direct_map"):
+                self.index.make_direct_map()
+                print("[IVFPQ] Direct map enabled on index (reconstruct ready)")
+            else:
+                # Try to extract inner IVF and enable direct map
+                try:
+                    ivf = faiss.extract_index_ivf(self.index)
+                    ivf.make_direct_map()
+                    print("[IVFPQ] Direct map enabled via extract_index_ivf()")
+                except Exception:
+                    self._can_reconstruct = False
+                    print("[IVFPQ] WARN: cannot enable direct_map; L2 rerank will be skipped")
+        except Exception:
+            self._can_reconstruct = False
+            print("[IVFPQ] WARN: failed to enable direct_map; L2 rerank will be skipped")
         print(f"Index load time: {end_idx - start_idx:.2f} seconds")
 
         if self.passage_dir is not None:
@@ -377,31 +399,43 @@ class IVFPQIndexer(object):
         """
         Given a flat list of FAISS index IDs (for a single query), return structured passage dicts.
         """
-        passages = []
-        for idx in indices:
-            idx = int(idx)  # ensure it's an int
-            position = int(self.position_array[idx])
-            filename_idx = int(self.filename_index_array[idx])
-            length = len(self.filenames)
-            # print(f"File name idx is {filename_idx} and filename length is {length}")
+        # Parallelize disk reads to reduce cold-start latency
+        max_workers_env = os.environ.get("FAISS_READ_THREADS", "24")
+        try:
+            max_workers = max(1, int(max_workers_env))
+        except Exception:
+            max_workers = 24
+
+        def build_passage(idx_int):
+            idx_local = int(idx_int)
+            position = int(self.position_array[idx_local])
+            filename_idx = int(self.filename_index_array[idx_local])
             filename = self.filenames[filename_idx]
-            center_text, passage_id = self.read_text(idx)
+            center_text, passage_id = self.read_text(idx_local)
             if passage_id is None:
                 print("[ERROR] Failed to parse passage id.")
-
-            passage = {
+            p = {
                 "passage_id": passage_id,
-                "text": center_text.strip(),
+                "text": (center_text or "").strip(),
                 "center_text": center_text,
                 "source": filename.split('--')[0],
-                "index_id": idx,
+                "index_id": idx_local,
                 "filename": filename,
                 "position": position
             }
             if raw_query is not None:
-                passage["raw_query"] = raw_query
-            passages.append(passage)
+                p["raw_query"] = raw_query
+            return p
 
+        # Preserve order by collecting futures in order
+        passages = []
+        with ThreadPoolExecutor(max_workers=max_workers) as pool:
+            futures = [pool.submit(build_passage, idx) for idx in indices]
+            for fut in futures:
+                try:
+                    passages.append(fut.result())
+                except Exception as e:
+                    print(f"[WARN] Failed to read passage: {e}")
         return passages  # List[Dict]
 
     def expand_passage(self, idx, offset):
@@ -495,9 +529,13 @@ class IVFPQIndexer(object):
             self.index.nprobe = nprobe
             print(f"[IVFPQIndexer] nprobe dynamically set to {nprobe}")
         else:
-            print("nprobe is set to None")
+            try:
+                current = int(self.index.nprobe)
+            except Exception:
+                current = self.probe if hasattr(self, "probe") else 256
+            print(f"[IVFPQIndexer] nprobe not provided; using default {current}")
 
-        base_Ks = [1000]  # Always search with K=1000 for testing; slice later
+        base_Ks = [1000]  # Always search with K=1000; slice later if needed
         
         print(f"[DEBUG] Input k={k}, type={type(k)}")
         # Ensure k is an integer

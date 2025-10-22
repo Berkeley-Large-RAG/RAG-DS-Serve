@@ -12,3 +12,9 @@ blog/reference_index.md
 *npy
 data/*
 test*.py
+passage_order.txt
+export_diskann_results.py
+DiskANN-build/converted/
+DiskANN-build/DiskANN_index/
+DiskANN-build/cpds_embeddings/
+DiskANN-build/DiskANN/build/
