@@ -142,18 +142,24 @@ We envision the use of DS Serve for fast, controllable retrieval in RAG and sear
 
 ## User guide
 
-- Use the parameters panel (see Figure 2) to control search behavior. The following parameters are all tunable:
-  - **nprobe**: Higher values increase recall but marginally add latency. Therefore a large value is generally recommended.
+- <p align="left"><i>Figure 2: Control panel with tunable parameters and tooltips.</i></p>
+
+- <p align="center">
+  <img src="{{ 'parameter-panel.png' | relative_url }}" style="width: 60%;" />
+  </p>
+
+- Use the parameters panel (Figure 2) to control search behavior. The following parameters are all tunable:
+  - **nprobe**: Higher values increase accuracy but marginally add latency. Therefore a large value is generally recommended.
   - **k (max: 1000)**: number of top passages to display. 
   - **Min words**: filter out passages shorter than this before display to encourage more context-rich results.
   - **Exact Search**: improves accuracy at the cost of increased compute and overhead.
   - **Diverse Search**: reduces redundant results for better coverage. 
-  - **λ (lambda)**: diversity weight used only for **Diverse Search**. Higher leads to more diversity, and lower more relevance/accuracy.
+  - **λ (lambda)**: diversity weight used only for **Diverse Search**. Higher values favor diversity, and lower accuracy.
   - **? icon**：click to reveal inline tooltips explaining each control parameter.
 
 - Quick Walkthrough
-  - Type a query. Optionally enable either or both of **Exact Search** to prioritize accuracy and **Diverse Search** to prioritize diversity. Then press "Enter" or click the arrow icon to search.
-  - After results are shown. Click the expand/collapse button to control the displayed chunk. And the bottom-right of each passage features a voting option that allows users to vote **YES/NO** on the relevance of each result.
+  - Type a query. Optionally enable **Exact Search** to prioritize accuracy and **Diverse Search** to prioritize diversity. Then press "Enter" or click the arrow icon to search.
+  - After results are shown, click the expand/collapse button to control the displayed chunk. And the bottom-right section of each passage has a voting option that allows users to vote **YES/NO** on the relevance of each result.
 
 
 ---
@@ -161,13 +167,7 @@ We envision the use of DS Serve for fast, controllable retrieval in RAG and sear
 
 ## Examples
 
-The **approximate** nature of the search backend inevitably sacrifices accuracy, thus we introduce Exact Search as an optional reranking mode. To do so, we compute **exact** similarities, instead of using **approximation**, between queries and passages. Then search results are reranked according to the newly computed **exact** scores. As shown in our evaluation results (Table 1), Exact Search effectively enhances accuracy across all five tasks. On a cold start, embedding the results can be slow, so we've built an embedding cache to allow ~1000ms latency on similar queries in Exact Search.
-
-<p align="left"><i>Figure 2: Control panel with tunable parameters and tooltips.</i></p>
-
-<p align="center">
-  <img src="{{ 'parameter-panel.png' | relative_url }}" style="width: 60%;" />
-</p>
+The **approximate** nature of the search backend inevitably sacrifices accuracy, thus we introduce Exact Search as an optional reranking mode. To do so, we compute **exact** similarities, instead of using **approximation**, between queries and passages. Then search results are reranked according to the newly computed **exact** scores. As shown in our evaluation results (Table 1), **Exact Search** effectively enhances accuracy across all five tasks. On a cold start, embedding the results can be slow, so we've built an embedding cache to allow ~1000ms latency on similar queries in Exact Search.
 
 Additionally, search results often suffer from information overlap, i.e. nearly identical text chunks. To address this problem we offer a Diverse Search option that penalizes redundant information. In our use cases, we find Diverse Search substantially improves user experience by eliminating redundant texts and improving overall coverage. 
 
