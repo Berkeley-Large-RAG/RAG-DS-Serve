@@ -11,7 +11,7 @@ body {
   max-width: 800px;
   margin: 0 auto;
   padding: 20px;
-  font-family: Arial, sans-serif;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
   font-size: 18px;
   line-height: 1.6;
 }
@@ -132,21 +132,20 @@ Additionally, our framework enables you to convert your **in-house large-scale d
 
 ## Application
 
-We envision the use of DS Serve for fast, controllable retrieval in RAG and search applications.
+We envision the use of **DS Serve** for fast, controllable retrieval in RAG and search applications:
 1. **Data attribution & curation**: **DS Serve** can readily be used for training data attribution by indexing the entire pretraining corpus, as a complementary or improvement over OLMoTrace (). In addition, the framework enables improved data curation through semantic deduplication, decontamination, and customized filtering. 
 2. **Training search agents**: **DS Serve** addresses difficulties in search agent training by providing a fully controllable search backend, allowing developers to set their own latency-accuracy tradeoffs without incurring costs or rate limits.
-3. **Pushing the frontier of search**: Commercial web search engines (e.g., Google) perform well on short keyword queries but struggle with long or complex inputs. Our vector-based framework is more effective in such cases (Lyu et al. (2025)) also collects labeled data in real-time with the voting option. 
+3. **Pushing the frontier of search**: Commercial web search engines (e.g., Google) perform well on short keyword queries but struggle with long or complex inputs. Our vector-based framework is more effective in such cases (Lyu et al. (2025)), and it also collects labeled data in real-time with the voting option. 
 
 ---
 <br/>
 
 ## User guide
+<p align="left"><i>Figure 2: Control panel with tunable parameters and tooltips.</i></p>
 
-- <p align="left"><i>Figure 2: Control panel with tunable parameters and tooltips.</i></p>
-
-- <p align="center">
-  <img src="{{ 'parameter-panel.png' | relative_url }}" style="width: 60%;" />
-  </p>
+<p align="center">
+<img src="{{ 'parameter-panel.png' | relative_url }}" style="width: 85%;" />
+</p>
 
 - Use the parameters panel (Figure 2) to control search behavior. The following parameters are all tunable:
   - **nprobe**: Higher values increase accuracy but marginally add latency. Therefore a large value is generally recommended.
@@ -155,7 +154,7 @@ We envision the use of DS Serve for fast, controllable retrieval in RAG and sear
   - **Exact Search**: improves accuracy at the cost of increased compute and overhead.
   - **Diverse Search**: reduces redundant results for better coverage. 
   - **λ (lambda)**: diversity weight used only for **Diverse Search**. Higher values favor diversity, and lower accuracy.
-  - **? icon**：click to reveal inline tooltips explaining each control parameter.
+  - **? icon**: click to reveal inline tooltips explaining each control parameter.
 
 - Quick Walkthrough
   - Type a query. Optionally enable **Exact Search** to prioritize accuracy and **Diverse Search** to prioritize diversity. Then press "Enter" or click the arrow icon to search.
