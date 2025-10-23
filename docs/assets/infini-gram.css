@@ -20,8 +20,8 @@ body,
   font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
 }
 
-/* Match infini-gram wrapper width */
-.wrapper { max-width: 800px; margin: 0 auto; }
+/* Match infini-gram wrapper width without breaking Minima header layout */
+.page-content .wrapper { max-width: 800px; margin: 0 auto; }
 
 /* Link style to match infini-gram/minima */
 a { color: #1a73e8; text-decoration: none; }

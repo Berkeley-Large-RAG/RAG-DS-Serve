@@ -2,13 +2,10 @@ title: DS Serve
 url: https://berkeley-large-rag.github.io
 baseurl: /RAG-DS-Serve
 header_pages:
-  - demo.md
-  - api_doc.md
-  - pkg_doc.md
-  - docs.md
+  - API_DOCUMENTATION.md
+  - VOTES_DOCUMENTATION.md
   - code.md
   - paper.md
-  - discord.md
 
 theme: minima
 plugins:
