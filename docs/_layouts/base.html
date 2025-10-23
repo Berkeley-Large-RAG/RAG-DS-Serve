@@ -5,7 +5,9 @@
 
   <body>
 
+    {%- if page.path == 'index.md' -%}
     {%- include header.html -%}
+    {%- endif -%}
 
     <main class="page-content" aria-label="Content">
       <div class="wrapper">

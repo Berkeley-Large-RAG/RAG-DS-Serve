@@ -7,6 +7,9 @@ layout: base
   </header>
 
   <div class="post-content">
+    {%- if page.path != 'index.md' -%}
+    <p><a class="back-btn" href="{{ '/' | relative_url }}">Back</a></p>
+    {%- endif -%}
     {{ content }}
   </div>
 

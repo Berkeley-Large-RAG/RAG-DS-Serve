@@ -27,3 +27,18 @@ body,
 a { color: #1a73e8; text-decoration: none; }
 a:hover { text-decoration: underline; text-underline-offset: 3px; }
 
+/* Back button style (text-only) */
+.back-btn {
+  display: inline-block;
+  padding: 6px 10px;
+  border: 1px solid #e5e7eb; /* gray-200 */
+  border-radius: 6px;
+  background: #f9fafb; /* gray-50 */
+  color: #111827; /* gray-900 */
+  font-weight: 600;
+}
+.back-btn:hover { background: #f3f4f6; text-decoration: none; }
+
+/* Author/affiliation sizing to keep on one line */
+.authors + p { font-size: 16px; line-height: 1.4; white-space: nowrap; }
+
