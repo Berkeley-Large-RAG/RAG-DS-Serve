@@ -80,7 +80,7 @@ We envision the use of **DS Serve** for fast, controllable retrieval in RAG and 
 <img src="{{ 'parameter-panel.png' | relative_url }}" style="width: 85%;" />
 </p>
 
-- Use the parameters panel to tune the following parameters (Figure 2):
+- Use the control panel to adjust search behavior through the following parameters (Figure 2):
   - **nprobe**: Higher values increase accuracy but marginally add latency. Therefore a large value is generally recommended.
   - **k (max: 1000)**: number of top passages to display. 
   - **Min words**: filter out passages shorter than this before display to encourage more context-rich results.

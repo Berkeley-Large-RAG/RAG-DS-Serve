@@ -4,121 +4,39 @@ title: API Documentation
 ---
 
 <style>
-body {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
-  font-family: Arial, sans-serif;
-  font-size: 18px;
-  line-height: 1.6;
-}
-h2 {
-  font-size: 28px;
-}
-p {
-  font-size: 18px;
-}
-/* Code styling */
-pre {
-  background: #f6f8fa;
-  border: 1px solid #eaecef;
-  border-radius: 8px;
-  padding: 12px 14px;
-  overflow: auto;
-  margin: 12px 0;
-}
-code {
-  background: #f6f8fa;
-  border: 1px solid #eaecef;
-  border-radius: 4px;
-  padding: 0 4px;
-}
-pre code {
-  background: transparent;
-  border: 0;
-  padding: 0;
-  font-size: 0.95em;
-}
-/* Table styling for param sections */
+/* keep pages visually consistent with index.md */
+p { font-size: 18px; margin: 6px 0; }
+code, pre { background: #f6f8fa; border: 1px solid #eaecef; border-radius: 6px; }
+pre { padding: 12px 14px; overflow: auto; }
 table { width: 100%; border-collapse: collapse; margin: 12px 0; }
 th, td { border: 1px solid #eaecef; padding: 8px 10px; text-align: left; }
 th { background: #fafbfc; }
 </style>
 
-# 🚀 Compact-DS Dive Documentation
+## CompactDS API
 
-## 🌟 Overview
+Use this endpoint to run searches from your code. It mirrors the controls in the UI.
 
-**Compact-DS Dive** is a easy-to-use RAG UI backed by a billion-scale high-quality datastore. Compact-DS Dive combines approximate nearest neighbor (ANN) search with Exact and Diverse Search capabilities. This demo showcases flexible search techniques: configurable search parameters, different search options, history caching, and context expansion.
-
-**🌐 Live Demo**: [https://tinyurl.com/compact-ds-dive](https://tinyurl.com/compact-ds-dive)
-
-### 🔑 Key Features
-- **Fast ANN Search**: Efficient approximate search using IVF-PQ indexing
-- **Exact Reranking**: Optional exact similarity computation for higher accuracy. Note: we integrated retrieval results caching, so similar queries will have lower delay only on the second Exact Search and afterwards.
-- **Diverse Results**: Configurable diversity to avoid similar passages.
-- **Batched Queries**: Support for processing multiple queries simultaneously
-- **Real-time Performance**: Optimized for low-latency search operations
-
----
-
-## 📡 API Endpoint
-
+Endpoint:
 ```
 POST http://compactds.duckdns.org:30888/search
 Content-Type: application/json
 ```
 
----
+### Request body
+- Provide either `query` (single) or `queries` (list). Include any of the optional knobs.
 
-## 🔧 Parameters
+| field | type | default | notes |
+|---|---|---|---|
+| query | string | — | single query string |
+| queries | string[] | — | batch mode |
+| n_docs | int | 1 | number of passages to return |
+| nprobe | int | 32 | 1–256; higher improves recall |
+| exact_search | bool | false | rerank with exact similarities |
+| diverse_search | bool | false | enable diversity (MMR) |
+| lambda | float | 0.5 | only used when `diverse_search=true` |
 
-### Required Parameters
-
-| Parameter | Type | Description | Example |
-|-----------|------|-------------|---------|
-| `query` | string | Your search query (for single queries) | `"machine learning algorithms"` |
-| `queries` | array | Array of search queries (for batched queries) | `["query1", "query2", "query3"]` |
-
-**Note**: Use either `query` (single) or `queries` (batched), not both.
-
-### Optional Parameters
-
-| Parameter | Type | Default | Range | Description |
-|-----------|------|---------|-------|-------------|
-| `n_docs` | integer | 1 | 1-1000 | Number of top passages to retrieve |
-| `nprobe` | integer | 32 | 1, 8, 16, 32, 64, 128, 256 | Number of clusters to search (higher = more accurate but slower) |
-| `exact_search` | boolean | false | true/false | Use exact search instead of ANN (more accurate but slower) |
-| `diverse_search` | boolean | false | true/false | Use diverse search to avoid similar results |
-| `lambda` | float | 0.5 | 0.0-1.0 | Diversity tradeoff parameter (higher = more diverse, lower = more relevant) |
-
-
----
-
-## 🎯 Parameter Details
-
-### `nprobe` - Search Clusters
-Controls the number of clusters searched during ANN retrieval:
-
-### `exact_search` - Exact Reranking
-When enabled, performs exact similarity computation instead of approximate search:
-- **Benefits**: Higher accuracy
-- **Trade-offs**: Slower response time by about 1.5s, higher computational cost. Delay will be reduced on similar search thanks to caching.
-
-### `diverse_search` - Diverse Results
-Enables diversity-aware result selection to avoid similar passages:
-- **Benefits**: More varied results, better coverage
-- **Trade-offs**: May reduce accuracy for some queries and also higher end-to-end delay.
-- **Best with**: `lambda` parameter to control diversity vs accuracy trade-off
-
-### `lambda` - Diversity Trade-off
-Controls the balance between accuracy and diversity when `diverse_search` is enabled:
-- **0.0**: Maximum accuracy, no diversity
-- **0.2-0.3**: Balanced approach -- because of the harshness of the algorithm, we recommend setting lambda to a low value when diverse search is on.
-- Anything higher can be risky, and please be aware to increase only for experimental purposes
----
-
-## 📝 Request Examples
+### Examples
 
 ### 1. Basic Single Query
 
@@ -139,7 +57,7 @@ response = requests.post(url, headers=headers, json=payload)
 result = response.json()
 ```
 
-### 2. High-Accuracy Search
+### 2) High-accuracy
 
 ```python
 payload = {
@@ -150,7 +68,7 @@ payload = {
 }
 ```
 
-### 3. Diverse Search
+### 3) Diverse
 
 ```python
 payload = {
@@ -161,7 +79,7 @@ payload = {
 }
 ```
 
-### 4. Batched Queries
+### 4) Batched
 
 ```python
 payload = {
@@ -180,9 +98,8 @@ payload = {
 
 ---
 
-## 📊 Response Format
-
-### Single Query Response
+## Response format
+Single query response:
 
 ```json
 {
@@ -212,7 +129,7 @@ payload = {
 - **Exact Search**: Cosine similarity scores computed during exact reranking
 - **Diverse Search**: Uses exact similarity scores with diversity penalty applied during selection
 
-### Batched Query Response
+Batched response:
 
 ```json
 {
@@ -237,9 +154,8 @@ payload = {
 
 ---
 
-## 🎛️ Parameter Optimization Guide
-
-### For Speed
+## Tips
+For speed:
 ```python
 payload = {
     "query": "your query",
@@ -249,7 +165,7 @@ payload = {
 }
 ```
 
-### For Accuracy
+For accuracy:
 ```python
 payload = {
     "query": "your query",
@@ -259,7 +175,7 @@ payload = {
 }
 ```
 
-### For Diversity
+For diversity:
 ```python
 payload = {
     "query": "your query",
@@ -270,7 +186,7 @@ payload = {
 }
 ```
 
-### For Balanced Performance
+Balanced:
 ```python
 payload = {
     "query": "your query",
@@ -283,9 +199,7 @@ payload = {
 
 ---
 
-## 🧪 Testing Script
-
-Here's a complete testing script you can use:
+## Quick test script
 
 ```python
 #!/usr/bin/env python3

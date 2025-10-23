@@ -4,62 +4,29 @@ title: Voting System
 ---
 
 <style>
-body {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
-  font-family: Arial, sans-serif;
-  font-size: 18px;
-  line-height: 1.6;
-}
-h2 {
-  font-size: 28px;
-}
-p {
-  font-size: 18px;
-}
-/* Code styling */
-pre {
-  background: #f6f8fa;
-  border: 1px solid #eaecef;
-  border-radius: 8px;
-  padding: 12px 14px;
-  overflow: auto;
-  margin: 12px 0;
-}
-code {
-  background: #f6f8fa;
-  border: 1px solid #eaecef;
-  border-radius: 4px;
-  padding: 0 4px;
-}
-pre code {
-  background: transparent;
-  border: 0;
-  padding: 0;
-  font-size: 0.95em;
-}
-/* Table style if any */
+p { font-size: 18px; margin: 6px 0; }
+code, pre { background: #f6f8fa; border: 1px solid #eaecef; border-radius: 6px; }
+pre { padding: 12px 14px; overflow: auto; }
 table { width: 100%; border-collapse: collapse; margin: 12px 0; }
 th, td { border: 1px solid #eaecef; padding: 8px 10px; text-align: left; }
 th { background: #fafbfc; }
 </style>
 
-## 📊 Votes Storage and Usage Guide
+## Votes: what we store and where
 
-This document explains where votes are stored, what each file is for, the on-disk schemas, and how to query or maintain them.
+We log each Yes/No vote to a lightweight JSONL file (audit trail) and to a small SQLite index (fast lookup).
 
-### 📍 Location
+### Location
 - Directory: by default `/home/ubuntu/votes` (override with env `VOTES_DIR`)
 - Files:
   - `votes.jsonl`: append-only audit log (one JSON per line)
   - `votes.sqlite3`: fast-lookup index (with `votes.sqlite3-wal` and `votes.sqlite3-shm` managed by SQLite WAL mode)
 
-### 📝 What gets stored per vote
+### What is stored per vote
 - We record the user’s binary relevance vote for a passage, tied to a specific query and query config.
 - Query text is normalized (lowercased, trimmed, whitespace-collapsed) and hashed to avoid key fragmentation and save space.
 
-#### JSONL record schema (one per line)
+JSONL record (one per line):
 ```json
 {
   "ts": 1732132123,                // integer seconds since epoch
@@ -80,7 +47,7 @@ Notes:
 - `query_hash = sha1(query_norm)`. We store `query_norm` in JSONL for readability and for reconstructing the original normalized text.
 - `config` is omitted if empty; `lambda` is omitted when `diverse_search` is false.
 
-#### 🔍 SQLite index schema (for efficient lookup)
+SQLite index (for efficient lookup):
 - Database file: `votes.sqlite3`
 - Tables:
 ```sql
@@ -111,7 +78,7 @@ Key idea: (query + config) → passage_id → latest relevance.
 - `ctx_hash` is `sha1(canonical_config_json)`; canonicalization includes only the compact fields above.
 - Latest vote wins via `INSERT OR REPLACE` on the `(query_hash, ctx_hash, passage_id)` primary key.
 
-### 📤 Posting a vote
+### Posting a vote
 ```bash
 curl -X POST http://localhost:30888/vote \
   -H 'Content-Type: application/json' \
@@ -123,7 +90,7 @@ curl -X POST http://localhost:30888/vote \
       }'
 ```
 
-### 🔎 Looking up votes (SQLite examples)
+### Looking up votes (SQLite)
 - All votes for a specific normalized query and config:
 ```sql
 -- First compute sha1(normalized_query) and ctx_hash (sha1 of canonical config JSON)
@@ -147,7 +114,7 @@ LIMIT 50;
 - `query_hash = sha1(normalized_query)` deduplicates trivial query variants.
 - `ctx_hash = sha1(canonical_config_json)` where the JSON includes only `nprobe`, `exact_search`, `diverse_search`, and optionally `lambda` when `diverse_search` is true, with sorted keys.
 
-### 🛠️ Maintenance
+### Maintenance
 - Checkpoint and compact the SQLite index:
 ```bash
 sqlite3 /home/ubuntu/votes/votes.sqlite3 "PRAGMA wal_checkpoint(FULL); VACUUM;"
