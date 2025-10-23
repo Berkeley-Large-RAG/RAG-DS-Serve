@@ -50,3 +50,8 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 .site-header .site-nav .page-link { margin-left: 8px; }
 .site-header .site-title { margin-right: 0; }
 
+/* Place nav right next to title (override Minima floats) */
+.site-header .wrapper { display: flex; align-items: center; }
+.site-header .site-title { float: none !important; display: inline-block; margin-right: 6px; }
+.site-header .site-nav { float: none !important; display: inline-block; margin-left: 0; }
+

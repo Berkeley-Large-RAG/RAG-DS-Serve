@@ -46,7 +46,7 @@ In one word: Use our framework to **retrieve** data from **xx billion-scale**, *
 
 **DS Serve** realizes the transformation of the **largest datastore** (~**500B tokens**, ~**2B vectors**, ~**5T vector embeddings**), into a public domain that provides **free and high-performance neural retrieval endpoints**.  
 We can offer <b>&lt;100&nbsp;ms latency</b> and handle <b>&gt;1000&nbsp;QPS</b>, enabling accurate search over a <b>pre‑trained‑scale datastore</b>.  
-For deployment, everyone can clone our **codebase and index**, and run it using **under 200 GB RAM** without any GPU.
+For deployment, everyone can clone our **codebase and index**, and run it with **~100 GB RAM** without any GPU for FAISS ANN, and **600 GB RAM** for additional DiskANN support.
 Additionally, our framework enables you to convert your **in-house large-scale data** into a **high-performance, controllable** neural retrieval endpoint that you manage.
 
 <p align="left"><i>Figure 1: DS SERVE converts a large dataset into a neural retrieval system: a query q retrieves relevant text via ANN, optionally reranks with exact and/or diverse search, and returns the top-k chunks with voting options for user feedback.</i></p>

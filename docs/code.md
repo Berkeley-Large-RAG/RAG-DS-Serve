@@ -1,6 +1,6 @@
 ---
 layout: page
 redirect_to:
-  - https://github.com/liujch1998/infini-gram
+  - https://github.com/Berkeley-Large-RAG/RAG-DS-Serve
 title: Code
 ---
