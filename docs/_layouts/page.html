@@ -2,30 +2,12 @@
 layout: base
 ---
 <article class="post">
+
+  <header class="post-header">
+  </header>
+
   <div class="post-content">
-    <link rel="stylesheet" href="{{ 'assets/infini-gram.css' | relative_url }}">
-    {%- if page.path != 'index.md' -%}
-    <style>
-    .back-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 12px;
-      border: 1px solid #d1d5db; /* gray-300 */
-      border-radius: 8px;
-      background: #f9fafb; /* gray-50 */
-      color: #1f2937; /* gray-800 */
-      text-decoration: none;
-      font-weight: 600;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.06);
-      transition: background .15s ease, box-shadow .15s ease, transform .05s ease;
-    }
-    .back-btn:hover { background: #f3f4f6; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-decoration: none; }
-    .back-btn:active { transform: translateY(1px); }
-    /* No icon; text-only button */
-    </style>
-    <p><a class="back-btn" href="{{ '/' | relative_url }}" aria-label="Back to home"><span>Back</span></a></p>
-    {%- endif -%}
     {{ content }}
   </div>
+
 </article>
