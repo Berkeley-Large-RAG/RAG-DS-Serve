@@ -42,3 +42,10 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 /* Author/affiliation sizing to keep on one line */
 .authors + p { font-size: 16px; line-height: 1.4; white-space: nowrap; }
 
+/* Subtle equal contribution note */
+.equal-note { font-size: 14px; color: #6b7280; }
+
+/* Reduce gap between site title and first nav item */
+.site-header .site-nav .page-link { margin-left: 18px; }
+.site-header .site-title { margin-right: 8px; }
+

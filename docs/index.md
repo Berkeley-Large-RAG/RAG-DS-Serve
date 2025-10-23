@@ -27,7 +27,7 @@ p { font-size: 18px; margin: 6px 0; }
   <sup>2</sup>University of Illinois Urbana–Champaign &nbsp;
   <sup>3</sup>University of Washington
 </p>
-<p align="center"><sup>*</sup>Equal contribution.</p>
+<p align="center" class="equal-note"><sup>*</sup>Equal contribution.</p>
 
 <p align="center">[<a href="https://tinyurl.com/compact-ds-dive">Web Interface</a>] [<a href="{{ 'API_DOCUMENTATION.html' | relative_url }}">API Endpoint</a>] [<a href="{{ 'VOTES_DOCUMENTATION.html' | relative_url }}">Voting System</a>] [<a href="https://github.com/Berkeley-Large-RAG/RAG-DS-Serve">Code</a>] [<a href="https://openreview.net/forum?id=nQBZKcF2bo">Paper</a>]</p>
 
