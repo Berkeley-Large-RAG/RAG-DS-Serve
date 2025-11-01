@@ -238,10 +238,7 @@
               <label class="text-sm font-medium text-gray-700">k (max: 1000)</label>
               <input type="number" id="k" min="1" max="1000" value="5" class="border rounded-md p-1 text-sm w-16 text-center">
             </div>
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
-              <label class="text-sm font-medium text-gray-700" title="Minimum passage length in words. Applied to big-K candidates before selecting top-k.">Min words</label>
-              <input type="number" id="minWords" min="0" value="30" class="border rounded-md p-1 text-sm w-16 text-center">
-            </div>
+            
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
               <label class="text-sm font-medium text-gray-700">Exact Search</label>
               <button id="rerankToggle" class="toggle-switch disabled self-start sm:self-auto" data-exact-rerank>
@@ -584,7 +581,7 @@
         const useRerank = searchParams?.useRerank !== undefined ? searchParams.useRerank : document.getElementById('rerankToggle').classList.contains('enabled');
         const useDiverse = searchParams?.useDiverse !== undefined ? searchParams.useDiverse : document.getElementById('diverseToggle').classList.contains('enabled');
         const lambdaVal = searchParams?.lambdaVal || document.getElementById('lambda').value;
-        const minWords = searchParams?.minWords || document.getElementById('minWords').value;
+        
         
         const isLongQuery = (query || '').length > 25; // fallback; actual collapse decided after measuring
         const safeQuery = escapeHtml(query || '');
@@ -615,16 +612,24 @@
              </details>`
           : `<div>Query: <span class="font-semibold whitespace-pre-wrap break-words">${safeQuery}</span></div>`;
 
+        // DiskANN vs FAISS specific chips
+        const diskannL = searchParams?.diskannL || document.getElementById('diskannL')?.value;
+        const diskannW = searchParams?.diskannW || document.getElementById('diskannW')?.value;
+        const diskannThreads = searchParams?.diskannThreads || document.getElementById('diskannThreads')?.value;
+
         queryDisplay.innerHTML = `
           ${headerMarkup}
           <div class="flex gap-2 mt-2 flex-wrap" id="queryMeta">
             <span class="bg-indigo-100 text-indigo-700 text-sm font-semibold px-2 py-1 rounded-full">backend: ${backend}</span>
-            <span class="bg-gray-200 text-gray-700 text-sm px-2 py-1 rounded-full">nprobe: ${nprobe}</span>
+            ${backend === 'diskann'
+              ? `<span class="bg-gray-200 text-gray-700 text-sm px-2 py-1 rounded-full">L: ${diskannL}</span>
+                 <span class=\"bg-gray-200 text-gray-700 text-sm px-2 py-1 rounded-full\">W: ${diskannW}</span>
+                 <span class=\"bg-gray-200 text-gray-700 text-sm px-2 py-1 rounded-full\">threads: ${diskannThreads}</span>`
+              : `<span class=\"bg-gray-200 text-gray-700 text-sm px-2 py-1 rounded-full\">nprobe: ${nprobe}</span>`}
             <span class="bg-gray-200 text-gray-700 text-sm px-2 py-1 rounded-full">k: ${k}</span>
             ${useRerank ? '<span class="bg-teal-100 text-teal-700 text-sm px-2 py-1 rounded-full">Exact Search</span>' : ''}
             ${useDiverse ? '<span class="bg-blue-100 text-blue-700 text-sm px-2 py-1 rounded-full">Diverse Search</span>' : ''}
             ${useDiverse ? `<span class="bg-blue-100 text-blue-700 text-sm px-2 py-1 rounded-full">λ: ${lambdaVal}</span>` : ''}
-            ${minWords ? `<span class="bg-gray-200 text-gray-700 text-sm px-2 py-1 rounded-full">min words: ${minWords}</span>` : ''}
             ${latency ? `<span class="bg-green-100 text-green-700 text-sm px-2 py-1 rounded-full flex items-center gap-1"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path></svg>${latency}s</span>` : ''}
           </div>
         `;
@@ -833,7 +838,7 @@
       const diskannW = document.getElementById('diskannW').value;
       const diskannThreads = document.getElementById('diskannThreads').value;
       const k = document.getElementById('k').value;
-      const minWords = document.getElementById('minWords').value;
+      
       const useRerank = document.getElementById('rerankToggle').classList.contains('enabled');
       const useDiverse = document.getElementById('diverseToggle').classList.contains('enabled');
       const lambdaVal = parseFloat(document.getElementById('lambda').value) / 100;
@@ -876,7 +881,7 @@
             exact_search: method === 'diskann' ? false : useRerank,
             diverse_search: method === 'diskann' ? false : useDiverse,
             lambda: method === 'diskann' ? undefined : lambdaVal,
-            min_words: parseInt(minWords),
+            
             diskann_L: method === 'diskann' ? parseInt(diskannL) : undefined,
             diskann_W: method === 'diskann' ? parseInt(diskannW) : undefined,
             diskann_threads: method === 'diskann' ? parseInt(diskannThreads) : undefined
@@ -890,11 +895,11 @@
         container.innerHTML = '';
         
                  if (addToHist) {
-           const searchParams = { method, nprobe, diskannL, diskannW, diskannThreads, k, useRerank, useDiverse, lambdaVal, minWords };
+           const searchParams = { method, nprobe, diskannL, diskannW, diskannThreads, k, useRerank, useDiverse, lambdaVal };
            addToHistory(query, data, searchParams, latency);
          }
          
-         displayResults(data, query, { method, nprobe, diskannL, diskannW, diskannThreads, k, useRerank, useDiverse, lambdaVal, minWords }, latency);
+         displayResults(data, query, { method, nprobe, diskannL, diskannW, diskannThreads, k, useRerank, useDiverse, lambdaVal }, latency);
         
       } catch (err) {
         container.innerHTML = '<div class="text-red-500 text-sm">Error fetching result.</div>';

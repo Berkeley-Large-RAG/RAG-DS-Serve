@@ -77,7 +77,7 @@ We envision the use of **DS Serve** for fast, controllable retrieval in RAG and 
 <p align="left"><i>Figure 2: Control panel with tunable parameters and tooltips.</i></p>
 
 <p align="center">
-<img src="{{ 'parameter-panel.png' | relative_url }}" style="width: 85%;" />
+<img src="{{ 'parameter-panel.png' | relative_url }}" style="width: 90%;" />
 </p>
 
 - Use the control panel to adjust search behavior through the following parameters (Figure 2):
