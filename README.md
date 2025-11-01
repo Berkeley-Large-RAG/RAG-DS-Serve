@@ -110,7 +110,7 @@ curl -X POST http://compactds.duckdns.org:30888/search \
 
 
 ##  DiskANN build 
-NOTE: THIS IS ONLY FOR INTERNAL TESTING CURRENTLY
+NOTE: THIS IS ONLY FOR INTERNAL TESTING CURRENTLY \
 For convenienve, please just use the absolute paths of large index files and mapping stored in my personal dir when testing internally:
 - /mnt/md-256k/jinjian/DS/position_array.npy
 - /mnt/md-256k/jinjian/DS/filename_index_array.npy
@@ -163,5 +163,6 @@ Tips:
 - Use a different `MASSIVE_SERVE_PORT` if firewall issues occur or one is already in use.
 - `DISKANN_NUM_THREADS` sets CPU threads for DiskANN search; 0 uses all logical CPUs.
 - `DISKANN_NODES_TO_CACHE` pins popular nodes in RAM; warmup further primes OS page cache.
+- massive_serve is not installed using pip but from Rulin Shao's repo, where credits are due in this version. 
 
  
