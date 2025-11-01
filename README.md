@@ -109,7 +109,15 @@ curl -X POST http://compactds.duckdns.org:30888/search \
 ```
 
 
-##  DiskANN build
+##  DiskANN build 
+NOTE: THIS IS ONLY FOR INTERNAL TESTING CURRENTLY
+For convenienve, please just use the absolute paths of large index files and mapping stored in my personal dir when testing internally:
+- /mnt/md-256k/jinjian/DS/position_array.npy
+- /mnt/md-256k/jinjian/DS/filename_index_array.npy
+- /mnt/md-256k/jinjian/DS/filename_list.npy
+- /mnt/md-256k/jinjian/DS/data/passages/
+- /mnt/md-256k/jinjian/DS/DiskANN-build/DiskANN_index/
+
 ## DiskANN serving (setup and launch)
 
 ### 1) Create environment
@@ -140,8 +148,8 @@ DISKANN_INDEX_DIR=/mnt/md-256k/jinjian/DS/DiskANN-build/DiskANN_index \
 DISKANN_INDEX_PREFIX=diskann_mips_f32_R60_L80_B200_M500 \
 DISKANN_DISTANCE=mips \
 DISKANN_NUM_THREADS=128 \
-DISKANN_NODES_TO_CACHE=50000 \
-DISKANN_L=150 \
+DISKANN_NODES_TO_CACHE=100000 \
+DISKANN_L=500 \
 DISKANN_W=4 \
 DISKANN_WARMUP=1 \
 DISKANN_WARMUP_QUERIES=5000 \
@@ -151,15 +159,8 @@ DISKANN_WARMUP_KEEPALIVE=1 \
 python -m massive_serve.cli serve --domain_name data
 ```
 
-Required files (absolute paths pasted below for reference):
-- /mnt/md-256k/jinjian/DS/position_array.npy
-- /mnt/md-256k/jinjian/DS/filename_index_array.npy
-- /mnt/md-256k/jinjian/DS/filename_list.npy
-- /mnt/md-256k/jinjian/DS/data/passages/
-- /mnt/md-256k/jinjian/DS/DiskANN-build/DiskANN_index/
-
 Tips:
-- Use a different `MASSIVE_SERVE_PORT` if firewall issues occur. 
+- Use a different `MASSIVE_SERVE_PORT` if firewall issues occur or one is already in use.
 - `DISKANN_NUM_THREADS` sets CPU threads for DiskANN search; 0 uses all logical CPUs.
 - `DISKANN_NODES_TO_CACHE` pins popular nodes in RAM; warmup further primes OS page cache.
 
