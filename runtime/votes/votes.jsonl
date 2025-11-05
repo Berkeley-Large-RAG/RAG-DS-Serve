@@ -1,0 +1,2 @@
+{"ts": 1762304127, "query_hash": "a3945428107015a0ea429ab8f1164f5543981b12", "query_norm": "who is the president in china", "passage_id": "10560525", "relevant": false, "config": {"nprobe": 32, "exact_search": false, "diverse_search": false}}
+{"ts": 1762304132, "query_hash": "a3945428107015a0ea429ab8f1164f5543981b12", "query_norm": "who is the president in china", "passage_id": "1369364", "relevant": false, "config": {"nprobe": 32, "exact_search": false, "diverse_search": false}}

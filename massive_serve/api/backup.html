@@ -238,6 +238,10 @@
               <label class="text-sm font-medium text-gray-700">k (max: 1000)</label>
               <input type="number" id="k" min="1" max="1000" value="10" class="border rounded-md p-1 text-sm w-16 text-center">
             </div>
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
+              <label class="text-sm font-medium text-gray-700">Min words</label>
+              <input type="number" id="minWords" min="0" placeholder="Min words" class="border rounded-md p-1 text-sm w-24 text-center">
+            </div>
             
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
               <label class="text-sm font-medium text-gray-700">Exact Search</label>
@@ -578,6 +582,7 @@
         const backend = searchParams?.method || document.getElementById('backend').value;
         const nprobe = searchParams?.nprobe || document.getElementById('nprobe').value;
         const k = searchParams?.k || document.getElementById('k').value;
+        const minWordsChip = searchParams?.minWords ?? (document.getElementById('minWords')?.value || '').trim();
         const useRerank = searchParams?.useRerank !== undefined ? searchParams.useRerank : document.getElementById('rerankToggle').classList.contains('enabled');
         const useDiverse = searchParams?.useDiverse !== undefined ? searchParams.useDiverse : document.getElementById('diverseToggle').classList.contains('enabled');
         const lambdaVal = searchParams?.lambdaVal || document.getElementById('lambda').value;
@@ -627,6 +632,7 @@
                  <span class=\"bg-gray-200 text-gray-700 text-sm px-2 py-1 rounded-full\">threads: ${diskannThreads}</span>`
               : `<span class=\"bg-gray-200 text-gray-700 text-sm px-2 py-1 rounded-full\">nprobe: ${nprobe}</span>`}
             <span class="bg-gray-200 text-gray-700 text-sm px-2 py-1 rounded-full">k: ${k}</span>
+            ${minWordsChip !== '' ? `<span class="bg-gray-200 text-gray-700 text-sm px-2 py-1 rounded-full">MW: ${minWordsChip}</span>` : ''}
             ${useRerank ? '<span class="bg-teal-100 text-teal-700 text-sm px-2 py-1 rounded-full">Exact Search</span>' : ''}
             ${useDiverse ? '<span class="bg-blue-100 text-blue-700 text-sm px-2 py-1 rounded-full">Diverse Search</span>' : ''}
             ${useDiverse ? `<span class="bg-blue-100 text-blue-700 text-sm px-2 py-1 rounded-full">λ: ${lambdaVal}</span>` : ''}
@@ -838,6 +844,8 @@
       const diskannW = document.getElementById('diskannW').value;
       const diskannThreads = document.getElementById('diskannThreads').value;
       const k = document.getElementById('k').value;
+      const minWordsRaw = (document.getElementById('minWords')?.value || '').trim();
+      const minWords = minWordsRaw === '' ? null : Math.max(0, parseInt(minWordsRaw, 10));
       
       const useRerank = document.getElementById('rerankToggle').classList.contains('enabled');
       const useDiverse = document.getElementById('diverseToggle').classList.contains('enabled');
@@ -884,7 +892,8 @@
             
             diskann_L: method === 'diskann' ? parseInt(diskannL) : undefined,
             diskann_W: method === 'diskann' ? parseInt(diskannW) : undefined,
-            diskann_threads: method === 'diskann' ? parseInt(diskannThreads) : undefined
+            diskann_threads: method === 'diskann' ? parseInt(diskannThreads) : undefined,
+            min_words: (minWords !== null && Number.isFinite(minWords)) ? minWords : undefined
           })
         });
         
@@ -894,12 +903,12 @@
         
         container.innerHTML = '';
         
-                 if (addToHist) {
-           const searchParams = { method, nprobe, diskannL, diskannW, diskannThreads, k, useRerank, useDiverse, lambdaVal };
+         if (addToHist) {
+           const searchParams = { method, nprobe, diskannL, diskannW, diskannThreads, k, useRerank, useDiverse, lambdaVal, minWords: (minWords !== null && Number.isFinite(minWords)) ? minWords : '' };
            addToHistory(query, data, searchParams, latency);
          }
          
-         displayResults(data, query, { method, nprobe, diskannL, diskannW, diskannThreads, k, useRerank, useDiverse, lambdaVal }, latency);
+         displayResults(data, query, { method, nprobe, diskannL, diskannW, diskannThreads, k, useRerank, useDiverse, lambdaVal, minWords: (minWords !== null && Number.isFinite(minWords)) ? minWords : '' }, latency);
         
       } catch (err) {
         container.innerHTML = '<div class="text-red-500 text-sm">Error fetching result.</div>';

@@ -51,12 +51,16 @@ class DatastoreAPI():
     
     def search(self, query, n_docs, nprobe=None, expand_index_id=None, expand_offset=1, exact_rerank=False, use_diverse=False, lambda_val=0.5, backend=None, diskann_L=None, diskann_W=None, diskann_threads=None, min_words=None):
         print("✅ START OF search()")
+        t0 = time.time()
         query_embedding = self.embed_query(query)
+        t1 = time.time()
+        backend_timings = None
         if backend == 'diskann':
             L = int(diskann_L or 300)
             W = int(diskann_W or 4)
             threads = int(diskann_threads) if diskann_threads is not None else None
-            searched_scores, searched_passages = self.diskann.search(
+            t2 = time.time()
+            ret = self.diskann.search(
                 query,
                 query_embedding,
                 int(n_docs),
@@ -65,7 +69,13 @@ class DatastoreAPI():
                 threads=threads,
                 min_words=min_words,
             )
+            t3 = time.time()
+            if isinstance(ret, tuple) and len(ret) == 3:
+                searched_scores, searched_passages, backend_timings = ret
+            else:
+                searched_scores, searched_passages = ret
         else:
+            t2 = time.time()
             searched_scores, searched_passages  = self.index.search(
                 query,
                 query_embedding,
@@ -79,7 +89,19 @@ class DatastoreAPI():
                 use_diskann=False,
                 min_words=min_words,
             )
-        results = {'scores': searched_scores, 'passages': searched_passages}
+            t3 = time.time()
+        t_end = time.time()
+        results = {
+            'scores': searched_scores,
+            'passages': searched_passages,
+            'timings_ms': {
+                'embed': round((t1 - t0) * 1000.0, 3),
+                'search': round((t3 - t2) * 1000.0, 3),
+                'total': round((t_end - t0) * 1000.0, 3),
+            }
+        }
+        if backend_timings and isinstance(backend_timings, dict):
+            results['backend_timings_ms'] = backend_timings
         return results
 
     def embed_query(self, query):

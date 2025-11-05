@@ -73,15 +73,38 @@ class DiskANNBackend:
         self._index = None
 
     # ---------- mapping helpers ----------
-    def _read_line_at(self, filename: str, byte_offset: int):
+    def _read_line_at(self, filename: str, byte_offset: int, profile: dict | None = None):
         path = os.path.join(self._passage_dir, filename)
+        try:
+            import time as _t
+        except Exception:
+            _t = None
+        t0 = _t.time() if _t else None
         with open(path, 'rb') as f:
+            t1 = _t.time() if _t else None
+            if profile is not None and t0 is not None and t1 is not None:
+                profile['open_ms'] = profile.get('open_ms', 0.0) + (t1 - t0) * 1000.0
+                profile['opens'] = profile.get('opens', 0) + 1
+            t2 = _t.time() if _t else None
             f.seek(int(byte_offset))
-            line = f.readline().decode('utf-8', errors='strict')
+            line_bytes = f.readline()
+            t3 = _t.time() if _t else None
+            if profile is not None:
+                try:
+                    if t2 is not None and t3 is not None:
+                        profile['read_ms'] = profile.get('read_ms', 0.0) + (t3 - t2) * 1000.0
+                    profile['bytes'] = profile.get('bytes', 0) + (len(line_bytes) if isinstance(line_bytes, (bytes, bytearray)) else 0)
+                except Exception:
+                    pass
+        t4 = _t.time() if _t else None
+        line = line_bytes.decode('utf-8', errors='strict') if isinstance(line_bytes, (bytes, bytearray)) else str(line_bytes)
         obj = json.loads(line)
+        t5 = _t.time() if _t else None
+        if profile is not None and t4 is not None and t5 is not None:
+            profile['json_ms'] = profile.get('json_ms', 0.0) + (t5 - t4) * 1000.0
         return obj.get('text', ''), obj.get('id', None)
 
-    def _ids_to_passages(self, ids, raw_query=None):
+    def _ids_to_passages(self, ids, raw_query=None, profile: dict | None = None):
         out = []
         n = len(self.position_array)
         for idx in map(int, ids):
@@ -93,7 +116,7 @@ class DiskANNBackend:
                 continue
             fname = self.filenames[fname_idx]
             try:
-                text, pid = self._read_line_at(fname, pos)
+                text, pid = self._read_line_at(fname, pos, profile=profile)
             except Exception:
                 continue
             rec = {
@@ -108,6 +131,8 @@ class DiskANNBackend:
             if raw_query is not None:
                 rec["raw_query"] = raw_query
             out.append(rec)
+            if profile is not None:
+                profile['records'] = profile.get('records', 0) + 1
         return out
 
     # ---------- diskann ----------
@@ -237,14 +262,24 @@ class DiskANNBackend:
         except Exception:
             pass
         # Determine K_FETCH (candidate oversampling)
+        # Policy: env DISKANN_K_FETCH overrides. Otherwise:
+        # - If no min_words filter: K_FETCH = k (no oversampling)
+        # - If min_words > 0: K_FETCH = min(1000, k * 5)
         try:
             kfetch_env = os.environ.get("DISKANN_K_FETCH")
             if kfetch_env is not None and kfetch_env.strip() != "":
                 K_FETCH = max(1, int(kfetch_env))
             else:
-                K_FETCH = 1000
+                try:
+                    _mw = int(min_words) if (min_words is not None) else 0
+                except Exception:
+                    _mw = 0
+                if _mw > 0:
+                    K_FETCH = min(1000, max(1, int(k)) * 5)
+                else:
+                    K_FETCH = max(1, int(k))
         except Exception:
-            K_FETCH = 1000
+            K_FETCH = max(1, int(k))
         # Log a concise, clean effective config line for sanity
         try:
             print(
@@ -255,6 +290,13 @@ class DiskANNBackend:
         except Exception:
             pass
 
+        t_bs0 = None
+        t_bs1 = None
+        try:
+            import time as _t
+            t_bs0 = _t.time()
+        except Exception:
+            pass
         ids, dists = self._index.batch_search(
             queries=q,
             k_neighbors=K_FETCH,
@@ -263,15 +305,35 @@ class DiskANNBackend:
             num_threads=eff_threads,
         )
         try:
+            import time as _t
+            t_bs1 = _t.time()
+        except Exception:
+            pass
+        try:
             ex = dists[0][:3].tolist() if hasattr(dists, "shape") and dists.size else []
             print(f"[DiskANN] batch_search -> K_FETCH={K_FETCH} ids.shape={getattr(ids,'shape',None)} dists.shape={getattr(dists,'shape',None)} dists_head={ex}")
         except Exception:
             pass
         all_passages = []
         all_scores = []
+        t_map0 = None
+        try:
+            import time as _t
+            t_map0 = _t.time()
+        except Exception:
+            pass
+        map_profile = {}
+        # Prepare min_words threshold once
+        try:
+            mw_thresh = int(min_words) if (min_words is not None) else 0
+            if mw_thresh < 0:
+                mw_thresh = 0
+        except Exception:
+            mw_thresh = 0
+
         for i in range(ids.shape[0]):
             q_text = raw_query[i] if isinstance(raw_query, list) else raw_query
-            mapped = self._ids_to_passages(ids[i], raw_query=q_text)
+            mapped = self._ids_to_passages(ids[i], raw_query=q_text, profile=map_profile)
             # No min_words filtering; take the first k mapped results
             # Old min_words filter block (commented out):
             # selected = []
@@ -293,6 +355,13 @@ class DiskANNBackend:
             selected = []
             selected_scores = []
             for j, rec in enumerate(mapped):
+                if mw_thresh > 0:
+                    try:
+                        text = (rec.get("text") or "").strip()
+                        if len(text.split()) < mw_thresh:
+                            continue
+                    except Exception:
+                        pass
                 selected.append(rec)
                 selected_scores.append(dists[i][j])
                 if len(selected) >= k:
@@ -308,6 +377,26 @@ class DiskANNBackend:
         except Exception:
             pass
 
-        return all_scores, all_passages
+        timings = None
+        try:
+            import time as _t
+            t_map1 = _t.time()
+            timings = {
+                'diskann_batch': round(((t_bs1 - t_bs0) * 1000.0), 3) if (t_bs0 is not None and t_bs1 is not None) else None,
+                'mapping': round(((t_map1 - t_map0) * 1000.0), 3) if (t_map0 is not None) else None,
+                'mapping_open': round(map_profile.get('open_ms', 0.0), 3) if map_profile else None,
+                'mapping_read': round(map_profile.get('read_ms', 0.0), 3) if map_profile else None,
+                'mapping_json': round(map_profile.get('json_ms', 0.0), 3) if map_profile else None,
+                'mapping_records': int(map_profile.get('records', 0)) if map_profile else None,
+                'mapping_bytes': int(map_profile.get('bytes', 0)) if map_profile else None,
+                'L': int(L),
+                'W': int(W),
+                'threads': int(eff_threads),
+                'K_FETCH': int(K_FETCH),
+            }
+        except Exception:
+            timings = None
+
+        return all_scores, all_passages, timings
 
 

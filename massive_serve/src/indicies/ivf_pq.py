@@ -14,23 +14,30 @@ import re
 import faiss
 from pathlib import Path
 import torch
-from massive_serve.api.serve import query_encoder
-try:
-    from massive_serve.api.serve import QUERY_LOGGER  # optional query logger
-except Exception:
-    QUERY_LOGGER = None
+# Avoid importing serve.py here to prevent circular import.
+QUERY_LOGGER = None
+QUERY_ENCODER = None
 
 # Allow server to inject a logger post-import to avoid circular import timing
 def set_query_logger(logger):
     global QUERY_LOGGER
     QUERY_LOGGER = logger
 
-# Enforce single-threaded FAISS/BLAS for reproducibility during testing
+def set_query_encoder(encoder):
+    global QUERY_ENCODER
+    QUERY_ENCODER = encoder
+
+# Configure FAISS/BLAS thread count (default: 128; override with FAISS_OMP_THREADS)
 try:
-    os.environ["OMP_NUM_THREADS"] = "1"
-    os.environ["MKL_NUM_THREADS"] = "1"
+    _threads_env = os.environ.get("FAISS_OMP_THREADS", "128")
+    _faiss_threads = max(1, int(_threads_env))
     try:
-        faiss.omp_set_num_threads(1)
+        faiss.omp_set_num_threads(_faiss_threads)
+    except Exception:
+        pass
+    try:
+        os.environ["OMP_NUM_THREADS"] = str(_faiss_threads)
+        os.environ["MKL_NUM_THREADS"] = str(_faiss_threads)
     except Exception:
         pass
 except Exception:
@@ -536,7 +543,26 @@ class IVFPQIndexer(object):
                 current = self.probe if hasattr(self, "probe") else 256
             print(f"[IVFPQIndexer] nprobe not provided; using default {current}")
 
-        base_Ks = [1000]  # Always search with K=1000; slice later if needed
+        # Dynamic oversampling policy (env override):
+        # - If FAISS_K_FETCH is set -> use max(k, FAISS_K_FETCH)
+        # - Else if min_words > 0 -> K_FETCH = min(1000, k * 5)
+        # - Else -> K_FETCH = k (no oversampling)
+        try:
+            _kfetch_env = os.environ.get("FAISS_K_FETCH")
+            if _kfetch_env is not None and _kfetch_env.strip() != "":
+                K_FETCH = max(int(k), int(_kfetch_env))
+            else:
+                try:
+                    _mw = int(min_words) if (min_words is not None) else 0
+                except Exception:
+                    _mw = 0
+                if _mw > 0:
+                    K_FETCH = min(1000, max(1, int(k)) * 5)
+                else:
+                    K_FETCH = max(1, int(k))
+        except Exception:
+            K_FETCH = max(1, int(k))
+        base_Ks = [K_FETCH]
         
         print(f"[DEBUG] Input k={k}, type={type(k)}")
         # Ensure k is an integer
@@ -582,14 +608,20 @@ class IVFPQIndexer(object):
             for i, raw_passages in enumerate(all_raw_passages):
                 if exact_rerank:
                     try:
-                        raw_passages = exact_rerank_topk(raw_passages, query_encoder)
-                        print(f"[SEARCH] [QUERY {i}] Used Exact Rerank")
+                        if QUERY_ENCODER is not None:
+                            raw_passages = exact_rerank_topk(raw_passages, QUERY_ENCODER)
+                            print(f"[SEARCH] [QUERY {i}] Used Exact Rerank")
+                        else:
+                            print(f"[SEARCH] [QUERY {i}] Skipped Exact Rerank (no encoder)")
                     except Exception as e:
                         print(f"[SEARCH] [QUERY {i}] Exact Rerank failed: {e}")
                 if diverse_rerank:
                     try:
-                        raw_passages = diverse_rerank_topk(raw_passages, query_encoder, lambda_val=lambda_val)
-                        print(f"[SEARCH] [QUERY {i}] Used Diverse Rerank")
+                        if QUERY_ENCODER is not None:
+                            raw_passages = diverse_rerank_topk(raw_passages, QUERY_ENCODER, lambda_val=lambda_val)
+                            print(f"[SEARCH] [QUERY {i}] Used Diverse Rerank")
+                        else:
+                            print(f"[SEARCH] [QUERY {i}] Skipped Diverse Rerank (no encoder)")
                     except Exception as e:
                         print(f"[SEARCH] [QUERY {i}] Diverse Rerank failed: {e}")
 
