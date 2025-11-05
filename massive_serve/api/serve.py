@@ -11,6 +11,13 @@ from flask_cors import CORS
 import threading
 import queue
 from flask import send_from_directory
+# [proxy-exact-diverse] stdlib HTTP fallback if 'requests' unavailable
+try:
+    import requests as _requests
+except Exception:
+    _requests = None
+import urllib.request as _urllib_request
+import urllib.error as _urllib_error
 try:
     import psutil as _psutil
 except Exception:
@@ -85,6 +92,9 @@ ds_cfg = DatastoreConfig()
 
 app = Flask(__name__)
 CORS(app)
+
+# [proxy-exact-diverse] Base URL to proxy Exact/Diverse requests to (hardcoded default)
+PROXY_EXACT_DIVERSE_BASE = 'http://api.ds-serve.org:30888'
 
 
 # ============================ [disk-vote] BEGIN additions ============================
@@ -467,6 +477,41 @@ def search():
             diskann_threads=request.json.get('diskann_threads'),
             min_words=request.json.get('min_words'),
         )
+
+        # [proxy-exact-diverse] If Exact or Diverse is requested (FAISS path), forward to remote server.
+        try:
+            _method_local = method
+            _want_exact = bool(request.json.get('exact_search', False)) if _method_local != 'diskann' else False
+            _want_diverse = bool(request.json.get('diverse_search', False)) if _method_local != 'diskann' else False
+            _proxy_base = PROXY_EXACT_DIVERSE_BASE
+            if (_want_exact or _want_diverse) and _proxy_base:
+                target_url = _proxy_base.rstrip('/') + '/search'
+                payload = request.get_json(force=True, silent=True) or {}
+                # Minimal pass-through proxy; returns remote JSON as-is
+                if _requests is not None:
+                    rp = _requests.post(target_url, json=payload, timeout=1800)
+                    try:
+                        return jsonify(rp.json()), rp.status_code
+                    except Exception:
+                        # Fallback to raw text on parse issues
+                        return rp.text, rp.status_code
+                else:
+                    data_bytes = json.dumps(payload).encode('utf-8')
+                    req = _urllib_request.Request(
+                        url=target_url,
+                        data=data_bytes,
+                        headers={'Content-Type': 'application/json'},
+                        method='POST',
+                    )
+                    with _urllib_request.urlopen(req, timeout=1800) as resp:
+                        body = resp.read().decode('utf-8', errors='replace')
+                        try:
+                            return jsonify(json.loads(body)), resp.getcode()
+                        except Exception:
+                            return body, resp.getcode()
+        except Exception:
+            # Silent fall-through to local handling if proxying fails
+            pass
 
         # Perform the search synchronously with configurable timeout (default: 1800s)
         try:

@@ -1,0 +1,467 @@
+%File: formatting-instructions-latex-2026.tex
+%release 2026.0
+\documentclass[letterpaper]{article} % DO NOT CHANGE THIS
+\usepackage{aaai2026}  % DO NOT CHANGE THIS
+\usepackage{times}  % DO NOT CHANGE THIS
+\usepackage{helvet}  % DO NOT CHANGE THIS
+\usepackage{courier}  % DO NOT CHANGE THIS
+\usepackage[hyphens]{url}  % DO NOT CHANGE THIS
+\usepackage{graphicx} % DO NOT CHANGE THIS
+% Added for graphs (bar charts with pgfplots)
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{positioning}
+\urlstyle{rm} % DO NOT CHANGE THIS
+\def\UrlFont{\rm}  % DO NOT CHANGE THIS
+\usepackage{natbib}  % DO NOT CHANGE THIS AND DO NOT ADD ANY OPTIONS TO IT
+\usepackage{caption} % DO NOT CHANGE THIS AND DO NOT ADD ANY OPTIONS TO IT
+\usepackage{amsmath}
+\usepackage{cleveref}
+\usepackage{amsfonts} 
+\frenchspacing  % DO NOT CHANGE THIS
+\setlength{\pdfpagewidth}{8.5in}  % DO NOT CHANGE THIS
+\setlength{\pdfpageheight}{11in}  % DO NOT CHANGE THIS
+%
+% Recommended (optional) packages you included:
+\author{
+    Jinjian Liu\textsuperscript{\rm 1}\equalcontrib,
+    Yichuan Wang\textsuperscript{\rm 1}\equalcontrib,
+    Xinxi Lyu\textsuperscript{\rm 2},
+    Rulin Shao\textsuperscript{\rm 3}, \\
+    Joseph E. Gonzalez\textsuperscript{\rm 1},
+    Matei Zaharia\textsuperscript{\rm 1},
+    Sewon Min\textsuperscript{\rm 1}
+}
+\affiliations{
+    \textsuperscript{\rm 1} University of California, Berkeley
+    \quad %\\
+    \textsuperscript{\rm 2} University of Illinois Urbana–Champaign
+    \quad %\\
+    \textsuperscript{\rm 3} University of Washington
+}
+\newcommand{\stitle}[1]{\vspace*{0.4em}\noindent{\bf #1\/}}
+\usepackage{booktabs}
+\usepackage{xspace}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{newfloat}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{todonotes}
+\newcommand{\sys}{\textsc{DS Serve\xspace}}%
+\newif\ifcomments
+% comment below to remove comments, uncomment to add comments
+\commentstrue
+\ifcomments
+    \newcommand{\sewon}[1]{{\color{purple!70}[sewon: #1]}}
+    \newcommand{\yichuan}[1]{{\color{blue}[yichuan: #1]}}
+    \newcommand{\jinjian}[1]{{\color{teal}[jinjian: #1]}}
+\else
+    \newcommand{\sewon}[1]{}
+    \newcommand{\yichuan}[1]{}
+    \newcommand{\jinjian}[1]{}
+\fi
+\newcommand{\myskip}[1]{}
+
+\newcommand{\myfontsize}{\footnotesize}       
+\newcommand{\mysmallerfontsize}{\footnotesize} 
+
+\lstset{%
+  basicstyle={\footnotesize\ttfamily},
+  numbers=left,numberstyle=\footnotesize,xleftmargin=2em,
+  aboveskip=0pt,belowskip=0pt,
+  showstringspaces=false,tabsize=2,breaklines=true}
+\newfloat{listing}{tb}{lst}{}
+\floatname{listing}{Listing}
+
+\pdfinfo{
+/TemplateVersion (2026.1)
+}
+ 
+\setcounter{secnumdepth}{0} %May be changed to 1 or 2 if section numbers are desired.
+
+% Title
+\title{\sys: A Framework for Efficient and Scalable Neural Retrieval}
+% \author{
+%     Jinjian Liu\textsuperscript{\rm 1}\equalcontrib,
+%     Yichuan Wang\textsuperscript{\rm 1}\equalcontrib,
+%     Xinxi Ly\textsuperscript{\rm 2},
+%     Rulin Shao\textsuperscript{\rm 3},
+%     Joseph E. Gonzalez\textsuperscript{\rm 1},
+%     Sewon Min\textsuperscript{\rm 1}
+% }
+% \affiliations{
+%     \textsuperscript{\rm 1} University of California, Berkeley \\
+%     \textsuperscript{\rm 2} University of Illinois Urbana-Champaign\\
+%     \textsuperscript{\rm 3} University of Washington
+% }
+
+% REMOVE THIS: bibentry (kept from your draft)
+\usepackage{bibentry}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+We present \sys, a framework that transforms large-scale text datasets---comprising half a trillion tokens---into a high-performance neural retrieval system. \sys\ offers both a web interface and API endpoints, achieving low latency with modest memory overhead on a single node. The framework also supports inference-time tradeoffs between latency, accuracy, and result diversity. We anticipate that \sys\ will be broadly useful for a range of applications such as large-scale retrieval-augmented generation (RAG), training data attribution, training a search agent, and beyond.  
+% \jinjian{small detail: I remember we mentioned the use of building a human focused datastore with the labels, is this included just as "(RAG)" or do we want to be more specific?}
+
+% Mainstream search engines often suffer from limitations such as a poor tradeoff between speed and accuracy, repetitive results, difficulty handling long queries, high API costs, and scalability bottlenecks. To address these challenges, we present \sys, a free and low-latency demo for retrieval-augmented generation (RAG) powered by a semantic search engine built on over two billion vectors and exposed through a public API. The platform offers an intuitive interface with flexible configuration options and multiple search modes, making it both easy to use and capable of collecting feedback on retrieval quality.
+
+% \sewon{\\
+% We present \sys, a framework that transforms large-scale text datasets---comprising half a trillion tokens---into a high-performance neural retrieval system. \sys\ offers both a web interface and API endpoints, achieving low latency with modest memory overhead on a single node. The framework also supports inference-time tradeoffs between latency, accuracy, and result diversity. We anticipate that \sys\ will be broadly useful for a range of applications such as large-scale retrieval-augmented generation (RAG), training data attribution, training a search agent, and beyond. %\yichuan{add deep research like agent post-training stuff to be more appealing at this moment?} \sewon{good point!}
+% }
+
+% \jinjian{\\ Proposal --
+% Advancements in modern AI systems have brought forth a golden age of informational retrieval, as well as unprecedented challenges of latency, accuracy, cost, and diversity. In response to these challenges, we present DS Serve, a framework that transforms large scale text corpora---comprising hundreds of billions of tokens---into a capable neural retrieval system. Exposed through a web interface and API endpoints, DS Serve achieves low latency with modest memory overhead on a single node. Furthermore, DS Serve precisely targets a useful range of applications including large-scale retrieval-augmented generation (RAG), training data attribution, cutomized data curation, and beyond.
+
+
+% }
+% Moreover, \sys incorporates a carefully engineered system design that enables semantic search to remain both fast and cost-efficient, even over a corpus exceeding 500B tokens. This makes it practical to directly support a wide range of downstream tasks with high accuracy and low overhead.
+% User feedbacks offer a valuable source of data for building a human-centric RAG datastore. Through evaluations and case studies, we demonstrate how different retrieval modes and query configurations influence outcomes, underscoring the importance of thoughtful RAG system design.
+\end{abstract}
+
+\begin{links}
+    \link{Code}{github.com/Berkeley-Large-RAG/RAG-DS-Serve} \\
+    %\link{Dataset}{huggingface.co/datasets/alrope/CompactDS-102GB} \\
+    \link{Demo URL}{compactds.duckdns.org:30888/ui} \\
+    %\link{API Documents}{github.com/Berkeley-Large-RAG/RAG-DS-Serve/blob/main/API_DOCUMENTATION.md}
+\end{links}
+
+\section{Introduction}
+\myskip{
+The rapid advancement of large language models (LLMs) has enabled embedding-based similarity search to power many applications, such as content retrieval\cite{ragretrieval} and question answering\cite{ragqa}. Unlike keyword-based search, it captures high-dimensional semantic similarities between a query and the content in a datastore. 
+% Compared with traditional search engines, it can effectively handle long or nuanced queries.
+
+% \yichuan{TODO: rewrite the remaining part on intro}
+Recent studies such as MassiveDS\cite{massiveds} and CompactDS\cite{compactds} demonstrate the great potential of scaling datastores to improve the accuracy of downstream tasks (e.g., RAG). However, it remains difficult for individuals to issue queries, as no public endpoints are available. For researchers, serving these massive datastores poses even greater challenges: their raw embeddings alone exceed 5 TB, requiring substantial RAM, disk space, and significant computational and financial resources.
+
+Our goal is to develop a platform that is free and easy to use, enabling even non-experts to interact with and review retrieval results at scale. Users can provide feedback by expressing preferences on retrieved outputs, and the entire process must run online with high accuracy and low latency to ensure a smooth experience. Moreover, the platform should be capable of handling high-QPS workloads reliably.
+
+% Effective and accurate retrieval lies at the heart of modern information systems and retrieval-augmented generation (RAG) pipelines. Yet, everyday users and researchers still run into familiar obstacles. Long or nuanced queries are often mishandled, causing failures due to redundancy or low accuracy. Attempts to optimize for accuracy frequently come at the cost of latency, while systems prioritized for speed may sacrifice depth and relevance. At the infrastructure level, operating at web scale requires significant computational and financial cost, creating barriers for experimentation and user-centric evaluation.
+
+% Recent advances in dense retrieval and open benchmarks such as MS MARCO provided valuable insight into retrieval performance, but most evaluations remain offline and lack transparency. What is missing is a way for non-experts to directly interact and review retrieval results at scale — and for researchers to capture these interactions as feedback signals. Such a capability would not only help communicate the trade-offs underlying RAG search but also open new opportunities for building human-focused datastores.
+
+To further explore this idea, we developed \sys, an RAG system built on a billion-scale FAISS\cite{faiss} index. The system enables users to adjust retrieval parameters, switch between search modes, and instantly observe their impact on result diversity and accuracy. These capabilities are delivered with low latency, made possible by a range of system-level optimizations such as compression and caching. In addition, \sys collects optional user votes on accuracy for each paragraph, providing an avenue for curating preference-aligned retrieval datasets. By lowering the barrier to experimentation and making retrieval behaviors tangible, \sys contributes both as an educational tool and as a step stone for constructing user-focused RAG pipelines. For researchers, the API endpoint can be easily accessed to conduct studies in RAG serving and even to support post-training for deep-research-style agents that need to learn how to search in the wild.}
+
+
+Neural retrieval over large-scale text datasets comprising nearly a trillion tokens has become central to modern machine learning, powering applications from retrieval-augmented generation (RAG) to training data attribution and curation.
+Yet deploying such systems at this scale remains difficult: high latency and memory requirements make them costly and often impractical for fast inference or interactive use. For example, a dataset from CompactDS---a pre-training dataset with half a trillion tokens~\cite{compactds}---produces two billion 768-dimensional vectors, with raw embeddings exceeding 5TB, posing a significant challenge for existing retrieval frameworks. Current systems typically optimize for either accuracy or efficiency, but rarely both, and often require distributed infrastructure, creating barriers for researchers and practitioners with limited resources.
+
+To this end, we present \sys, a framework that transforms massive text datasets into a neural retrieval system designed to run efficiently on a single node. \sys\ leverages FAISS~\cite{faiss} for approximate nearest neighbor search, and is capable of handling billions of vectors (e.g., 2B in our deployment). It further supports exact and diversity-based reranking, enabling inference-time tradeoffs among accuracy, latency, and diversity.
+On CompactDS data, \sys\ delivers subsecond latency with modest memory overhead ($\approx$100GB RAM), demonstrating scalability without distributed infrastructure. \sys\ provides both a web interface and API endpoints, easing integration across diverse workflows.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\columnwidth,
+    % height=0.12\textheight
+    ]{codeflow.pdf}
+    \vspace{-1.7em}
+    \caption{
+    \sys\ converts a large dataset into a neural retrieval system: a query $q$ retrieves relevant text via ANN, optionally reranks with exact and/or diverse search, and returns the top-$k$ chunks with voting options for user feedback.
+    }
+    %\vspace{-0.1cm}
+    \label{fig:placeholder}
+\end{figure}
+
+
+In summary, \sys\ enables building \emph{fully controllable} in-house retrieval systems over arbitrary \emph{large-scale} datasets on a single node, with accessible interaction via a web interface and API endpoints. 
+\sys\ is broadly applicable to large-scale RAG, training data attribution, search agent training, and other retrieval-intensive applications.
+
+%\yichuan{all above(intro and abstract) looks good for me}
+
+%Our contributions are threefold: (1) a scalable single-node framework for billion-scale retrieval; (2) mechanisms for inference-time tuning of accuracy, latency, and diversity, and (3) practical accessibility through a web interface with voting features and API endpoints. Together, these contributions make \sys\ broadly applicable to large-scale RAG, training data attribution, search agent training, and other retrieval-intensive applications.
+
+% \yichuan{Do we need to mention "it's a fully controllable, in-house retrieval, which can index arbitrary in-house data", I think it is an exciting point, and we should put it somewhere in the intro? like we share the system optimization to help build such in-house datastore}
+%\vspace{-0.5cm}\sewon{I'm a bit worried about vspace between sections}
+\section{Description of \sys}
+\sys\ is a framework that transforms a large-scale text corpus $\mathcal{D}$ into a high-performance neural retrieval system. % with both a web interface and API endpoints.
+% \yichuan{"a web interface and API endpoints" stuff, duplicate with the previous paragraph? or it is ok? I am not that sure} 
+This retrieval system takes a user query~$q$ as input and returns a set of text chunks $\{d_1, \ldots, d_k\} \subset \mathcal{D}$, 
+where $k$ is a user-specified hyperparameter. % indicating the number of retrieved text chunks. \sewon{Start with the input and the output, e.g., the input is $q$ and the output is $\{d_1, \cdots, d_k\} \in \mathcal{D}$, where $\mathcal{D}$ is the text corpus that is indexed, and $k$ is a hyperparameter. (And once you refine them, you can use consistent notations when describing inner product search and MMR.)}
+The retrieval system is primarily based on the FAISS ANN backbone, with two optional additional modes:
+%Users can optionally enable two independent search modes on top of the FAISS ANN backbone:
+\emph{Exact Search}, which improves accuracy, and \emph{Diverse Search}, which enhances result diversity.
+%When either mode is activated, the corresponding scores (exactness or diversity) are computed, and candidate passages are re-ranked accordingly before the top results are presented.
+
+% \jinjian{
+% \section{Overview}
+% Given a user query $q$, \sys first retrieves a set of $K$ high-similarity candidate passages using an approximate-nearest-neighbor (ANN) backbone:
+% $\{d_1,\ldots,d_K\} \subseteq \mathcal{D}$, where $D$ is the indexed text corpora. However, only a subset of top $\{d_1,\ldots,d_k\}$ passages are displayed according to the user-specified parameter $k$.
+% Users can optionally apply two independent search modes on top of the FAISS ANN backbone:
+% \emph{Exact Search} that boosts accuracy,
+% and \emph{Diverse Search} which diversifies results.
+% If either optional mode is enabled, exact or diversity scores will be calculated respectively. Candidate passages will then be re-reranked based on the new scores, before top passages can be displayed.
+% } \\
+
+\subsection{\sys\ Backend}
+%\jinjian{CompactDS discussion integrated here}
+\paragraph{Datastore.}
+%\sys\ can process arbitrary in-house datasets at massive scale. Prior work~\cite{massiveds,compactds} has shown that retrieval over large pre-training corpora substantially improves RAG accuracy across diverse tasks such as factoid question answering and reasoning. However, these efforts did not provide an accessible framework for non-experts to build indexes or interact with them through web interfaces or API endpoints. In this paper, we demonstrate \sys\ by constructing an instance on the CompactDS data~\cite{compactds}, which contains 380 billion words spanning web crawl data, Wikipedia, research papers, and beyond.
+
+\sys\ can process arbitrary in-house datasets at massive scale. While prior work~\cite{massiveds,compactds} has shown that retrieval over large pre-training corpora can improve RAG accuracy, such efforts lacked accessible frameworks that allow non-experts to build and interact with indexes. In this paper, we demonstrate \sys\ on CompactDS~\cite{compactds}, a 380-billion-word corpus (2B vectors) spanning web crawl data, Wikipedia, research papers, and more.
+
+Notably, this represents a significantly larger datastore than those used in most prior work. Existing studies on neural retrieval or RAG typically operate at much smaller scales, e.g., $<50$M vectors~\cite{jin2024long,jin2025search,hu2025hedrarag}. Even advanced commercial vector search services generally support $<500$M vectors per namespace~\cite{Turbopuffer2025}. 
+
+\vspace{-.3em}
+\paragraph{Approximate Nearest Neighbor (ANN) Search.}
+
+\myskip{
+With the growing adoption of RAG systems, the need to serve semantic search over large-scale corpora has become increasingly important.  
+However, in practice, the corpora used for vector search are often limited in size\cite{jin2024long,jin2025search,hu2025hedrarag}.  
+Even the most advanced commercial vector search services typically support fewer than 500M vectors within a single namespace\cite{Turbopuffer2025}.  
+By comparison, \sys demonstrates scalability at a significantly larger scale.
+
+
+Advances in approximate nearest-neighbor (ANN) techniques—exemplified by HNSW, NSG, IVFPQ, and RaBitQ—have made vector search significantly more efficient by avoiding linear scans over the entire datastore. \cite{hnsw,nsg,ivfpq,rabbitq}  
+\sys integrates\yichuan{fix here the format} \jinjian{re: "fix the format" -- I used group citation to clean it up}\yichuan{I mean the DS Serve stuff, right now it is combining with the next word}and extends several of these techniques, combining them into a system design tailored for low-latency, large-scale semantic search.
+\yichuan{The flow of these two paragraphs is not that good for me}
+
+Passage embeddings are indexed with IVF–PQ and queried with adjustable $n_{\text{probe}}$.  \yichuan{mention the embedding model}
+% \sewon{Make sure to be consistent the notation for nprobe w.r.t. the one in the caption (to me, the notation in the caption looks more formal)}
+The ANN stage retrieves $K$ passages in descending order of similarity score.  
+If no other search mode is selected, the top-$k$ passages are returned and displayed in the UI with their source, similarity score, and content.  
+When alternative search modes are enabled, downstream scoring and reranking are applied.
+}
+
+Neural retrieval is formulated as a nearest neighbor search that selects the top-$k$ chunks with the highest similarity scores $\operatorname{sim}(\mathbf{q}, \mathbf{d}_i)$, where $\mathbf{q}, \mathbf{d}_i \in \mathbb{R}^h$ are the vector representations of the query $q$ and a candidate chunk $d_i \in \mathcal{D}$, respectively.\footnote{$\mathbf{q}=\text{enc}(q)$ and $\mathbf{d}_i=\text{enc}(d_i)$, where we use Contriever~\cite{izacard2021unsupervised} as the encoder. The function $\mathrm{sim}(\cdot,\cdot)$ denotes the cosine similarity between two embeddings.}
+%, implemented as cosine similarity in \sys.}
+
+As the datastore $\mathcal{D}$ scales to billions of vectors, efficient nearest neighbor search becomes a central challenge, since linear scans become infeasible.
+%To address this, we adopt approximate nearest neighbor (ANN) methods~\cite{hnsw,nsg,ivfpq,rabbitq}, which employ specialized data structures to avoid exhaustive comparisons. In particular, \sys\ incorporates IVFPQ~\cite{ivfpq}, which partitions the vector space into clusters and quantizes vectors within each cluster, reducing memory usage and improving query speed.
+To address this, we adopt approximate nearest neighbor (ANN) based on IVFPQ~\cite{ivfpq}, which partitions the vector space into clusters and quantizes vectors within each cluster, reducing memory usage and improving query speed.
+The number of clusters searched, $n_{\text{probe}}$, is tunable at test time to control accuracy-speed tradeoffs.
+%a tunable hyperparameter at test time: larger values increase accuracy, while smaller values reduce latency.
+IVFPQ is straightforward to build, and in our setting, supports inference within 0.2 seconds with $\approx100$GB memory overhead, which is modest compared to the original datastore size of 5 TB.
+
+% \sewon{Say something about our memory usage and average latency with ANN.}
+% \yichuan{I will fix here}
+
+\vspace{-.3em}
+\paragraph{Exact Search.}
+While IVFPQ is fast and efficient, it inevitably sacrifices retrieval accuracy, especially at large $|\mathcal{D}|$ where aggressive quantization is required. To mitigate this limitation, \sys\ provides an optional reranking mode based on exact search. In this mode, ANN first retrieves the top-$K$ candidates ($K>k$), which are then reranked using exact similarity scores $\operatorname{sim}(\mathbf{q},\mathbf{d}_i).$
+%:$$s_i \;=\; \operatorname{sim}(\mathbf{q},\mathbf{d}_i) \;=\; \frac{\mathbf{q}^{\top}\mathbf{d}_i}{\|\mathbf{q}\|_2\,\|\mathbf{d}_i\|_2}.$$
+We use GritLM~\cite{muennighoff2024generative} to compute exact similarity between passages and queries, after which the true top-$k$ passages are returned. Passage vectors are recomputed on the fly during cold start but cached for subsequent queries, typically reducing the latency to below 0.5s when similar queries are posed. As shown in our evaluation, exact search consistently improves accuracy across all tasks.
+
+\vspace{-.3em}
+\paragraph{Diverse Search.}
+Search results often contain substantial overlap, returning nearly identical passages, limiting information breadth. We introduce a \emph{Diverse Search} option 
+% \yichuan{can remove this}
+, explicitly discouraging redundancy to improve coverage. Concretely, we apply maximal marginal relevance  (MMR) \cite{mmr}: at step $t$, given the already selected set $\mathcal{S}$, each remaining candidate $i$ receives a score:$$\lambda\, \operatorname{sim}\!\bigl(\mathbf{q},\mathbf{d}_i\bigr) \;-\; (1-\lambda)\,\max_{j\in\mathcal{S}} \operatorname{sim}\!\bigl(\mathbf{d}_i,\mathbf{d}_j\bigr).$$ We find that diverse search substantially improves user experience, though it may not necessarily improve RAG performance. We leave its further evaluation to future work.
+
+%While this approach effectively reduces overlap, it is not universally optimal—accuracy varies across tasks after \emph{Diverse Search}.   Its main value lies in presenting a broader range of results, so users can tune the search to their own discretion.
+
+\subsection{Interface Design}
+
+\sys\ provide a web interface and API endpoints, with inference-time tunable parameters: $k$, two optional post-ANN search modes (Exact and Diverse Search), $n_\text{probe}$ and $\lambda$, controlling the number of chunks retrieved and the trade-offs among accuracy, latency, and diversity.
+%\sewon{what each hyperparam means and what tradeoffs they control should be clear from the prev paragraphs, and here, it shouldn't be repeated (at most one-phrase-per- hyperparameter summary.}  
+%Every query is logged with its parameters and end-to-end latency for replay and comparison, and  \sewon{This info seems minor to me.}
+Users can cast a one-click relevance vote for each chunk, with labels stored for system development and evaluation (Figure~\ref{fig:placeholder}).
+%Each passage offers a one-click relevance vote (yes/no) whose labels are stored for later curation (Figure~\ref{fig:placeholder}).
+
+% \yichuan{@Jinjian pleasRefe add both latency and accuracy?}
+
+
+\begin{table}[t]
+\caption{
+Evaluation of \sys\ on five established benchmarks.
+`{\em Acc}' is accuracy (\%), and \(t\) is end-to-end \emph{retrieval} latency (s). For Exact Search, we report \(t\) without cache and \(t_{\text{cache}}\) with cache. We use \(K=1000\), \(k=10\), and \(n_{\text{probe}}=256\) for all tasks.
+}\vspace{-.5em}
+\centering
+\mysmallerfontsize
+\setlength{\tabcolsep}{3pt}
+\label{tab:results}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{l c cc ccc}
+\toprule
+& \multicolumn{1}{c}{No \sys}
+& \multicolumn{2}{c}{\sys}
+& \multicolumn{3}{c}{\sys\ w/ Exact} \\
+\cmidrule(r){2-2}\cmidrule(lr){3-4}\cmidrule(lr){5-7}
+Task & \multicolumn{1}{c}{Acc} & Acc & $t$ & Acc & $t$ & \(t_{\text{cache}}\) \\
+\midrule
+MMLU     & 68.9 & 73.5 & 0.17 & 73.7 & 16.44 & 0.30 \\
+MMLU Pro & 39.8 & 47.5 & 0.19 & 49.4 & 16.54 & 0.32 \\
+AGI Eval & 56.2 & 56.2 & 0.21 & 58.3 & 15.03 & 0.34 \\
+MATH     & 46.9 & 50.0 & 0.18 & 53.1 & 16.51 & 0.33 \\
+GPQA     & 29.9 & 31.7 & 0.17 & 36.6 & 16.57 & 0.32 \\
+\bottomrule
+\end{tabular}%
+}
+%\vspace{-0.2cm}
+\end{table}
+
+
+
+% \vspace{-0.5cm}
+\section{Evaluation and Application}
+We evaluate \sys\ for RAG applications and discuss other potential use cases.
+
+\vspace{.2em}
+\noindent
+\textbf{RAG.} We evaluate a RAG model based on \sys\ on five established benchmarks (Table~\ref{tab:results}). \sys\ substantially improves accuracy over the baseline with negligible latency overhead, with further gains achieved through exact search. We report the upper bound of exact search latency, but it is often much lower in practice when the same or similar queries were issued previously and benefit from caching.
+
+%first evaluate \sys on popular RAG applications, reporting both accuracy and latency results in Table~\ref{tab:results}.
+
+
+%\jinjian{OLMoTrace integrated here} 
+\vspace{.2em}
+\noindent
+\textbf{Data Attribution and Curation.} \sys\ can readily be used for training data attribution by indexing the entire pre-training corpus. The closest prior system, OLMoTrace~\cite{olmotrace}, relies on $n$-gram matching, whereas \sys\ considers semantic similarity, making it complementary to or more accurate than OLMoTrace. In addition, \sys\ enables improved data curation through semantic deduplication, decontamination, and customized filtering (e.g., identifying subsets of large datasets relevant to specific queries).
+
+%. OLMoTrace employs an n-gram–based method to map model outputs back to pre-training data. In contrast, \sys leverages semantic search, which can capture high-dimensional similarities beyond surface-level overlap. Furthermore, the system-level optimizations in \sys can be directly applied to building a semantic-search–based pre-training data attribution system. As a result, \sys is a well-suited tool for semantic deduplication, dataset decontamination, and even filtering out unsafe content during pre-training. 
+
+\vspace{.2em}
+\noindent
+\textbf{Training a Search Agent.}
+Search agents are in high demand for applications such as deep research; however, training them is challenging, as rollouts require high-QPS search calls~\cite{jin2025search}, and commercial search engines are costly, slow, and rate-limited. \sys\ addresses these issues by providing a fully controllable search backend, allowing developers to set their own latency-accuracy tradeoffs without incurring costs or rate limits. 
+% \sewon{TODO: add citations}
+
+%\sys can be directly applied to training deep research–style agents in post-training\cite{jin2025search} \jinjian{please double-check this citation @yichuan}\yichuan{fixed with a relevant citation}, where the rollout step requires high-QPS search calls. In this setting, \sys provides a low-latency and cost-efficient semantic search endpoint. Beyond this, \sys can also support data curation by identifying subsets of queries relevant to a given task.
+
+\vspace{.2em}
+\noindent
+\textbf{Pushing the Frontier of Search.}
+Commercial web search engines (e.g., Google) are powerful, but they have room for improvement: they perform well on short keyword queries but struggle with long or complex inputs. Vector-based retrieval is more effective in such cases and can complement or even outperform traditional search engines (as shown in \citet{compactds}).
+Our voting features also enable collection of real-world labeled data, enabling creation of realistic benchmarks and training data for retrieval research.
+%Moreover, our voting features offer a unique opportunity to collect queries from real-world user distributions, enabling the creation of realistic benchmarks and training data to advance retrieval research.
+
+%\jinjian{Traditional search engine comparison moved here} Furthermore, traditional web search engines (e.g., Google) excel at retrieving relevant webpages for short keyword queries, but they struggle with long or complex inputs and their APIs are often costly in both latency and money. By contrast, \sys is designed for free and efficient large-scale semantic search with low latency.
+
+%In addition, by collecting user feedback on retrieval preferences, \sys enables fine-tuning of embedding models with human-in-the-loop contrastive learning.
+
+%Finally, for the vector search community, \sys provides a unique opportunity to collect queries from real-world user distributions, allowing the construction of realistic benchmarks to advance ANN research.
+
+
+\subsection{Graphs}
+% Requires in preamble:
+% \usepackage{pgfplots}
+% \pgfplotsset{compat=1.18}
+% \usetikzlibrary{positioning}
+
+% --- DiskANN: QPS vs L (1k..5k) ---
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  ybar, bar width=10pt,
+  xlabel={L}, ylabel={QPS},
+  symbolic x coords={1000,2000,3000,4000,5000},
+  xtick=data, ymin=0,
+  enlarge x limits=0.2,
+  nodes near coords, nodes near coords align={vertical},
+  title={DiskANN QPS vs L}
+]
+\addplot coordinates
+  {(1000,238.10) (2000,232.56) (3000,200.00) (4000,200.00) (5000,147.06)};
+\end{axis}
+\end{tikzpicture}
+\caption{DiskANN end-to-end QPS vs L.}
+\end{figure}
+
+% --- DiskANN: Latency breakdown vs L ---
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  ybar, bar width=8pt,
+  xlabel={L}, ylabel={Latency (ms)},
+  symbolic x coords={1000,2000,3000,4000,5000},
+  xtick=data, ymin=0,
+  enlarge x limits=0.25,
+  legend style={at={(0.5,-0.18)}, anchor=north, legend columns=-1},
+  title={DiskANN Latency Breakdown vs L}
+]
+% Embed
+\addplot[ybar, bar shift=-16pt] coordinates
+  {(1000,2.61) (2000,2.52) (3000,2.69) (4000,2.36) (5000,2.59)};
+% Search (server)
+\addplot[ybar, bar shift=-8pt] coordinates
+  {(1000,1.17) (2000,1.40) (3000,1.82) (4000,2.27) (5000,3.77)};
+% DiskANN batch
+\addplot[ybar, bar shift=0pt] coordinates
+  {(1000,0.50) (2000,0.99) (3000,1.48) (4000,1.97) (5000,2.42)};
+% Passage map
+\addplot[ybar, bar shift=8pt] coordinates
+  {(1000,0.67) (2000,0.42) (3000,0.34) (4000,0.30) (5000,1.34)};
+% Total
+\addplot[ybar, bar shift=16pt] coordinates
+  {(1000,3.78) (2000,3.92) (3000,4.52) (4000,4.63) (5000,6.36)};
+\legend{Embed, Search (server), DiskANN batch, Passage map, Total}
+\end{axis}
+\end{tikzpicture}
+\caption{DiskANN end-to-end latency breakdown vs L.}
+\end{figure}
+
+% --- FAISS: QPS vs nprobe ---
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  ybar, bar width=10pt,
+  xlabel={nprobe}, ylabel={QPS},
+  symbolic x coords={32,64,128,256},
+  xtick=data, ymin=0,
+  enlarge x limits=0.2,
+  nodes near coords, nodes near coords align={vertical},
+  title={FAISS QPS vs nprobe}
+]
+\addplot coordinates
+  {(32,146.29) (64,136.53) (128,117.03) (256,91.02)};
+\end{axis}
+\end{tikzpicture}
+\caption{FAISS end-to-end QPS vs nprobe.}
+\end{figure}
+
+% --- FAISS: Latency vs nprobe ---
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  ybar, bar width=10pt,
+  xlabel={nprobe}, ylabel={Latency (ms)},
+  symbolic x coords={32,64,128,256},
+  xtick=data, ymin=0,
+  enlarge x limits=0.25,
+  legend style={at={(0.5,-0.18)}, anchor=north, legend columns=-1},
+  title={FAISS Latency vs nprobe}
+]
+% Embed
+\addplot[ybar, bar shift=-10pt] coordinates
+  {(32,1.86) (64,1.96) (128,1.80) (256,1.87)};
+% Search (server)
+\addplot[ybar, bar shift=0pt] coordinates
+  {(32,4.39) (64,5.02) (128,6.27) (256,8.70)};
+% Total
+\addplot[ybar, bar shift=10pt] coordinates
+  {(32,6.25) (64,6.98) (128,8.07) (256,10.57)};
+\legend{Embed, Search (server), Total}
+\end{axis}
+\end{tikzpicture}
+\caption{FAISS end-to-end latency vs nprobe.}
+\end{figure}
+
+% --- DiskANN (index-only): QPS vs L ---
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  ybar, bar width=10pt,
+  xlabel={L}, ylabel={QPS},
+  symbolic x coords={1000,2000,3000,4000,5000},
+  xtick=data, ymin=0,
+  enlarge x limits=0.2,
+  nodes near coords, nodes near coords align={vertical},
+  title={DiskANN Index-only QPS vs L (Beamwidth=4)}
+]
+\addplot coordinates
+  {(1000,2019.40) (2000,952.53) (3000,656.03) (4000,496.58) (5000,403.84)};
+\end{axis}
+\end{tikzpicture}
+\caption{DiskANN index-only QPS vs L.}
+\end{figure}
+
+\bibliography{aaai2026}
+
+\end{document}

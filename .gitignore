@@ -20,3 +20,4 @@ DiskANN-build/DiskANN_index/
 DiskANN-build/cpds_embeddings/
 DiskANN-build/DiskANN/build/
 /mnt/md-256k/jinjian/DS/runtime/*
+/mnt/md-256k/jinjian/DS/scripts/plot_qps.py
