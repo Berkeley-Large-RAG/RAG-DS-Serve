@@ -31,7 +31,7 @@ p { font-size: 18px; margin: 6px 0; }
 
 <p align="center">[<a href="https://tinyurl.com/compact-ds-dive">Web Interface</a>] [<a href="{{ 'API_DOCUMENTATION.html' | relative_url }}">API Endpoint</a>] [<a href="{{ 'VOTES_DOCUMENTATION.html' | relative_url }}">Voting System</a>] [<a href="https://github.com/Berkeley-Large-RAG/RAG-DS-Serve">Code</a>] [<a href="https://openreview.net/forum?id=nQBZKcF2bo">Paper</a>]</p>
 
-<!-- **[✨NEW]** DiskANN integration: ~1000 QPS at 500B-token scale with low RAM.
+<!-- **[✨NEW]** DiskANN integration: ~200 QPS at 500B-token scale with low RAM. >1000 Index level QPS.
 
 **[✨NEW]** Exact + Diverse modes: tune accuracy–diversity–latency on demand. -->
 
@@ -45,8 +45,8 @@ We introduce **DS Serve**, a framework that transforms a large-scale text corpus
 In one word: Use our framework to **retrieve** data from **near tillion-scale**, **high-quality pre-trained datasets** — **blazing fast** ⚡ and **absolutely free!** 🚀
 
 **DS Serve** realizes the transformation of the **largest datastore** (~**500B tokens**, ~**2B vectors**, ~**5T vector embeddings**), into a public domain that provides **free and high-performance neural retrieval endpoints**.  
-We can offer <b>&lt;100&nbsp;ms latency</b> and handle <b>&gt;1000&nbsp;QPS</b>, enabling accurate search over a <b>pre‑trained‑scale datastore</b>.  
-For deployment, everyone can clone our **codebase and index**, and run it with **~200 GB RAM** without any GPU.
+We can offer <b>&lt;100&nbsp;ms latency</b> and handle <b>&gt;200+&nbsp;QPS End-to-End</b>, enabling accurate search over a <b>pre‑trained‑scale datastore</b>.
+For deployment, everyone can clone our **codebase and index**, and run it with **~100 GB RAM** without any GPU for FAISS ANN, and **200 GB RAM** for additional DiskANN support.
 Additionally, our framework enables you to convert your **in-house large-scale data** into a **high-performance, controllable** neural retrieval endpoint that you manage.
 
 

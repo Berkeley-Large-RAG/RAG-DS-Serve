@@ -24,10 +24,10 @@ def annotate_bars(ax) -> None:
             continue
         if height <= 0:
             continue
-        ax.annotate(f"{height:.1f}",
+        ax.annotate(f"{height:.2f}",
                     (p.get_x() + p.get_width() / 2.0, height),
                     ha="center", va="bottom",
-                    fontsize=8, rotation=0, xytext=(0, 3), textcoords="offset points")
+                    fontsize=12, fontweight='bold', rotation=0, xytext=(0, 3), textcoords="offset points")
 
 
 def plot_diskann_qps(data, out_dir: str) -> None:
@@ -51,6 +51,18 @@ def plot_diskann_qps(data, out_dir: str) -> None:
     plt.savefig(os.path.join(out_dir, "diskann_qps_vs_L.png"), dpi=160)
     plt.close()
 
+
+def annotate_bars_custom(ax, fontsize: int = 10, y_offset: int = 4) -> None:
+    for p in ax.patches:
+        height = p.get_height()
+        if not math.isfinite(height):
+            continue
+        if height <= 0:
+            continue
+        ax.annotate(f"{height:.2f}",
+                    (p.get_x() + p.get_width() / 2.0, height),
+                    ha="center", va="bottom",
+                    fontsize=fontsize, fontweight='bold', rotation=0, xytext=(0, y_offset), textcoords="offset points")
 
 def plot_diskann_latency_breakdown(data, out_dir: str) -> None:
     # metrics to plot as grouped bars
@@ -191,6 +203,280 @@ def plot_diskann_index_only_qps(data, out_dir: str) -> None:
     plt.close()
 
 
+def plot_accuracy_triviaqa_faiss_vs_diskann(out_dir: str) -> None:
+    labels = ["Exact match", "F1", "Recall"]
+    faiss_vals = [0.584511447516577, 0.6708467199132743, 0.8836481921681472]
+    diskann_vals = [0.635431002126861, 0.72239609694681, 0.8977855623670712]
+
+    x = range(len(labels))
+    width = 0.35
+
+    plt.figure(figsize=(9, 4))
+    if sns:
+        sns.set_theme(style="whitegrid")
+    ax = plt.gca()
+
+    faiss_color = "#4C78A8"
+    diskann_color = "#F58518"
+
+    ax.bar([i - width / 2 for i in x], faiss_vals, width=width, label="FAISS", color=faiss_color)
+    ax.bar([i + width / 2 for i in x], diskann_vals, width=width, label="DiskANN", color=diskann_color)
+
+    ax.set_xticks(list(x))
+    ax.set_xticklabels(labels)
+    ax.set_ylabel("Score")
+    ax.set_title("TriviaQA (validation) Accuracy: FAISS vs DiskANN")
+    ax.legend()
+
+    annotate_bars(ax)
+    plt.tight_layout()
+    plt.savefig(os.path.join(out_dir, "accuracy_triviaqa_faiss_vs_diskann.png"), dpi=160)
+    plt.close()
+
+
+def plot_accuracy_nqopen_faiss_vs_diskann(out_dir: str) -> None:
+    labels = ["Exact match", "F1"]
+    faiss_vals = [0.2155124653739612, 0.33179501385041454]
+    diskann_vals = [0.22770083102493074, 0.3470803324099715]
+
+    x = range(len(labels))
+    width = 0.35
+
+    plt.figure(figsize=(7.5, 4))
+    if sns:
+        sns.set_theme(style="whitegrid")
+    ax = plt.gca()
+
+    faiss_color = "#4C78A8"
+    diskann_color = "#F58518"
+
+    ax.bar([i - width / 2 for i in x], faiss_vals, width=width, label="FAISS", color=faiss_color)
+    ax.bar([i + width / 2 for i in x], diskann_vals, width=width, label="DiskANN", color=diskann_color)
+
+    ax.set_xticks(list(x))
+    ax.set_xticklabels(labels)
+    ax.set_ylabel("Score")
+    ax.set_title("NQ-Open (validation) Accuracy: FAISS vs DiskANN")
+    ax.legend()
+
+    annotate_bars(ax)
+    plt.tight_layout()
+    plt.savefig(os.path.join(out_dir, "accuracy_nqopen_faiss_vs_diskann.png"), dpi=160)
+    plt.close()
+
+
+def plot_accuracy_combined_faiss_vs_diskann(out_dir: str) -> None:
+    # Order: TriviaQA (EM, F1, Recall), NQ-Open (EM, F1)
+    labels = [
+        ("TriviaQA", "Exact match"),
+        ("TriviaQA", "F1"),
+        ("TriviaQA", "Recall"),
+        ("NQ-Open", "Exact match"),
+        ("NQ-Open", "F1"),
+    ]
+
+    faiss_vals = [
+        0.584511447516577,  # TriviaQA EM
+        0.6708467199132743, # TriviaQA F1
+        0.8836481921681472, # TriviaQA Recall
+        0.2155124653739612, # NQ-Open EM
+        0.33179501385041454 # NQ-Open F1
+    ]
+
+    diskann_vals = [
+        0.635431002126861,  # TriviaQA EM
+        0.72239609694681,   # TriviaQA F1
+        0.8977855623670712, # TriviaQA Recall
+        0.22770083102493074,# NQ-Open EM
+        0.3470803324099715  # NQ-Open F1
+    ]
+
+    x = range(len(labels))
+    width = 0.36
+
+    plt.figure(figsize=(12, 5))
+    if sns:
+        sns.set_theme(style="whitegrid")
+    ax = plt.gca()
+
+    faiss_color = "#4C78A8"
+    diskann_color = "#F58518"
+
+    ax.bar([i - width / 2 for i in x], faiss_vals, width=width, label="FAISS", color=faiss_color)
+    ax.bar([i + width / 2 for i in x], diskann_vals, width=width, label="DiskANN", color=diskann_color)
+
+    ax.set_xticks(list(x))
+    ax.set_xticklabels([f"{ds}\n{m}" for ds, m in labels])
+    ax.set_ylabel("Score", fontsize=14, fontweight='bold')
+    ax.set_title("ANN vs DiskANN", fontsize=18, fontweight='bold')
+    ax.legend(fontsize=12)
+
+    # Bold tick labels
+    for lbl in ax.get_xticklabels() + ax.get_yticklabels():
+        lbl.set_fontsize(12)
+        lbl.set_fontweight('bold')
+
+    # Zoom Y scale around the data to make differences clearer
+    _vals = faiss_vals + diskann_vals
+    _vmin, _vmax = min(_vals), max(_vals)
+    _pad = max(0.02, (_vmax - _vmin) * 0.15)
+    ax.set_ylim(max(0.0, _vmin - _pad), min(1.0, _vmax + _pad))
+
+    annotate_bars(ax)
+    plt.tight_layout()
+    plt.savefig(os.path.join(out_dir, "accuracy_faiss_vs_diskann_triviaqa_nq.png"), dpi=160)
+    plt.close()
+
+
+def plot_compact_ds_ann_exact_diskann(out_dir: str) -> None:
+    # Datasets on x-axis
+    datasets = ["MMLU", "MMLU Pro", "MATH"]
+
+    # Values from the user's table (This datastore; last two rows) and DiskANN sheet
+    no_retr = [68.9, 39.8, 46.9]
+    ann_only = [73.6, 46.8, 51.6]
+    ann_exact = [74.0, 48.6, 54.0]
+    diskann   = [74.2, 48.3, 52.0]
+
+    x = list(range(len(datasets)))
+    width = 0.20
+
+    plt.figure(figsize=(10, 4.5))
+    if sns:
+        sns.set_theme(style="whitegrid")
+    ax = plt.gca()
+
+    color_no_retr = "#B279A2"    # purple baseline
+    color_ann_only = "#4C78A8"   # blue
+    color_ann_exact = "#54A24B"  # green
+    color_diskann = "#F58518"    # orange
+
+    ax.bar([i - 1.5*width for i in x], no_retr,  width=width, label="No Retrieval", color=color_no_retr)
+    ax.bar([i - 0.5*width for i in x], ann_only, width=width, label="ANN Only", color=color_ann_only)
+    ax.bar([i + 0.5*width for i in x], ann_exact, width=width, label="ANN + Exact", color=color_ann_exact)
+    ax.bar([i + 1.5*width for i in x], diskann,  width=width, label="DiskANN", color=color_diskann)
+
+    ax.set_xticks(x)
+    ax.set_xticklabels(datasets)
+    ax.set_ylabel("Score", fontsize=14, fontweight='bold')
+    ax.set_title("DiskANN vs ANN", fontsize=18, fontweight='bold')
+    ax.legend(fontsize=12)
+
+    # Bold tick labels
+    for lbl in ax.get_xticklabels() + ax.get_yticklabels():
+        lbl.set_fontsize(12)
+        lbl.set_fontweight('bold')
+
+    # Zoom Y scale for clarity (scores are 0-100 range here)
+    vals = no_retr + ann_only + ann_exact + diskann
+    vmin, vmax = min(vals), max(vals)
+    pad = max(1.0, (vmax - vmin) * 0.15)
+    ax.set_ylim(max(0.0, vmin - pad), vmax + pad)
+
+    annotate_bars_custom(ax, fontsize=9, y_offset=3)
+    plt.tight_layout()
+    plt.savefig(os.path.join(out_dir, "accuracy_compact_ds_ann_exact_diskann.png"), dpi=160)
+    plt.close()
+
+
+def plot_ann_diskann_full_table_bars(out_dir: str) -> None:
+    # Datasets and scores (trimmed to 3 tasks; add No Retrieval)
+    datasets = ["MMLU", "MMLU Pro", "MATH"]
+    no_retr = [68.9, 39.8, 46.9]
+    ann_only = [73.6, 46.8, 51.6]
+    ann_exact = [74.0, 48.6, 54.0]
+    diskann  = [74.2, 48.3, 52.0]
+
+    x = list(range(len(datasets)))
+    width = 0.20
+
+    plt.figure(figsize=(10.5, 4.5))
+    if sns:
+        sns.set_theme(style="whitegrid")
+    ax = plt.gca()
+
+    color_no_retr = "#B279A2"
+    color_ann_only = "#4C78A8"
+    color_ann_exact = "#54A24B"
+    color_diskann = "#F58518"
+
+    ax.bar([i - 1.5*width for i in x], no_retr,  width=width, label="No Retrieval", color=color_no_retr)
+    ax.bar([i - 0.5*width for i in x], ann_only, width=width, label="ANN Only", color=color_ann_only)
+    ax.bar([i + 0.5*width for i in x], ann_exact, width=width, label="ANN + Exact", color=color_ann_exact)
+    ax.bar([i + 1.5*width for i in x], diskann,  width=width, label="DiskANN", color=color_diskann)
+
+    ax.set_xticks(x)
+    ax.set_xticklabels(datasets)
+    ax.set_ylabel("Score", fontsize=14, fontweight='bold')
+    ax.set_title("DiskANN vs ANN", fontsize=18, fontweight='bold')
+    ax.legend(fontsize=12)
+
+    for lbl in ax.get_xticklabels() + ax.get_yticklabels():
+        lbl.set_fontsize(12)
+        lbl.set_fontweight('bold')
+
+    vals = no_retr + ann_only + ann_exact + diskann
+    vmin, vmax = min(vals), max(vals)
+    pad = max(1.0, (vmax - vmin) * 0.15)
+    ax.set_ylim(max(0.0, vmin - pad), vmax + pad)
+
+    annotate_bars_custom(ax, fontsize=9, y_offset=3)
+    plt.tight_layout()
+    plt.savefig(os.path.join(out_dir, "accuracy_ann_diskann_full_table_bars.png"), dpi=160)
+    plt.close()
+
+
+def plot_ann_diskann_full_table_lines(out_dir: str) -> None:
+    datasets = ["MMLU", "MMLU Pro", "AGI Eval", "MATH", "GPQA"]
+    ann_only = [73.6, 46.8, 57.5, 51.6, 30.8]
+    diskann  = [74.2, 48.3, 57.1, 52.0, 31.2]
+    ann_exact = [74.0, 48.6, 57.4, 54.0, 35.7]
+
+    x = list(range(len(datasets)))
+
+    plt.figure(figsize=(11, 4.5))
+    if sns:
+        sns.set_theme(style="whitegrid")
+    ax = plt.gca()
+
+    color_ann_only = "#4C78A8"
+    color_ann_exact = "#54A24B"
+    color_diskann = "#F58518"
+
+    ax.plot(x, ann_only, marker='o', color=color_ann_only, label="ANN Only", linewidth=2)
+    ax.plot(x, ann_exact, marker='^', color=color_ann_exact, label="ANN + Exact", linewidth=2)
+    ax.plot(x, diskann, marker='s', color=color_diskann, label="DiskANN", linewidth=2)
+
+    ax.set_xticks(x)
+    ax.set_xticklabels(datasets)
+    ax.set_ylabel("Score", fontsize=14, fontweight='bold')
+    ax.set_title("DiskANN vs ANN", fontsize=18, fontweight='bold')
+    ax.legend(fontsize=12)
+
+    for lbl in ax.get_xticklabels() + ax.get_yticklabels():
+        lbl.set_fontsize(12)
+        lbl.set_fontweight('bold')
+
+    vals = ann_only + ann_exact + diskann
+    vmin, vmax = min(vals), max(vals)
+    pad = max(1.0, (vmax - vmin) * 0.15)
+    ax.set_ylim(max(0.0, vmin - pad), vmax + pad)
+
+    # Annotate points with two decimals
+    for xi, yi in zip(x, ann_only):
+        if math.isfinite(yi):
+            ax.annotate(f"{yi:.2f}", (xi, yi), textcoords="offset points", xytext=(0, 8), ha='center', fontsize=12, fontweight='bold')
+    for xi, yi in zip(x, ann_exact):
+        if math.isfinite(yi):
+            ax.annotate(f"{yi:.2f}", (xi, yi), textcoords="offset points", xytext=(0, 8), ha='center', fontsize=12, fontweight='bold')
+    for xi, yi in zip(x, diskann):
+        if math.isfinite(yi):
+            ax.annotate(f"{yi:.2f}", (xi, yi), textcoords="offset points", xytext=(0, 8), ha='center', fontsize=12, fontweight='bold')
+
+    plt.tight_layout()
+    plt.savefig(os.path.join(out_dir, "accuracy_ann_diskann_full_table_lines.png"), dpi=160)
+    plt.close()
+
 def main() -> None:
     out_dir = "/mnt/md-256k/jinjian/DS/runtime/plots"
     ensure_output_dir(out_dir)
@@ -226,6 +512,11 @@ def main() -> None:
     plot_diskann_latency_breakdown(diskann_rows, out_dir)
     plot_faiss_qps_and_latency(faiss_rows, out_dir)
     plot_diskann_index_only_qps(idx_only_rows, out_dir)
+    plot_accuracy_triviaqa_faiss_vs_diskann(out_dir)
+    plot_accuracy_nqopen_faiss_vs_diskann(out_dir)
+    plot_accuracy_combined_faiss_vs_diskann(out_dir)
+    plot_compact_ds_ann_exact_diskann(out_dir)
+    plot_ann_diskann_full_table_bars(out_dir)
 
     print(f"Saved plots to: {out_dir}")
 
