@@ -212,8 +212,8 @@
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
               <label class="text-sm font-medium text-gray-700">Backend</label>
               <select id="backend" class="border rounded-md p-1 text-sm w-full sm:w-36">
-                <option value="faiss" selected>FAISS (IVFPQ)</option>
-                <option value="diskann">DiskANN</option>
+                <option value="faiss">FAISS (IVFPQ)</option>
+                <option value="diskann" selected>DiskANN</option>
               </select>
             </div>
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
@@ -224,19 +224,19 @@
             </div>
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2" id="diskannLRow">
               <label class="text-sm font-medium text-gray-700" title="DiskANN search complexity L">L (DiskANN)</label>
-              <input type="number" id="diskannL" min="1" value="150" class="border rounded-md p-1 text-sm w-20 text-center">
+              <input type="number" id="diskannL" min="25" step="25" value="300" class="border rounded-md p-1 text-sm w-20 text-center">
             </div>
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2" id="diskannWRow">
               <label class="text-sm font-medium text-gray-700" title="DiskANN beam width W">W (beam)</label>
-              <input type="number" id="diskannW" min="1" value="2" class="border rounded-md p-1 text-sm w-20 text-center">
+              <input type="number" id="diskannW" min="2" step="2" value="4" class="border rounded-md p-1 text-sm w-20 text-center">
             </div>
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2" id="diskannThreadsRow">
               <label class="text-sm font-medium text-gray-700" title="DiskANN search threads">Threads</label>
-              <input type="number" id="diskannThreads" min="1" value="4" class="border rounded-md p-1 text-sm w-20 text-center">
+              <input type="number" id="diskannThreads" min="2" step="2" value="4" class="border rounded-md p-1 text-sm w-20 text-center">
             </div>
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
               <label class="text-sm font-medium text-gray-700">k (max: 1000)</label>
-              <input type="number" id="k" min="1" max="1000" value="5" class="border rounded-md p-1 text-sm w-16 text-center">
+              <input type="number" id="k" min="1" max="1000" value="10" class="border rounded-md p-1 text-sm w-16 text-center">
             </div>
             
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">

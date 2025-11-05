@@ -339,7 +339,7 @@ except Exception:
 
  
 class Item:
-    def __init__(self, query=None, query_embed=None, domains=ds_cfg.domain_name, n_docs=1, nprobe=None, expand_index_id=None, expand_offset=None, exact_rerank=False, use_diverse=False, lambda_val=None, backend=None, diskann_L=None, diskann_W=None, diskann_threads=None, min_words=None) -> None:
+    def __init__(self, query=None, query_embed=None, domains=ds_cfg.domain_name, n_docs=10, nprobe=None, expand_index_id=None, expand_offset=None, exact_rerank=False, use_diverse=False, lambda_val=None, backend=None, diskann_L=None, diskann_W=None, diskann_threads=None, min_words=None) -> None:
         self.query = query
         self.query_embed = query_embed
         self.domains = domains
@@ -451,7 +451,7 @@ def search():
         canon_cfg = DiskVoteStore._canonicalize_ctx(request_cfg)
         item = Item(
             query=query_input,
-            n_docs=request.json.get('n_docs', 1),
+            n_docs=request.json.get('n_docs', 10),
             nprobe=request.json.get('nprobe', None) if method != 'diskann' else None,
             expand_index_id = request.json.get('expand_index_id'),
             expand_offset = request.json.get('expand_offset', 1),
