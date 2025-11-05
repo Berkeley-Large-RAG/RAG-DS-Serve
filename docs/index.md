@@ -27,7 +27,7 @@ p { font-size: 18px; margin: 6px 0; }
   <sup>2</sup>University of Illinois Urbana–Champaign &nbsp;
   <sup>3</sup>University of Washington
 </p>
-<p align="center" class="equal-note"><sup>*</sup>Equal contribution.</p>
+<p align="center"><sup>*</sup>Equal contribution.</p>
 
 <p align="center">[<a href="https://tinyurl.com/compact-ds-dive">Web Interface</a>] [<a href="{{ 'API_DOCUMENTATION.html' | relative_url }}">API Endpoint</a>] [<a href="{{ 'VOTES_DOCUMENTATION.html' | relative_url }}">Voting System</a>] [<a href="https://github.com/Berkeley-Large-RAG/RAG-DS-Serve">Code</a>] [<a href="https://openreview.net/forum?id=nQBZKcF2bo">Paper</a>]</p>
 
@@ -42,13 +42,15 @@ p { font-size: 18px; margin: 6px 0; }
 
 We introduce **DS Serve**, a framework that transforms a large-scale text corpus into a high-performance neural retrieval system.
 
-In one word: Use our framework to **retrieve** data from **xx billion-scale**, **high-quality pre-trained datasets** — **blazing fast** ⚡ and **absolutely free!** 🚀
+In one word: Use our framework to **retrieve** data from **near tillion-scale**, **high-quality pre-trained datasets** — **blazing fast** ⚡ and **absolutely free!** 🚀
 
 **DS Serve** realizes the transformation of the **largest datastore** (~**500B tokens**, ~**2B vectors**, ~**5T vector embeddings**), into a public domain that provides **free and high-performance neural retrieval endpoints**.  
 We can offer <b>&lt;100&nbsp;ms latency</b> and handle <b>&gt;1000&nbsp;QPS</b>, enabling accurate search over a <b>pre‑trained‑scale datastore</b>.  
-For deployment, everyone can clone our **codebase and index**, and run it with **~100 GB RAM** without any GPU for FAISS ANN, and **600 GB RAM** for additional DiskANN support.
+For deployment, everyone can clone our **codebase and index**, and run it with **~200 GB RAM** without any GPU.
 Additionally, our framework enables you to convert your **in-house large-scale data** into a **high-performance, controllable** neural retrieval endpoint that you manage.
 
+
+## Contributions
 <p align="left"><i>Figure 1: DS SERVE converts a large dataset into a neural retrieval system: a query q retrieves relevant text via ANN, optionally reranks with exact and/or diverse search, and returns the top-k chunks with voting options for user feedback.</i></p>
 
 <p align="center">

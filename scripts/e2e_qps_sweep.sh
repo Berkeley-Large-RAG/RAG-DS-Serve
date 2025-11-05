@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Configurable parameters via env or defaults
-HOST=${HOST:-http://127.0.0.1:30888}
+HOST=${HOST:-http://http://128.208.4.44:30888/}
 QUERIES=${QUERIES:-/mnt/md-256k/jinjian/DS/e2e_queries_20000.txt}
 COUNT=${COUNT:-10000}
 CONCURRENCY=${CONCURRENCY:-128}

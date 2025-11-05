@@ -27,6 +27,7 @@ def embed_queries(cfg, queries, model, tokenizer, model_name_or_path):
         for k, q in enumerate(queries):
             all_question.append(q)
         
+        # TODO @yichuan decrease CPU embedd time
         embeddings = model.encode(all_question, batch_size=min(128, cfg.per_gpu_batch_size))  # sentence-transformer has extra memory overhead and can only support a smaller batch size
     
     else:
