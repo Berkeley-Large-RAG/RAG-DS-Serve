@@ -123,28 +123,33 @@ For convenienve, please just use the absolute paths of large index files and map
 ### 1) Create environment
 
 ```bash
-conda create -n ds-serve python=3.10 -y
-conda activate ds-serve
-python -m pip install -U pip setuptools wheel
-# Install dependencies
-pip install -r requirements.txt
+# Using uv
+uv venv .venv
+source .venv/bin/activate
+uv pip install -U pip setuptools wheel
+# Install project dependencies
+uv pip install -r requirements.txt
+uv pip install -e .
 # Install DiskANN
-pip install --no-deps diskannpy==0.7.0
+uv pip install --no-deps diskannpy==0.7.0
 ```
 
 ### 2) Launch the server (DiskANN)
 
 From the repo root (absolute paths):
 ```bash
-mkdir -p /mnt/md-256k/jinjian/DS/runtime/votes /mnt/md-256k/jinjian/DS/runtime/query_logs
+DATASTORE_PATH=/mnt/md-256k/jinjian/DS
 
-PYTHONPATH="/mnt/md-256k/jinjian/DS:/mnt/md-256k/jinjian/DS/rerank/contriever/src" \
-VOTES_DIR=/mnt/md-256k/jinjian/DS/runtime/votes \
-QUERY_LOG_DIR=/mnt/md-256k/jinjian/DS/runtime/query_logs \
+mkdir -p "$DATASTORE_PATH/runtime/votes" "$DATASTORE_PATH/runtime/query_logs"
+
+
+PYTHONPATH="rerank/contriever/src" \
+VOTES_DIR="$DATASTORE_PATH/runtime/votes" \
+QUERY_LOG_DIR="$DATASTORE_PATH/runtime/query_logs" \
 MASSIVE_SERVE_PORT=30888 \
 MS_BACKEND=diskann \
-DATASTORE_PATH=/mnt/md-256k/jinjian/DS \
-DISKANN_INDEX_DIR=/mnt/md-256k/jinjian/DS/DiskANN-build/DiskANN_index \
+DATASTORE_PATH="$DATASTORE_PATH" \
+DISKANN_INDEX_DIR="$DATASTORE_PATH/DiskANN-build/DiskANN_index" \
 DISKANN_INDEX_PREFIX=diskann_mips_f32_R60_L80_B200_M500 \
 DISKANN_DISTANCE=mips \
 DISKANN_NUM_THREADS=128 \
@@ -154,7 +159,7 @@ DISKANN_W=4 \
 DISKANN_WARMUP=1 \
 DISKANN_WARMUP_QUERIES=5000 \
 DISKANN_WARMUP_BATCH=256 \
-DISKANN_WARMUP_QUERY_FILE=/mnt/md-256k/jinjian/DS/DiskANN-build/DiskANN_index/diskann_mips_f32_R60_L80_B200_M500_sample_data.bin \
+DISKANN_WARMUP_QUERY_FILE="$DISKANN_INDEX_DIR/diskann_mips_f32_R60_L80_B200_M500_sample_data.bin" \
 DISKANN_WARMUP_KEEPALIVE=1 \
 python -m massive_serve.cli serve --domain_name data
 ```

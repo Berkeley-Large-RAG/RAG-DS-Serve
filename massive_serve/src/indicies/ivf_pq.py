@@ -129,8 +129,9 @@ class IVFPQIndexer(object):
         self.num_keys_to_add_at_a_time = num_keys_to_add_at_a_time
         self.n_subquantizers = n_subquantizers
         self.code_size = code_size
-        # Load mapping arrays from repository root exactly like test_mapping.py
-        repo_root = Path(__file__).resolve().parents[3]  # .../DS
+        # Load mapping arrays from DATASTORE_PATH root (fallback to internal default)
+        ds_root_env = os.environ.get("DATASTORE_PATH")
+        repo_root = Path(os.path.expanduser(ds_root_env)) if ds_root_env else Path("/mnt/md-256k/jinjian/DS")
         self.position_array = np.load(str(repo_root / "position_array.npy"), mmap_mode="r")
         self.filename_index_array = np.load(str(repo_root / "filename_index_array.npy"), mmap_mode="r")
         # Use the prebuilt filename list to guarantee ordering matches the arrays

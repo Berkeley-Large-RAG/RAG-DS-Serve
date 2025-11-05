@@ -20,9 +20,18 @@ class DiskANNBackend:
     """
 
     def __init__(self) -> None:
-        repo_root = Path(__file__).resolve().parents[3]  # .../DS
+        # need to fix the path to the download path TODO @yichaun
+        ds_root_env = os.environ.get("DATASTORE_PATH")
+        repo_root = Path(os.path.expanduser(ds_root_env)) if ds_root_env else Path("/mnt/md-256k/jinjian/DS")
         self._repo_root = repo_root
-        self._passage_dir = str(repo_root / "data" / "passages")
+        # Allow override; otherwise try common layouts under DATASTORE_PATH
+        passage_dir_env = os.environ.get("PASSAGE_DIR")
+        if passage_dir_env and os.path.isdir(passage_dir_env):
+            self._passage_dir = passage_dir_env
+        else:
+            candidate1 = repo_root / "data" / "passages"
+            candidate2 = repo_root / "passages"
+            self._passage_dir = str(candidate1 if candidate1.is_dir() else candidate2)
         if not os.path.isdir(self._passage_dir):
             raise FileNotFoundError(f"PASSAGE_DIR not found: {self._passage_dir}")
 
