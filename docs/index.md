@@ -11,6 +11,12 @@ p { font-size: 18px; margin: 6px 0; }
 .post-title, .page-title { display: none; }
 /* Also hide the left brand title in the header on the homepage */
 .site-header .site-title { display: none !important; }
+/* Hide the Minima footer on the homepage to avoid duplicate site title */
+.site-footer { display: none !important; }
+/* Center the top navigation and enlarge links on the homepage */
+.site-header .wrapper { justify-content: center; }
+.site-header .site-nav .page-link { font-size: 22px; font-weight: 600; }
+.site-header .site-nav .trigger { justify-content: center; gap: 14px; }
 </style>
 
 
