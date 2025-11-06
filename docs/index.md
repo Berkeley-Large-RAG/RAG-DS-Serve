@@ -7,6 +7,8 @@ title: DS Serve
 @import url('{{ "assets/infini-gram.css" | relative_url }}');
 p { font-size: 18px; margin: 6px 0; }
 .small-note { font-size: 14px; color: #666; margin-top: 2px; }
+/* Hide theme-injected page title on homepage to avoid duplicate 'DS Serve' */
+.post-title, .page-title { display: none; }
 </style>
 
 
@@ -115,7 +117,7 @@ Additionally, **DS Serve** offers a **Web Interface** for interactive exploratio
 
 ## Examples
 
-The **approximate** nature of the search backend inevitably sacrifices accuracy, thus we introduce **Exact Search** as an optional reranking mode. To do so, we compute **exact** similarities, instead of using **approximation**, between queries and passages. Then search results are reranked according to the newly computed **exact** scores. As shown in our evaluation results (Table 1), **Exact Search** effectively enhances accuracy across all five tasks. On a cold start, embedding the results can be slow, so we've built an embedding cache to allow ~1000ms latency on similar queries in Exact Search.
+The **approximate** nature of the search backend inevitably sacrifices accuracy, thus we introduce **Exact Search** as an optional reranking mode. To do so, we compute **exact** similarities, instead of using **approximation**, between queries and passages. Then search results are reranked according to the newly computed **exact** scores. In our evaluation results, **Exact Search** effectively enhances accuracy across all five tasks. On a cold start, embedding the results can be slow, so we've built an embedding cache to allow ~1000ms latency on similar queries in Exact Search.
 
 Additionally, search results often suffer from information overlap, i.e. nearly identical text chunks. To address this problem we offer a Diverse Search option that penalizes redundant information. In our use cases, we find **Diverse Search** substantially improves user experience by eliminating redundant texts and improving overall coverage. 
 
@@ -123,48 +125,26 @@ For queries that are less common or rely on very recent knowledge — for exampl
 
 During search, **DS Serve** initially oversamples a pool of candidates, and then easily finds top results among them. On the very rare occasion that retrieval fails, an alert message pops up to give improvement suggestions.
 
-<p align="left"><i>Figure 3: Example failure mode and user guidance.</i></p>
 
+
+<p align="left"><i>Figure 3: FAISS QPS scaling with nprobe parameter. Higher nprobe values improve accuracy at the cost of increased latency.</i></p>
 <p align="center">
-  <img src="{{ 'failure-mode.png' | relative_url }}" style="width: 70%;" />
+  <img src="{{ 'faiss_qps_vs_nprobe.png' | relative_url }}" style="width: 90%; margin: 5px;" />
 </p>
 
-<p align="left"><i>Table 1: Evaluation of DS SERVE on five established benchmarks. 'Acc' is accuracy (%), and t is end-to-end retrieval latency (s). For Exact Search, we report t without cache and tcache with cache. We use K = 1000, k = 10, and nprobe = 256 for all tasks.</i></p>
-
-<p align="center">
-  <img src="{{ 'table.png' | relative_url }}" style="width: 80%;" />
-</p>
-
-<p align="left"><i>Figure 3: Accuracy comparison between FAISS and DiskANN across MMLU, MMLU Pro, and MATH benchmarks. DiskANN beats FAISS ANN in accuracy across all tasks while providing significantly higher throughput.</i></p>
-<p align="center">
-  <img src="{{ 'accuracy_ann_diskann_full_table_bars.png' | relative_url }}" style="width: 48%; margin: 5px;" />
-</p>
-
-<p align="left"><i>Figure 4: Comprehensive accuracy comparison across ANN, Exact Search, and DiskANN modes. DiskANN achieves competitive accuracy compared to FAISS ANN and Exact Search.</i></p>
-<p align="center">
-  <img src="{{ 'accuracy_compact_ds_ann_exact_diskann.png' | relative_url }}" style="width: 48%; margin: 5px;" />
-</p>
-
-<p align="left"><i>Figure 5: Accuracy comparison on TriviaQA and NQ-Open datasets. DiskANN consistently outperforms FAISS across both Exact match and F1 scores on both datasets.</i></p>
-<p align="center">
-  <img src="{{ 'accuracy_faiss_vs_diskann_triviaqa_nq.png' | relative_url }}" style="width: 90%; margin: 5px;" />
-</p>
-
-<p align="left"><i>Figure 6: FAISS QPS scaling with nprobe parameter. Higher nprobe values improve accuracy at the cost of increased latency.</i></p>
-<p align="left"><i>Figure 7: FAISS latency scaling with nprobe parameter. Shows the latency-accuracy tradeoff for different nprobe values.</i></p>
-<p align="center">
-  <img src="{{ 'faiss_qps_vs_nprobe.png' | relative_url }}" style="width: 48%; margin: 5px;" />
-  <img src="{{ 'faiss_latency_vs_nprobe.png' | relative_url }}" style="width: 48%; margin: 5px;" />
-</p>
-
-<p align="left"><i>Figure 8: DiskANN end-to-end QPS scaling with L parameter (search list size). Shows how throughput scales with search list size.</i></p>
-<p align="left"><i>Figure 9: DiskANN index-level QPS scaling with L parameter. DiskANN achieves >2000 QPS at the index level, enabling high-throughput deployments.</i></p>
+<p align="left"><i>Figure 4: DiskANN end-to-end QPS scaling with L parameter. Shows how throughput scales with search list size.</i></p>
+<p align="left"><i>Figure 5: DiskANN index-level QPS scaling with L parameter. DiskANN achieves >2000 QPS at the index level, enabling high-throughput deployments.</i></p>
 <p align="center">
   <img src="{{ 'diskann_qps_vs_L.png' | relative_url }}" style="width: 48%; margin: 5px;" />
   <img src="{{ 'diskann_index_only_qps_vs_L.png' | relative_url }}" style="width: 48%; margin: 5px;" />
 </p>
 
-<p align="left"><i>Figure 10: DiskANN latency breakdown showing the relative contribution of different components :embedding, index searching, and post search mapping to total latency across different L parameter values.</i></p>
+<p align="left"><i>Figure 6: Accuracy comparison on TriviaQA and NQ-Open datasets. DiskANN consistently outperforms FAISS across both Exact match and F1 scores on both datasets.</i></p>
+<p align="center">
+  <img src="{{ 'triviaqa_nq.png' | relative_url }}" style="width: 90%; margin: 5px;" />
+</p>
+
+<p align="left"><i>Figure 7: DiskANN latency breakdown showing the relative contribution of different components — embedding, index searching, and post‑search mapping — to total latency across different L parameter values.</i></p>
 <p align="center">
   <img src="{{ 'diskann_latency_breakdown_vs_L.png' | relative_url }}" style="width: 90%; margin: 5px;" />
 </p>

@@ -48,7 +48,7 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 /* Reduce gap between site title and first nav item */
 .site-header .site-nav { margin-left: 0; }
 .site-header .site-nav .trigger { display: flex; align-items: center; gap: 6px; }
-.site-header .site-nav .page-link { margin-left: 0; }
+.site-header .site-nav .page-link { margin-left: 0; white-space: nowrap; }
 
 /* Place nav right next to title (override Minima floats) */
 .site-header .wrapper { display: flex; align-items: center; gap: 12px; }

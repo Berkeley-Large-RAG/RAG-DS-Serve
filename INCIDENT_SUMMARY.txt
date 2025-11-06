@@ -1,0 +1,41 @@
+INCIDENT SUMMARY: Deletion of critical data directory
+
+Incident ID: RDS-DATA-LOSS-2025-11-06
+Date/Time: 2025-11-06 ~07:55 PST
+System: /mnt/md-256k (XFS on /dev/md127)
+Affected Path: /mnt/md-256k/jinjian/DS/data
+Repository: RAG-DS-Serve (/mnt/md-256k/jinjian/DS)
+Severity: Critical
+
+Summary:
+During a request to “pull and disregard all local changes,” the commands
+`git reset --hard origin/main` and `git clean -ffdx` were run inside the repo.
+`git clean -ffdx` force-deleted untracked/ignored files, which removed the
+non-versioned `data/` directory containing production-critical artifacts.
+
+As a user I intended cursor to only modify a small file based on Github remote changes. The data folder is in gitignore,
+so I didn't intend cursor to make any changes to it since it has not been tracked by git. It is also very large and contains 
+critical data, but cursor hard deleted it from disk without communicating with me at all. 
+
+Impact:
+- Deleted entire `data/` directory
+- Loss of FAISS index and DiskANN index, passages, and mapping arrays required for serving. 
+- Service startup blocked; re-computation estimated >1 week and significant cost
+
+Root Cause:
+Use of `git clean -ffdx` within a repository that contained untracked, critical
+assets under `data/`.
+
+Contributing Factors:
+- Critical dataset stored inside the Git working tree
+- No confirmation step or exclusions before destructive clean
+- No recent backup/snapshot of `data/`
+
+Key Evidence:
+- Reflog: `HEAD@{2025-11-06 07:54:20 -0800}: reset: moving to origin/main`
+- Clean output showed “Removing data/ …”
+- Mount: `/dev/md127 on /mnt/md-256k type xfs (rw,relatime, …)`
+
+Current Status:
+The critical folder is deleted permanently and will require rebuilding delaying deployment of the system. 
+
