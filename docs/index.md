@@ -213,6 +213,7 @@ In DS Serve we support both backends:
 </details>
 
 Key takeaways:
+
 1.We find in real open‑source deployments that DiskANN offers the best balance of accuracy, latency, and RAM cost.
 
 <table style="width:100%; border-collapse:collapse; text-align:center;">
@@ -258,7 +259,9 @@ Key takeaways:
   </tbody>
 </table>
 
-2. @yichuan add more take away
+
+2.yichuan add more take away[TODO]
+
 ### Exact Search
 
 This mode boosts search accuracy by computing exact similarities between the query embedding and candidate passages (no approximation). It costs more compute, so we enable it on demand; combined with our embedding cache, latency remains practical for repeated or similar queries.
