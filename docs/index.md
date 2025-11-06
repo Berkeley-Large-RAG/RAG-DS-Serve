@@ -31,7 +31,7 @@ p { font-size: 18px; margin: 6px 0; }
 
 <p align="center">[<a href="https://tinyurl.com/compact-ds-dive">Web Interface</a>] [<a href="{{ 'API_DOCUMENTATION.html' | relative_url }}">API Endpoint</a>] [<a href="{{ 'VOTES_DOCUMENTATION.html' | relative_url }}">Voting System</a>] [<a href="https://github.com/Berkeley-Large-RAG/RAG-DS-Serve">Code</a>] [<a href="https://openreview.net/forum?id=nQBZKcF2bo">Paper</a>]</p>
 
-<!-- **[✨NEW]** DiskANN integration: 1000-10000 index-level QPS and ~200+ end-to-end QPS at 500B-token scale with ~200 GB RAM.
+<!-- **[✨NEW]** DiskANN integration: >2000 index-level QPS and ~200+ end-to-end QPS at 500B-token scale with ~200 GB RAM.
 
 **[✨NEW]** Dual ANN backends: Choose between FAISS (~100 GB RAM, ~100 QPS) and DiskANN (+200 GB RAM, 200+ end-to-end QPS) based on your throughput and memory requirements.
 
@@ -48,7 +48,7 @@ In one word: Use our framework to **retrieve** data from **near tillion-scale**,
 
 **DS Serve** realizes the transformation of the **largest datastore** (~**500B tokens**, ~**2B vectors**, ~**5T vector embeddings**), into a public domain that provides **free and high-performance neural retrieval endpoints**.  
 
-We support two high-performance ANN backends: **FAISS IVFPQ** for memory-efficient retrieval and **DiskANN** for more accurate, high-throughput search. With **FAISS**, we can offer <b>&lt;100&nbsp;ms latency</b> and handle <b>&gt;100&nbsp;QPS End-to-End</b> with a modest memory footprint of **~100GB**. With **DiskANN**, we achieve **index-level QPS between of a few thousands** and **~200+ end-to-end QPS**, with an extra RAM usage of **~200 GB**. This enables state-of-the-art retrieval performance at scale while maintaining low memory overhead.
+We support two high-performance ANN backends: **FAISS IVFPQ** for memory-efficient retrieval and **DiskANN** for more accurate, high-throughput search. With **FAISS**, we can offer <b>&lt;100&nbsp;ms latency</b> and handle <b>&gt;100&nbsp;end-to-end QPS</b> with a modest memory footprint of **~100GB**. With **DiskANN**, we achieve **>1000 index-level QPS** and **200+ end-to-end QPS**, with an extra RAM usage of **~200 GB**. This enables state-of-the-art retrieval performance at scale while maintaining low memory overhead.
 
 Additionally, our framework enables you to convert your **in-house large-scale data** into a **high-performance, controllable** neural retrieval endpoint that you can fully customize with different search options.
 
@@ -62,8 +62,8 @@ Additionally, our framework enables you to convert your **in-house large-scale d
 
 **Key Contributions**
 - We present the **DS Serve** framework to convert any text corpus into a high-performance, fully controllable in-house neural datastore, with a web interface and API endpoints.  
-- Through this framework, we enable access to and controlled experiemtation on the largest publicly-deployed datastore, featuring 500B tokens and achieving **>1000 index-level QPS** with **DiskANN** integration and **~200+ end-to-end QPS**.
-- We demonstrate **DiskANN** as a scalable and more accurate alternative to FAISS, achieving **>1000 QPS** at the index level while maintaining competitive accuracy and manageable memory footprint (~200 GB RAM).
+- Through this framework, we enable access to and controlled experiemtation on the largest publicly-deployed datastore, featuring 500B tokens and achieving **>2000 index-level QPS** with **DiskANN** integration and **200+ end-to-end QPS**.
+- We demonstrate **DiskANN** as a scalable and more accurate alternative to FAISS, achieving **>2000 QPS** at the index level while maintaining manageable memory footprint (~200 GB RAM).
 - Furthermore, **DS Serve** contributes to practical applications including data attribution, training search agents, and advancing search methods. For more details please refer to the Application section below. 
 
 ---
