@@ -9,6 +9,8 @@ p { font-size: 18px; margin: 6px 0; }
 .small-note { font-size: 14px; color: #666; margin-top: 2px; }
 /* Hide theme-injected page title on homepage to avoid duplicate 'DS Serve' */
 .post-title, .page-title { display: none; }
+/* Also hide the left brand title in the header on the homepage */
+.site-header .site-title { display: none !important; }
 </style>
 
 
@@ -261,4 +263,11 @@ In our use cases, **Diverse Search** eliminates redundant texts and improves ove
 <br/>
 
 
+
+## Acknowledgements
+
+We thank the following open‑source projects and communities:
+
+- <a href="https://github.com/RulinShao/massive-serve" target="_blank">Massive Serve</a> — for the serving infrastructure and deployment utilities that power DS Serve.
+- <a href="https://github.com/facebookresearch/faiss" target="_blank">FAISS</a> and <a href="https://github.com/microsoft/DiskANN" target="_blank">DiskANN</a> — for enabling high‑performance ANN search at scale.
 
