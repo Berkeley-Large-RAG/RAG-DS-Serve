@@ -31,7 +31,9 @@ p { font-size: 18px; margin: 6px 0; }
 
 <p align="center">[<a href="https://tinyurl.com/compact-ds-dive">Web Interface</a>] [<a href="{{ 'API_DOCUMENTATION.html' | relative_url }}">API Endpoint</a>] [<a href="{{ 'VOTES_DOCUMENTATION.html' | relative_url }}">Voting System</a>] [<a href="https://github.com/Berkeley-Large-RAG/RAG-DS-Serve">Code</a>] [<a href="https://openreview.net/forum?id=nQBZKcF2bo">Paper</a>]</p>
 
-<!-- **[✨NEW]** DiskANN integration: ~200 QPS at 500B-token scale with low RAM. >1000 Index level QPS.
+<!-- **[✨NEW]** DiskANN integration: >1000 index-level QPS and ~200+ end-to-end QPS at 500B-token scale with ~200 GB RAM.
+
+**[✨NEW]** Dual ANN backends: Choose between FAISS (~100 GB RAM, >200+ QPS) and DiskANN (~200 GB RAM, >1000 index-level QPS) based on your throughput and memory requirements.
 
 **[✨NEW]** Exact + Diverse modes: tune accuracy–diversity–latency on demand. -->
 
@@ -45,8 +47,9 @@ We introduce **DS Serve**, a framework that transforms a large-scale text corpus
 In one word: Use our framework to **retrieve** data from **near tillion-scale**, **high-quality pre-trained datasets** — **blazing fast** ⚡ and **absolutely free!** 🚀
 
 **DS Serve** realizes the transformation of the **largest datastore** (~**500B tokens**, ~**2B vectors**, ~**5T vector embeddings**), into a public domain that provides **free and high-performance neural retrieval endpoints**.  
-We can offer <b>&lt;100&nbsp;ms latency</b> and handle <b>&gt;200+&nbsp;QPS End-to-End</b>, enabling accurate search over a <b>pre‑trained‑scale datastore</b>.
-For deployment, everyone can clone our **codebase and index**, and run it with **~100 GB RAM** without any GPU for FAISS ANN, and **200 GB RAM** for additional DiskANN support.
+
+We support two high-performance ANN backends: **FAISS IVFPQ** for memory-efficient retrieval and **DiskANN** for scalable, high-throughput search. With **FAISS**, we can offer <b>&lt;100&nbsp;ms latency</b> and handle <b>&gt;200+&nbsp;QPS End-to-End</b>, enabling accurate search over a <b>pre‑trained‑scale datastore</b> with **~100 GB RAM** without any GPU. With **DiskANN**, we achieve **>1000 index-level QPS** and **~200+ end-to-end QPS**, requiring **~200 GB RAM** for additional DiskANN support. This enables state-of-the-art retrieval performance at scale while maintaining low memory overhead.
+
 Additionally, our framework enables you to convert your **in-house large-scale data** into a **high-performance, controllable** neural retrieval endpoint that you manage.
 
 
@@ -59,7 +62,8 @@ Additionally, our framework enables you to convert your **in-house large-scale d
 
 **Key Contributions**
 - We present the **DS Serve** framework to convert any text corpus into a high-performance, fully controllable in-house neural datastore, with a web interface and API endpoints.  
-- Through this framework, we enable access to and controlled experiemtation on the largest publicly-deployed datastore, featuring 500B tokens and achieving ~1000 QPS. 
+- Through this framework, we enable access to and controlled experiemtation on the largest publicly-deployed datastore, featuring 500B tokens and achieving **>1000 index-level QPS** with **DiskANN** integration and **~200+ end-to-end QPS**.
+- We demonstrate **DiskANN** as a scalable and more accurate alternative to FAISS, achieving **>1000 QPS** at the index level while maintaining competitive accuracy and manageable memory footprint (~200 GB RAM).
 - Furthermore, **DS Serve** contributes to practical applications including data attribution, training search agents, and advancing search methods. For more details please refer to the Application section below. 
 
 ---
@@ -115,20 +119,64 @@ During search, **DS Serve** initially fetches a very large pool of candidates, a
   <img src="{{ 'failure-mode.png' | relative_url }}" style="width: 70%;" />
 </p>
 
-<p align="left"><i>Table 1: Evaluation of DS SERVE on five established benchmarks. ‘Acc’ is accuracy (%), and t is end-to-end retrieval latency (s). For Exact Search, we report t without cache and tcache with cache. We use K = 1000, k = 10, and nprobe = 256 for all tasks.</i></p>
+<p align="left"><i>Table 1: Evaluation of DS SERVE on five established benchmarks. 'Acc' is accuracy (%), and t is end-to-end retrieval latency (s). For Exact Search, we report t without cache and tcache with cache. We use K = 1000, k = 10, and nprobe = 256 for all tasks.</i></p>
 
 <p align="center">
   <img src="{{ 'table.png' | relative_url }}" style="width: 80%;" />
 </p>
 
+<p align="left"><i>Figure 4: Accuracy comparison between FAISS and DiskANN across different benchmarks. DiskANN achieves competitive accuracy while providing significantly higher throughput.</i></p>
+
+<p align="center">
+  <img src="{{ 'accuracy_ann_diskann_full_table_bars.png' | relative_url }}" style="width: 90%;" />
+</p>
+
+<p align="left"><i>Figure 5: Accuracy comparison on Natural Questions (NQ) and TriviaQA datasets. DiskANN maintains comparable accuracy to FAISS while enabling higher throughput.</i></p>
+
+<p align="center">
+  <img src="{{ 'accuracy_faiss_vs_diskann_triviaqa_nq.png' | relative_url }}" style="width: 90%;" />
+  <img src="{{ 'accuracy_nqopen_faiss_vs_diskann.png' | relative_url }}" style="width: 90%;" />
+  <img src="{{ 'accuracy_triviaqa_faiss_vs_diskann.png' | relative_url }}" style="width: 90%;" />
+</p>
+
+<p align="left"><i>Figure 5a: Comprehensive accuracy comparison across ANN, Exact Search, and DiskANN modes. DiskANN achieves competitive accuracy compared to FAISS ANN and Exact Search.</i></p>
+
+<p align="center">
+  <img src="{{ 'accuracy_compact_ds_ann_exact_diskann.png' | relative_url }}" style="width: 90%;" />
+</p>
+
 ---
 <br/>
 
-## Technical design -- TO BE EXPANDED 
+## Technical design
 
-**Approximate Nearest Neighbor (ANN) Search**: ANN is the backbone of DS Serve. In particular, DS Serve incorporates FAISS IVFPQ, which reduces memory usage and latency by partitioning the vector space into clusters and avoiding full comparisons. In our setting, the ANN backbone supports inference within 200 ms at ~100GB memory overhead.
+**Approximate Nearest Neighbor (ANN) Search**: ANN is the backbone of DS Serve. We support two high-performance ANN backends:
 
-**Exact Search**: This mode is used to boost search accuracy. 
+1. **FAISS IVFPQ**: DS Serve incorporates FAISS IVFPQ, which reduces memory usage and latency by partitioning the vector space into clusters and avoiding full comparisons. In our setting, FAISS supports inference within 200 ms at ~100GB memory overhead, achieving **>200+ QPS** end-to-end.
+
+2. **DiskANN**: For even higher throughput, DS Serve integrates **DiskANN**, a disk-based approximate nearest neighbor search system. DiskANN achieves **>1000 index-level QPS** and **~200+ end-to-end QPS** at ~200 GB RAM, making it ideal for high-throughput production deployments while maintaining competitive accuracy.
+
+<p align="left"><i>Figure 6: FAISS performance scaling with nprobe parameter. Higher nprobe values improve accuracy at the cost of increased latency.</i></p>
+
+<p align="center">
+  <img src="{{ 'faiss_qps_vs_nprobe.png' | relative_url }}" style="width: 48%;" />
+  <img src="{{ 'faiss_latency_vs_nprobe.png' | relative_url }}" style="width: 48%;" />
+</p>
+
+<p align="left"><i>Figure 7: DiskANN performance scaling with L parameter (search list size). DiskANN achieves >1000 QPS at the index level, enabling high-throughput deployments.</i></p>
+
+<p align="center">
+  <img src="{{ 'diskann_qps_vs_L.png' | relative_url }}" style="width: 48%;" />
+  <img src="{{ 'diskann_index_only_qps_vs_L.png' | relative_url }}" style="width: 48%;" />
+</p>
+
+<p align="left"><i>Figure 8: DiskANN latency breakdown showing the relative contribution of different components (index search, post-processing, etc.) to total latency.</i></p>
+
+<p align="center">
+  <img src="{{ 'diskann_latency_breakdown_vs_L.png' | relative_url }}" style="width: 90%;" />
+</p>
+
+**Exact Search**: This mode is used to boost search accuracy by computing exact similarities between queries and passages instead of using approximation. 
 
 **Diversity Search**: Search results often suffer from information overlap, like nearly identical text chunks, so we offer a Diverse Search option to improve overall coverage of the results. To do this, we apply maximal marginal relevance (MMR) on candidates returned by ANN to penalize redundant information. In our use cases, we find Diverse Search substantially improves user experience by eliminating redundant texts.
 
