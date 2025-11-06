@@ -125,7 +125,7 @@ During search, **DS Serve** initially fetches a very large pool of candidates, a
   <img src="{{ 'table.png' | relative_url }}" style="width: 80%;" />
 </p>
 
-<p align="left"><i>Figure 3-8: Accuracy comparisons between FAISS and DiskANN across different benchmarks. DiskANN achieves competitive accuracy while providing significantly higher throughput. Figures show accuracy on Natural Questions (NQ), TriviaQA, and comprehensive comparisons across ANN, Exact Search, and DiskANN modes.</i></p>
+<p align="left"><i>Figure 3-7: Accuracy comparisons between FAISS and DiskANN across different benchmarks. DiskANN achieves competitive accuracy while providing significantly higher throughput. Figures show accuracy on Natural Questions (NQ), TriviaQA, and comprehensive comparisons across ANN, Exact Search, and DiskANN modes.</i></p>
 
 <p align="center">
   <img src="{{ 'accuracy_ann_diskann_full_table_bars.png' | relative_url }}" style="width: 48%; margin: 5px;" />
@@ -137,7 +137,7 @@ During search, **DS Serve** initially fetches a very large pool of candidates, a
   <img src="{{ 'accuracy_triviaqa_faiss_vs_diskann.png' | relative_url }}" style="width: 48%; margin: 5px;" />
 </p>
 
-<p align="left"><i>Figure 9-14: Performance scaling for FAISS and DiskANN. They show ANN performance scaling by nprobe and DiskANN performance scaling with L parameter (search list size).</i></p>
+<p align="left"><i>Figure 8-14: Performance scaling for FAISS and DiskANN. They show ANN performance scaling by nprobe and DiskANN performance scaling with L parameter (search list size).</i></p12
 
 <p align="center">
   <img src="{{ 'faiss_qps_vs_nprobe.png' | relative_url }}" style="width: 48%; margin: 5px;" />
@@ -158,7 +158,7 @@ During search, **DS Serve** initially fetches a very large pool of candidates, a
 
 1. **FAISS IVFPQ**: DS Serve incorporates FAISS IVFPQ, which reduces memory usage and latency by partitioning the vector space into clusters and avoiding full comparisons. In our setting, FAISS supports inference within 200 ms at ~100GB memory overhead, achieving **>200+ QPS** end-to-end.
 
-2. **DiskANN**: For even higher throughput, DS Serve integrates **DiskANN**, a disk-based approximate nearest neighbor search system. DiskANN achieves **>1000 index-level QPS** and **~200+ end-to-end QPS** at ~200 GB RAM, making it ideal for high-throughput production deployments while maintaining competitive accuracy. See Figures 6-8 in the Examples section for detailed performance analysis.
+2. **DiskANN**: For even higher throughput, DS Serve integrates **DiskANN**, a disk-based approximate nearest neighbor search system. DiskANN achieves **>1000 index-level QPS** and **~200+ end-to-end QPS** at ~200 GB RAM, making it ideal for high-throughput production deployments while maintaining competitive accuracy. DiskANN also uses implicit reranking which achieves obvious accuracy improvements on downstream tasks than **ANN** and even beats **Exact Search** on the MMLU task set. 
 
 **Exact Search**: This mode is used to boost search accuracy by computing exact similarities between queries and passages instead of using approximation. 
 
