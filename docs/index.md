@@ -48,13 +48,13 @@ In one word: Use our framework to **retrieve** data from **near tillion-scale**,
 
 **DS Serve** realizes the transformation of the **largest datastore** (~**500B tokens**, ~**2B vectors**, ~**5T vector embeddings**), into a public domain that provides **free and high-performance neural retrieval endpoints**.  
 
-We support two high-performance ANN backends: **FAISS IVFPQ** for memory-efficient retrieval and **DiskANN** for scalable, high-throughput search. With **FAISS**, we can offer <b>&lt;100&nbsp;ms latency</b> and handle <b>&gt;200+&nbsp;QPS End-to-End</b>, enabling accurate search over a <b>pre‑trained‑scale datastore</b> with **~100 GB RAM** without any GPU. With **DiskANN**, we achieve **index-level QPS on the scale of a few thousands** and **~200+ end-to-end QPS**, requiring **~200 GB RAM** for additional DiskANN support. This enables state-of-the-art retrieval performance at scale while maintaining low memory overhead.
+We support two high-performance ANN backends: **FAISS IVFPQ** for memory-efficient retrieval and **DiskANN** for more accurate, high-throughput search. With **FAISS**, we can offer <b>&lt;100&nbsp;ms latency</b> and handle <b>&gt;~100&nbsp;QPS End-to-End</b>. With **DiskANN**, we achieve **index-level QPS on the scale of a few thousands** and **~200+ end-to-end QPS**, with a modest RAM usage of **~200 GB**. This enables state-of-the-art retrieval performance at scale while maintaining low memory overhead.
 
-Additionally, our framework enables you to convert your **in-house large-scale data** into a **high-performance, controllable** neural retrieval endpoint that you manage.
+Additionally, our framework enables you to convert your **in-house large-scale data** into a **high-performance, controllable** neural retrieval endpoint that you can fully customize with different search options.
 
 
 ## Contributions
-<p align="left"><i>Figure 1: DS SERVE converts a large dataset into a neural retrieval system: a query q retrieves relevant text via ANN, optionally reranks with exact and/or diverse search, and returns the top-k chunks with voting options for user feedback.</i></p>
+<p align="left"><i>Figure 1: DS SERVE converts the largest pretraining dataset into an efficient neural retrieval system: a query q retrieves relevant text via ANN, optionally reranks with exact and/or diverse search, and returns the top-k chunks with voting options for user feedback.</i></p>
 
 <p align="center">
   <img src="{{ 'Figure-1.png' | relative_url }}" style="width: 70%;" />
@@ -111,7 +111,7 @@ Additionally, search results often suffer from information overlap, i.e. nearly 
 
 For queries that are less common or rely on very recent knowledge — for example “Jensen Huang” — the datastore may only contain a handful of truly relevant passages, due to its frozen state. In these situations, **Exact Search** performs well because it ranks those relevant results to the top. In contrast, **Diverse Search** doesn’t necessarily improve performance since it risks surfacing less accurate results.
 
-During search, **DS Serve** initially fetches a very large pool of candidates, and then easily finds top results among them. On the very rare occasion that retrieval fails, an alert message pops up to give improvement suggestions.
+During search, **DS Serve** initially oversamples a pool of candidates, and then easily finds top results among them. On the very rare occasion that retrieval fails, an alert message pops up to give improvement suggestions.
 
 <p align="left"><i>Figure 3: Example failure mode and user guidance.</i></p>
 
@@ -152,18 +152,29 @@ During search, **DS Serve** initially fetches a very large pool of candidates, a
 ---
 <br/>
 
-## Technical design
+## Technical Design
 
-**Approximate Nearest Neighbor (ANN) Search**: ANN is the backbone of DS Serve. We support two high-performance ANN backends:
+### Approximate Nearest Neighbor (ANN) Search
+ANN is the backbone of DS Serve. We support two high-performance ANN backends:
 
-1. **FAISS IVFPQ**: DS Serve incorporates FAISS IVFPQ, which reduces memory usage and latency by partitioning the vector space into clusters and avoiding full comparisons. In our setting, FAISS supports inference within 200 ms at ~100GB memory overhead, achieving **>200+ QPS** end-to-end.
+1. **FAISS IVFPQ**  
+   DS Serve incorporates FAISS IVFPQ, which reduces memory usage and latency by partitioning the vector space into clusters and avoiding full comparisons.  
+   In our setting, FAISS supports inference within 200 ms at ~100 GB memory overhead, achieving **>200 QPS** end-to-end.
 
-2. **DiskANN**: For even higher throughput, DS Serve integrates **DiskANN**, a disk-based approximate nearest neighbor search system. DiskANN achieves **>1000 index-level QPS** and **~200+ end-to-end QPS** at ~200 GB RAM, making it ideal for high-throughput production deployments while maintaining competitive accuracy. DiskANN also uses implicit reranking which achieves obvious accuracy improvements on downstream tasks than **ANN** and even beats **Exact Search** on the MMLU task set. 
+2. **DiskANN**  
+   For even higher throughput, DS Serve integrates **DiskANN**, a disk-based approximate nearest neighbor search system.  
+   DiskANN achieves **>1000 index-level QPS** and **~200+ end-to-end QPS** at ~200 GB RAM, making it ideal for high-throughput production deployments while maintaining competitive accuracy.  
+   DiskANN also uses implicit reranking which achieves obvious accuracy improvements on downstream tasks compared to **ANN** and even beats **Exact Search** on the MMLU task set.
 
-**Exact Search**: This mode is used to boost search accuracy by computing exact similarities between queries and passages instead of using approximation. 
+### Exact Search
+This mode boosts search accuracy by computing exact similarities between queries and passages instead of using approximation.
 
-**Diversity Search**: Search results often suffer from information overlap, like nearly identical text chunks, so we offer a Diverse Search option to improve overall coverage of the results. To do this, we apply maximal marginal relevance (MMR) on candidates returned by ANN to penalize redundant information. In our use cases, we find Diverse Search substantially improves user experience by eliminating redundant texts.
+### Diversity Search
+Search results often suffer from information overlap, like nearly identical text chunks, so we offer a **Diverse Search** option to improve overall coverage of the results.  
+To do this, we apply maximal marginal relevance (MMR) on candidates returned by ANN to penalize redundant information.  
+In our use cases, we find **Diverse Search** substantially improves user experience by eliminating redundant texts.
 
 ---
 <br/>
+
 

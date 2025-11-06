@@ -49,10 +49,13 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 .site-header .site-nav { margin-left: 0; }
 .site-header .site-nav .trigger { display: flex; align-items: center; gap: 6px; }
 .site-header .site-nav .page-link { margin-left: 0; }
-.site-header .site-title { margin-right: 0; }
 
 /* Place nav right next to title (override Minima floats) */
 .site-header .wrapper { display: flex; align-items: center; gap: 12px; }
-.site-header .site-title { float: none !important; display: inline-block; margin-right: 0; }
+.site-header .site-title { 
+  float: none !important; 
+  display: inline-block; 
+  margin-right: 20px !important; 
+}
 .site-header .site-nav { float: none !important; display: inline-block; margin-left: 0; }
 
