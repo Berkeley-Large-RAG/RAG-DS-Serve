@@ -48,7 +48,7 @@ In one word: Use our framework to **retrieve** data from **near tillion-scale**,
 
 **DS Serve** realizes the transformation of the **largest datastore** (~**500B tokens**, ~**2B vectors**, ~**5T vector embeddings**), into a public domain that provides **free and high-performance neural retrieval endpoints**.  
 
-We support two high-performance ANN backends: **FAISS IVFPQ** for memory-efficient retrieval and **DiskANN** for more accurate, high-throughput search. With **FAISS**, we can offer <b>&lt;100&nbsp;ms latency</b> and handle <b>&gt;~100&nbsp;QPS End-to-End</b> at a modest memory footprint of **~100GB**. With **DiskANN**, we achieve **index-level QPS between of a few thousands** and **~200+ end-to-end QPS**, with an extra RAM usage of **~200 GB**. This enables state-of-the-art retrieval performance at scale while maintaining low memory overhead.
+We support two high-performance ANN backends: **FAISS IVFPQ** for memory-efficient retrieval and **DiskANN** for more accurate, high-throughput search. With **FAISS**, we can offer <b>&lt;100&nbsp;ms latency</b> and handle <b>&gt;100&nbsp;QPS End-to-End</b> with a modest memory footprint of **~100GB**. With **DiskANN**, we achieve **index-level QPS between of a few thousands** and **~200+ end-to-end QPS**, with an extra RAM usage of **~200 GB**. This enables state-of-the-art retrieval performance at scale while maintaining low memory overhead.
 
 Additionally, our framework enables you to convert your **in-house large-scale data** into a **high-performance, controllable** neural retrieval endpoint that you can fully customize with different search options.
 
@@ -137,7 +137,7 @@ During search, **DS Serve** initially oversamples a pool of candidates, and then
   <img src="{{ 'accuracy_triviaqa_faiss_vs_diskann.png' | relative_url }}" style="width: 48%; margin: 5px;" />
 </p>
 
-<p align="left"><i>Figure 8-14: Performance scaling for FAISS and DiskANN. They show ANN performance scaling by nprobe and DiskANN performance scaling with L parameter (search list size).</i></p12
+<p align="left"><i>Figure 8-12: Performance scaling for FAISS and DiskANN. They show ANN performance scaling by nprobe and DiskANN performance scaling with L parameter (search list size).</i></p12
 
 <p align="center">
   <img src="{{ 'faiss_qps_vs_nprobe.png' | relative_url }}" style="width: 48%; margin: 5px;" />
@@ -164,7 +164,7 @@ ANN is the backbone of DS Serve. We support two high-performance ANN backends:
 2. **DiskANN**  
    For even higher throughput, DS Serve integrates **DiskANN**, a disk-based approximate nearest neighbor search system.  
    DiskANN achieves **>1000 index-level QPS** and **~200+ end-to-end QPS** at ~200 GB RAM, making it ideal for high-throughput production deployments while maintaining competitive accuracy.  
-   DiskANN also uses implicit reranking which achieves obvious accuracy improvements on downstream tasks compared to **ANN** and even beats **Exact Search** on the MMLU task set.
+   DiskANN also uses implicit reranking, which achieves obvious accuracy improvements on downstream tasks compared to **ANN** and even beats **Exact Search** on the MMLU task set.
 
 ### Exact Search
 This mode boosts search accuracy by computing exact similarities between queries and passages instead of using approximation.
@@ -176,5 +176,6 @@ In our use cases, we find **Diverse Search** substantially improves user experie
 
 ---
 <br/>
+
 
 
