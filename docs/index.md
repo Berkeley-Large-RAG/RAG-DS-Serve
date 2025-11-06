@@ -48,7 +48,7 @@ In one word: Use our framework to **retrieve** data from **near tillion-scale**,
 
 **DS Serve** realizes the transformation of the **largest datastore** (~**500B tokens**, ~**2B vectors**, ~**5T vector embeddings**), into a public domain that provides **free and high-performance neural retrieval endpoints**.  
 
-We support two high-performance ANN backends: **FAISS IVFPQ** for memory-efficient retrieval and **DiskANN** for scalable, high-throughput search. With **FAISS**, we can offer <b>&lt;100&nbsp;ms latency</b> and handle <b>&gt;200+&nbsp;QPS End-to-End</b>, enabling accurate search over a <b>pre‑trained‑scale datastore</b> with **~100 GB RAM** without any GPU. With **DiskANN**, we achieve **>1000 index-level QPS** and **~200+ end-to-end QPS**, requiring **~200 GB RAM** for additional DiskANN support. This enables state-of-the-art retrieval performance at scale while maintaining low memory overhead.
+We support two high-performance ANN backends: **FAISS IVFPQ** for memory-efficient retrieval and **DiskANN** for scalable, high-throughput search. With **FAISS**, we can offer <b>&lt;100&nbsp;ms latency</b> and handle <b>&gt;200+&nbsp;QPS End-to-End</b>, enabling accurate search over a <b>pre‑trained‑scale datastore</b> with **~100 GB RAM** without any GPU. With **DiskANN**, we achieve **index-level QPS on the scale of a few thousands** and **~200+ end-to-end QPS**, requiring **~200 GB RAM** for additional DiskANN support. This enables state-of-the-art retrieval performance at scale while maintaining low memory overhead.
 
 Additionally, our framework enables you to convert your **in-house large-scale data** into a **high-performance, controllable** neural retrieval endpoint that you manage.
 
@@ -125,24 +125,28 @@ During search, **DS Serve** initially fetches a very large pool of candidates, a
   <img src="{{ 'table.png' | relative_url }}" style="width: 80%;" />
 </p>
 
-<p align="left"><i>Figure 4-5: Accuracy comparisons between FAISS and DiskANN across different benchmarks. DiskANN achieves competitive accuracy while providing significantly higher throughput. Figures show accuracy on Natural Questions (NQ), TriviaQA, and comprehensive comparisons across ANN, Exact Search, and DiskANN modes.</i></p>
+<p align="left"><i>Figure 3-8: Accuracy comparisons between FAISS and DiskANN across different benchmarks. DiskANN achieves competitive accuracy while providing significantly higher throughput. Figures show accuracy on Natural Questions (NQ), TriviaQA, and comprehensive comparisons across ANN, Exact Search, and DiskANN modes.</i></p>
 
 <p align="center">
-  <img src="{{ 'accuracy_ann_diskann_full_table_bars.png' | relative_url }}" style="width: 90%;" />
-  <img src="{{ 'accuracy_compact_ds_ann_exact_diskann.png' | relative_url }}" style="width: 90%;" />
-  <img src="{{ 'accuracy_faiss_vs_diskann_triviaqa_nq.png' | relative_url }}" style="width: 90%;" />
-  <img src="{{ 'accuracy_nqopen_faiss_vs_diskann.png' | relative_url }}" style="width: 90%;" />
-  <img src="{{ 'accuracy_triviaqa_faiss_vs_diskann.png' | relative_url }}" style="width: 90%;" />
+  <img src="{{ 'accuracy_ann_diskann_full_table_bars.png' | relative_url }}" style="width: 48%; margin: 5px;" />
+  <img src="{{ 'accuracy_compact_ds_ann_exact_diskann.png' | relative_url }}" style="width: 48%; margin: 5px;" />
+  <br/>
+  <img src="{{ 'accuracy_faiss_vs_diskann_triviaqa_nq.png' | relative_url }}" style="width: 48%; margin: 5px;" />
+  <img src="{{ 'accuracy_nqopen_faiss_vs_diskann.png' | relative_url }}" style="width: 48%; margin: 5px;" />
+  <br/>
+  <img src="{{ 'accuracy_triviaqa_faiss_vs_diskann.png' | relative_url }}" style="width: 48%; margin: 5px;" />
 </p>
 
-<p align="left"><i>Figure 6-8: Performance scaling for FAISS and DiskANN. Figure 6 shows FAISS QPS and latency scaling with nprobe parameter. Figures 7-8 show DiskANN performance scaling with L parameter (search list size), including end-to-end QPS, index-level QPS (>1000 QPS), and latency breakdown by component.</i></p>
+<p align="left"><i>Figure 9-14: Performance scaling for FAISS and DiskANN. They show ANN performance scaling by nprobe and DiskANN performance scaling with L parameter (search list size).</i></p>
 
 <p align="center">
-  <img src="{{ 'faiss_qps_vs_nprobe.png' | relative_url }}" style="width: 48%;" />
-  <img src="{{ 'faiss_latency_vs_nprobe.png' | relative_url }}" style="width: 48%;" />
-  <img src="{{ 'diskann_qps_vs_L.png' | relative_url }}" style="width: 48%;" />
-  <img src="{{ 'diskann_index_only_qps_vs_L.png' | relative_url }}" style="width: 48%;" />
-  <img src="{{ 'diskann_latency_breakdown_vs_L.png' | relative_url }}" style="width: 90%;" />
+  <img src="{{ 'faiss_qps_vs_nprobe.png' | relative_url }}" style="width: 48%; margin: 5px;" />
+  <img src="{{ 'faiss_latency_vs_nprobe.png' | relative_url }}" style="width: 48%; margin: 5px;" />
+  <br/>
+  <img src="{{ 'diskann_qps_vs_L.png' | relative_url }}" style="width: 48%; margin: 5px;" />
+  <img src="{{ 'diskann_index_only_qps_vs_L.png' | relative_url }}" style="width: 48%; margin: 5px;" />
+  <br/>
+  <img src="{{ 'diskann_latency_breakdown_vs_L.png' | relative_url }}" style="width: 96%; margin: 5px;" />
 </p>
 
 ---
