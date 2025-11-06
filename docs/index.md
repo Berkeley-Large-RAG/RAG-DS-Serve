@@ -93,6 +93,12 @@ We envision the use of **DS Serve** for fast, controllable retrieval in RAG and 
 
 ## User guide
 
+We provide two ways to use **DS Serve**:
+
+Use either programmatic API calls or the interactive Web UI.
+
+### API Call
+
 **DS Serve** provides a free API for programmatic access via HTTP requests, enabling seamless integration into your applications and workflows. The API accepts configurable parameters and returns responses with retrieved passages and metadata. For detailed API documentation and usage examples, please refer to the [API Documentation]({{ 'API_DOCUMENTATION.html' | relative_url }}) page.
 
 Additionally, **DS Serve** offers a **Web Interface** for interactive exploration with a visual control panel, ideal for experimentation and visualization.
