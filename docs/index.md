@@ -137,7 +137,7 @@ During search, **DS Serve** initially oversamples a pool of candidates, and then
   <img src="{{ 'accuracy_triviaqa_faiss_vs_diskann.png' | relative_url }}" style="width: 48%; margin: 5px;" />
 </p>
 
-<p align="left"><i>Figure 8-12: Performance scaling for FAISS and DiskANN. They show ANN performance scaling by nprobe and DiskANN performance scaling with L parameter (search list size).</i></p12
+<p align="left"><i>Figure 8-12: Performance scaling for FAISS and DiskANN. They show ANN performance scaling by nprobe and DiskANN performance scaling with L parameter (search list size).</i></p>
 
 <p align="center">
   <img src="{{ 'faiss_qps_vs_nprobe.png' | relative_url }}" style="width: 48%; margin: 5px;" />
@@ -155,6 +155,7 @@ During search, **DS Serve** initially oversamples a pool of candidates, and then
 ## Technical Design
 
 ### Approximate Nearest Neighbor (ANN) Search
+
 ANN is the backbone of DS Serve. We support two high-performance ANN backends:
 
 1. **FAISS IVFPQ**  
@@ -167,9 +168,11 @@ ANN is the backbone of DS Serve. We support two high-performance ANN backends:
    DiskANN also uses implicit reranking, which achieves obvious accuracy improvements on downstream tasks compared to **ANN** and even beats **Exact Search** on the MMLU task set.
 
 ### Exact Search
+
 This mode boosts search accuracy by computing exact similarities between queries and passages instead of using approximation.
 
 ### Diversity Search
+
 Search results often suffer from information overlap, like nearly identical text chunks, so we offer a **Diverse Search** option to improve overall coverage of the results.  
 To do this, we apply maximal marginal relevance (MMR) on candidates returned by ANN to penalize redundant information.  
 In our use cases, we find **Diverse Search** substantially improves user experience by eliminating redundant texts.
