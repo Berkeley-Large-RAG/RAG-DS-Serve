@@ -31,9 +31,9 @@ p { font-size: 18px; margin: 6px 0; }
 
 <p align="center">[<a href="https://tinyurl.com/compact-ds-dive">Web Interface</a>] [<a href="{{ 'API_DOCUMENTATION.html' | relative_url }}">API Endpoint</a>] [<a href="{{ 'VOTES_DOCUMENTATION.html' | relative_url }}">Voting System</a>] [<a href="https://github.com/Berkeley-Large-RAG/RAG-DS-Serve">Code</a>] [<a href="https://openreview.net/forum?id=nQBZKcF2bo">Paper</a>]</p>
 
-<!-- **[✨NEW]** DiskANN integration: >1000 index-level QPS and ~200+ end-to-end QPS at 500B-token scale with ~200 GB RAM.
+<!-- **[✨NEW]** DiskANN integration: 1000-10000 index-level QPS and ~200+ end-to-end QPS at 500B-token scale with ~200 GB RAM.
 
-**[✨NEW]** Dual ANN backends: Choose between FAISS (~100 GB RAM, >200+ QPS) and DiskANN (~200 GB RAM, >1000 index-level QPS) based on your throughput and memory requirements.
+**[✨NEW]** Dual ANN backends: Choose between FAISS (~100 GB RAM, ~100 QPS) and DiskANN (+200 GB RAM, 200+ end-to-end QPS) based on your throughput and memory requirements.
 
 **[✨NEW]** Exact + Diverse modes: tune accuracy–diversity–latency on demand. -->
 
@@ -48,7 +48,7 @@ In one word: Use our framework to **retrieve** data from **near tillion-scale**,
 
 **DS Serve** realizes the transformation of the **largest datastore** (~**500B tokens**, ~**2B vectors**, ~**5T vector embeddings**), into a public domain that provides **free and high-performance neural retrieval endpoints**.  
 
-We support two high-performance ANN backends: **FAISS IVFPQ** for memory-efficient retrieval and **DiskANN** for more accurate, high-throughput search. With **FAISS**, we can offer <b>&lt;100&nbsp;ms latency</b> and handle <b>&gt;~100&nbsp;QPS End-to-End</b>. With **DiskANN**, we achieve **index-level QPS on the scale of a few thousands** and **~200+ end-to-end QPS**, with a modest RAM usage of **~200 GB**. This enables state-of-the-art retrieval performance at scale while maintaining low memory overhead.
+We support two high-performance ANN backends: **FAISS IVFPQ** for memory-efficient retrieval and **DiskANN** for more accurate, high-throughput search. With **FAISS**, we can offer <b>&lt;100&nbsp;ms latency</b> and handle <b>&gt;~100&nbsp;QPS End-to-End</b> at a modest memory footprint of **~100GB**. With **DiskANN**, we achieve **index-level QPS between of a few thousands** and **~200+ end-to-end QPS**, with an extra RAM usage of **~200 GB**. This enables state-of-the-art retrieval performance at scale while maintaining low memory overhead.
 
 Additionally, our framework enables you to convert your **in-house large-scale data** into a **high-performance, controllable** neural retrieval endpoint that you can fully customize with different search options.
 
