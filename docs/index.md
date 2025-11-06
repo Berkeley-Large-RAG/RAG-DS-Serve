@@ -53,6 +53,8 @@ We support two high-performance ANN backends: **FAISS IVFPQ** for memory-efficie
 Additionally, our framework enables you to convert your **in-house large-scale data** into a **high-performance, controllable** neural retrieval endpoint that you can fully customize with different search options.
 
 
+---
+<br/>
 ## Contributions
 <p align="left"><i>Figure 1: DS SERVE converts the largest pretraining dataset into an efficient neural retrieval system: a query q retrieves relevant text via ANN, optionally reranks with exact and/or diverse search, and returns the top-k chunks with voting options for user feedback.</i></p>
 
@@ -170,30 +172,70 @@ During search, **DS Serve** initially oversamples a pool of candidates, and then
 ---
 <br/>
 
-## Technical Design
+## Technical design 
 
-### Approximate Nearest Neighbor (ANN) Search
+### Datastore
+While prior work shows that retrieval over large pre‑training corpora can improve RAG accuracy (see <a href="https://arxiv.org/abs/2112.04426" target="_blank">RETRO</a>, <a href="https://arxiv.org/abs/2407.12854" target="_blank">MassiveDS</a>, <a href="https://arxiv.org/abs/2507.01297" target="_blank">CompactDS</a>,<a href="https://arxiv.org/abs/2005.11401" target="_blank">RAG</a>, <a href="https://arxiv.org/abs/2002.08909" target="_blank">REALM</a>), accessible frameworks for non‑experts to build and operate billion‑scale indexes have been lacking. Here, we demonstrate DS SERVE on CompactDS, a 380‑billion‑word corpus (~2B vectors) spanning web crawl data, Wikipedia, research papers, and more.
 
-ANN is the backbone of DS Serve. We support two high-performance ANN backends:
+This represents a significantly larger datastore than most prior work, and to the best of our knowledge is the largest pretraining dataset that users can access in open source for free. Typical evaluations run at much smaller scales (often ≤ tens of millions of vectors), e.g., <a href="https://microsoft.github.io/msmarco/" target="_blank">MS&nbsp;MARCO</a>, <a href="https://ai.google.com/research/NaturalQuestions" target="_blank">Natural Questions</a>, and <a href="https://hotpotqa.github.io/" target="_blank">HotpotQA</a>, as well as consolidated leaderboards such as <a href="https://arxiv.org/abs/2104.08663" target="_blank">BEIR</a>. Even advanced commercial vector databases commonly impose per‑namespace/index limits well below the billion‑vector regime; see pricing/capacity notes for <a href="https://turbopuffer.com/pricing?namespaces=1&namespace=0&docs=1000000000&doc=7&writes=0&write=0" target="_blank">Turbopuffer</a>.
+
+### Scalable and efficient search
+<details>
+<summary><b>Neural retrieval formulation</b></summary>
+<p>Neural retrieval can be viewed as nearest‑neighbor search: select the top‑k chunks by cosine similarity <i>sim</i>(<i>q</i>, <i>d</i><sub>i</sub>), where <i>q</i>, <i>d</i><sub>i</sub> ∈ R<sup>h</sup> are the embedding vectors of the query and a candidate chunk. We use <a href="https://arxiv.org/abs/2112.09118" target="_blank">Contriever</a> as the encoder.</p>
+</details>
+<details>
+<summary><b>Why use ANN?</b></summary>
+<p>Exact nearest neighbor search over billions of vectors is prohibitively slow and memory intensive. ANN prunes comparisons via indexing and quantization, delivering near‑exact quality with orders‑of‑magnitude fewer distance computations—cutting latency and RAM while preserving accuracy.</p>
+</details>
+
+
+Real‑world vector datasets can contain billions of vectors and occupy terabytes. Keeping all vectors in DRAM is expensive. Two practical strategies reduce cost while preserving accuracy:
+
+- Quantization with in‑memory ANN (e.g., FAISS IVFPQ)
+- Disk‑based ANN that stores vectors on SSDs with a small RAM cache (~10–20% of dataset)
+
+In DS Serve we support both backends:
 
 1. **FAISS IVFPQ**  
-   DS Serve incorporates FAISS IVFPQ, which reduces memory usage and latency by partitioning the vector space into clusters and avoiding full comparisons.  
-   In our setting, FAISS supports inference within 200 ms at ~100 GB memory overhead, achieving **>200 QPS** end-to-end.
+   We use <a href="https://faiss.ai/" target="_blank">FAISS</a> with <a href="https://github.com/facebookresearch/faiss/wiki/Faiss-indexes#ivfpq" target="_blank">IVFPQ</a> to reduce memory and latency by clustering and product quantization.  
+   In our setting, FAISS supports inference within ~200 ms at ~100 GB RAM, achieving **~100 QPS** end‑to‑end.
 
 2. **DiskANN**  
-   For even higher throughput, DS Serve integrates **DiskANN**, a disk-based approximate nearest neighbor search system.  
-   DiskANN achieves **>1000 index-level QPS** and **~200+ end-to-end QPS** at ~200 GB RAM, making it ideal for high-throughput production deployments while maintaining competitive accuracy.  
-   DiskANN also uses implicit reranking, which achieves obvious accuracy improvements on downstream tasks compared to **ANN** and even beats **Exact Search** on the MMLU task set.
+   For higher throughput, we integrate <a href="https://github.com/microsoft/DiskANN" target="_blank">DiskANN</a>, a disk‑based ANN system.  
+   DiskANN achieves **>1000 index‑level QPS** and **~200+ end‑to‑end QPS** at ~200 GB RAM, making it suitable for high‑throughput deployments while maintaining competitive accuracy.  
+   In our internal evaluations, DiskANN’s implicit reranking improved downstream accuracy compared to pure ANN and, on some tasks (e.g., MMLU), matched or exceeded Exact Search.
 
+<details>
+<summary><b>How DiskANN works</b></summary>
+<p>DiskANN keeps a compressed copy of vectors in memory to compute approximate distances, while SSDs store full‑precision vectors and the proximity‑graph index. During search, the system fetches a node’s original vector (to refine distances) and its adjacency list (to continue traversal) from disk.</p>
+<p>References: <a href="https://github.com/microsoft/DiskANN" target="_blank">GitHub</a>, <a href="https://www.microsoft.com/en-us/research/project/project-akupara-approximate-nearest-neighbor-search-for-large-scale-semantic-search/" target="_blank">MSR overview</a></p>
+</details>
+
+Key takeaways:
+We find in real open‑source deployments that DiskANN offers the best balance of accuracy, latency, and RAM cost.
+
+| Method               | Accuracy | Latency   | RAM cost |
+|----------------------|----------|-----------|----------|
+| DiskANN              | Excellent| Excellent | Excellent|
+| IVFPQ (FAISS)        | Poor     | Good      | Excellent|
+| Linear scan (disk)   | Excellent| Poor      | Excellent|
+| IVF (no PQ)          | Good     | Good      | Poor     |
+| HNSW                 | Excellent     | Excellent      | Poor     |
 ### Exact Search
 
-This mode boosts search accuracy by computing exact similarities between queries and passages instead of using approximation.
+This mode boosts search accuracy by computing exact similarities between the query embedding and candidate passages (no approximation). It costs more compute, so we enable it on demand; combined with our embedding cache, latency remains practical for repeated or similar queries.
 
 ### Diversity Search
 
-Search results often suffer from information overlap, like nearly identical text chunks, so we offer a **Diverse Search** option to improve overall coverage of the results.  
-To do this, we apply maximal marginal relevance (MMR) on candidates returned by ANN to penalize redundant information.  
-In our use cases, we find **Diverse Search** substantially improves user experience by eliminating redundant texts.
+Search results often contain redundant passages (near‑duplicates). **Diverse Search** improves coverage by penalizing redundancy using maximal marginal relevance (MMR) <a href="https://dl.acm.org/doi/10.1145/290941.291025" target="_blank">[Carbonell & Goldstein, 1998]</a> on the ANN candidates.
+
+<p><b>MMR scoring</b> at step <i>t</i> with selected set <i>S</i>:</p>
+<p align="center"><code>Score(i) = λ · sim(q, d_i) − (1 − λ) · max<sub>j∈S</sub> sim(d_i, d_j)</code></p>
+<p><small><code>sim(·,·)</code> is cosine similarity; <code>λ</code> (lambda) balances relevance and diversity.</small></p>
+
+In our use cases, **Diverse Search** eliminates redundant texts and improves overall coverage.
+
 
 ---
 <br/>
