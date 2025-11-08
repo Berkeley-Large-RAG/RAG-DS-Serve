@@ -119,7 +119,7 @@ Additionally, **DS Serve** offers a **Web Interface** for interactive exploratio
   - **? icon**: click to reveal inline tooltips explaining each control parameter.
 
 - Quick Walkthrough
-  - Type a query. Optionally enable **Exact Search** to prioritize accuracy and **Diverse Search** to prioritize diversity. Then press "Enter" or click the arrow icon to search.
+  - Type a query. Optionally enable **Exact Search** to prioritize accuracy and **Diverse Search** to prioritize diversity. Then press "Enter" or click the arrow icon to search with either IVF_PQ ANN or DiskANN backend. 
   - After results are shown, click the expand/collapse button to control the displayed chunk. Users can also vote **YES/NO** on the relevance of each result.
 
 
@@ -127,7 +127,7 @@ Additionally, **DS Serve** offers a **Web Interface** for interactive exploratio
 ---
 <br/>
 
-## Examples
+## Performance 
 
 The **approximate** nature of the search backend inevitably sacrifices accuracy, thus we introduce **Exact Search** as an optional reranking mode. To do so, we compute **exact** similarities, instead of using **approximation**, between queries and passages. Then search results are reranked according to the newly computed **exact** scores. In our evaluation results, **Exact Search** effectively enhances accuracy across all five tasks. On a cold start, embedding the results can be slow, so we've built an embedding cache to allow ~1000ms latency on similar queries in Exact Search.
 
