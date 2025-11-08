@@ -9,8 +9,6 @@ p { font-size: 18px; margin: 6px 0; }
 .small-note { font-size: 14px; color: #666; margin-top: 2px; }
 /* Hide theme-injected page title on homepage to avoid duplicate 'DS Serve' */
 .post-title, .page-title { display: none; }
-/* Also hide the left brand title in the header on the homepage */
-.site-header .site-title { display: none !important; }
 /* Hide the Minima footer on the homepage to avoid duplicate site title */
 .site-footer { display: none !important; }
 /* Center the top navigation and enlarge links on the homepage */
@@ -39,7 +37,7 @@ p { font-size: 18px; margin: 6px 0; }
 </p>
 <p align="center"><sup>*</sup>Equal contribution.</p>
 
-<p align="center">[<a href="https://tinyurl.com/compact-ds-dive">Web Interface</a>] [<a href="{{ 'API_DOCUMENTATION.html' | relative_url }}">API Endpoint</a>] [<a href="{{ 'VOTES_DOCUMENTATION.html' | relative_url }}">Voting System</a>] [<a href="https://github.com/Berkeley-Large-RAG/RAG-DS-Serve">Code</a>] [<a href="https://openreview.net/forum?id=nQBZKcF2bo">Paper</a>]</p>
+<p align="center">[<a href="{{ 'API_DOCUMENTATION.html' | relative_url }}">API Endpoint</a>] [<a href="https://tinyurl.com/compact-ds-dive">Web Interface</a>] [<a href="{{ 'VOTES_DOCUMENTATION.html' | relative_url }}">Voting System</a>] [<a href="https://github.com/Berkeley-Large-RAG/RAG-DS-Serve">Code</a>] [<a href="https://openreview.net/forum?id=nQBZKcF2bo">Paper</a>]</p>
 
 <!-- **[✨NEW]** DiskANN integration: >2000 index-level QPS and ~200+ end-to-end QPS at 500B-token scale with ~200 GB RAM.
 
@@ -69,7 +67,7 @@ Additionally, our framework enables you to convert your **in-house large-scale d
 <p align="left"><i>Figure 1: DS SERVE converts the largest pretraining dataset into an efficient neural retrieval system: a query q retrieves relevant text via ANN, optionally reranks with exact and/or diverse search, and returns the top-k chunks with voting options for user feedback.</i></p>
 
 <p align="center">
-  <img src="{{ 'Figure-1.png' | relative_url }}" style="width: 70%;" />
+  <img src="{{ 'plots/Figure-1.png' | relative_url }}" style="width: 70%;" />
 </p>
 
 **Key Contributions**
@@ -108,7 +106,7 @@ Additionally, **DS Serve** offers a **Web Interface** for interactive exploratio
 <p align="left"><i>Figure 2: Control panel with tunable parameters and tooltips.</i></p>
 
 <p align="center">
-<img src="{{ 'parameter-panel.png' | relative_url }}" style="width: 90%;" />
+<img src="{{ 'plots/parameter-panel.png' | relative_url }}" style="width: 90%;" />
 </p>
 
 - Use the control panel to adjust search behavior through the following parameters (Figure 2):
@@ -143,24 +141,24 @@ During search, **DS Serve** initially oversamples a pool of candidates, and then
 
 <p align="left"><i>Figure 3: FAISS QPS scaling with nprobe parameter. Higher nprobe values improve accuracy at the cost of increased latency.</i></p>
 <p align="center">
-  <img src="{{ 'faiss_qps_vs_nprobe.png' | relative_url }}" style="width: 90%; margin: 5px;" />
+  <img src="{{ 'plots/faiss_qps_vs_nprobe.png' | relative_url }}" style="width: 90%; margin: 5px;" />
 </p>
 
 <p align="left"><i>Figure 4: DiskANN end-to-end QPS scaling with L parameter. Shows how throughput scales with search list size.</i></p>
 <p align="left"><i>Figure 5: DiskANN index-level QPS scaling with L parameter. DiskANN achieves >2000 QPS at the index level, enabling high-throughput deployments.</i></p>
 <p align="center">
-  <img src="{{ 'diskann_qps_vs_L.png' | relative_url }}" style="width: 48%; margin: 5px;" />
-  <img src="{{ 'diskann_index_only_qps_vs_L.png' | relative_url }}" style="width: 48%; margin: 5px;" />
+  <img src="{{ 'plots/diskann_qps_vs_L.png' | relative_url }}" style="width: 48%; margin: 5px;" />
+  <img src="{{ 'plots/diskann_index_only_qps_vs_L.png' | relative_url }}" style="width: 48%; margin: 5px;" />
 </p>
 
 <p align="left"><i>Figure 6: Accuracy comparison on TriviaQA and NQ-Open datasets. DiskANN consistently outperforms FAISS across both Exact match and F1 scores on both datasets.</i></p>
 <p align="center">
-  <img src="{{ 'triviaqa_nq.png' | relative_url }}" style="width: 90%; margin: 5px;" />
+  <img src="{{ 'plots/nq_triviaqa_diskann_vs_ann_compact_no_recall.png' | relative_url }}" style="width: 90%; margin: 5px;" />
 </p>
 
 <p align="left"><i>Figure 7: DiskANN latency breakdown showing the relative contribution of different components — embedding, index searching, and post‑search mapping — to total latency across different L parameter values.</i></p>
 <p align="center">
-  <img src="{{ 'diskann_latency_breakdown_vs_L.png' | relative_url }}" style="width: 90%; margin: 5px;" />
+  <img src="{{ 'plots/diskann_latency_breakdown_vs_L.png' | relative_url }}" style="width: 90%; margin: 5px;" />
 </p>
 
 ---
