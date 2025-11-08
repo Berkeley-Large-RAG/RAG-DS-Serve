@@ -41,7 +41,7 @@ p { font-size: 18px; margin: 6px 0; }
 
 <!-- **[✨NEW]** DiskANN integration: >2000 index-level QPS and ~200+ end-to-end QPS at 500B-token scale with ~200 GB RAM.
 
-**[✨NEW]** Dual ANN backends: Choose between FAISS (~100 GB RAM, ~100 QPS) and DiskANN (+200 GB RAM, 200+ end-to-end QPS) based on your throughput and memory requirements.
+**[✨NEW]** Dual ANN backends: Choose between IVFPQ (~100 GB RAM, ~100 QPS) and DiskANN (+200 GB RAM, 200+ end-to-end QPS) based on your throughput and memory requirements.
 
 **[✨NEW]** Exact + Diverse modes: tune accuracy–diversity–latency on demand. -->
 
@@ -56,7 +56,7 @@ In one word: Use our framework to **retrieve** data from **near tillion-scale**,
 
 **DS Serve** realizes the transformation of the **largest datastore** (~**500B tokens**, ~**2B vectors**, ~**5T vector embeddings**), into a public domain that provides **free and high-performance neural retrieval endpoints**.  
 
-We support two high-performance ANN backends: **FAISS IVFPQ** for memory-efficient retrieval and **DiskANN** for more accurate, high-throughput search. With **FAISS**, we can offer <b>&lt;100&nbsp;ms latency</b> and handle <b>&gt;100&nbsp;end-to-end QPS</b> with a modest memory footprint of **~100GB**. With **DiskANN**, we can achieve **10000+ index-level QPS** and **200+ end-to-end QPS**, with an extra RAM usage of **~200 GB**. This enables state-of-the-art retrieval performance at scale while maintaining low memory overhead.
+We support two high-performance ANN backends: **IVFPQ** for memory-efficient retrieval and **DiskANN** for more accurate, high-throughput search. With **IVFPQ**, we can offer <b>&lt;100&nbsp;ms latency</b> and handle <b>&gt;100&nbsp;end-to-end QPS</b> with a modest memory footprint of **~100GB**. With **DiskANN**, we can achieve **10000+ index-level QPS** and **200+ end-to-end QPS**, with an extra RAM usage of **~200 GB**. This enables state-of-the-art retrieval performance at scale while maintaining low memory overhead.
 
 Additionally, our framework enables you to convert your **in-house large-scale data** into a **high-performance, controllable** neural retrieval endpoint that you can fully customize with different search options.
 
@@ -73,7 +73,7 @@ Additionally, our framework enables you to convert your **in-house large-scale d
 **Key Contributions**
 - We present the **DS Serve** framework to convert any text corpus into a high-performance, fully controllable in-house neural datastore, with a web interface and API endpoints.  
 - Through this framework, we enable access to and controlled experiemtation on the largest publicly-deployed datastore, featuring 500B tokens and achieving **>2000 index-level QPS** with **DiskANN** integration and **200+ end-to-end QPS**.
-- We demonstrate **DiskANN** as a scalable and more accurate alternative to FAISS, achieving **>2000 QPS** at the index level while maintaining manageable memory footprint (~200 GB RAM).
+- We demonstrate **DiskANN** as a scalable and more accurate alternative to IVFPQ, achieving **>2000 QPS** at the index level while maintaining manageable memory footprint (~200 GB RAM).
 - Furthermore, **DS Serve** contributes to practical applications including data attribution, training search agents, and advancing search methods. For more details please refer to the Application section below. 
 
 ---
@@ -139,7 +139,7 @@ During search, **DS Serve** initially oversamples a pool of candidates, and then
 
 
 
-<p align="left"><i>Figure 3: FAISS QPS scaling with nprobe parameter. Higher nprobe values improve accuracy at the cost of increased latency.</i></p>
+<p align="left"><i>Figure 3: IVFPQ QPS scaling with nprobe parameter. Higher nprobe values improve accuracy at the cost of increased latency.</i></p>
 <p align="center">
   <img src="{{ 'plots/faiss_qps_vs_nprobe.png' | relative_url }}" style="width: 90%; margin: 5px;" />
 </p>
@@ -151,7 +151,7 @@ During search, **DS Serve** initially oversamples a pool of candidates, and then
   <img src="{{ 'plots/diskann_index_only_qps_vs_L.png' | relative_url }}" style="width: 48%; margin: 5px;" />
 </p>
 
-<p align="left"><i>Figure 6: Accuracy comparison on TriviaQA and NQ-Open datasets. DiskANN consistently outperforms FAISS across both Exact match and F1 scores on both datasets.</i></p>
+<p align="left"><i>Figure 6: Accuracy comparison on TriviaQA and NQ-Open datasets. DiskANN consistently outperforms IVFPQ across both Exact match and F1 scores on both datasets.</i></p>
 <p align="center">
   <img src="{{ 'plots/nq_triviaqa_diskann_vs_ann_compact_no_recall.png' | relative_url }}" style="width: 90%; margin: 5px;" />
 </p>
@@ -184,14 +184,14 @@ This represents a significantly larger datastore than most prior work, and to th
 
 Real‑world vector datasets can contain billions of vectors and occupy terabytes. Keeping all vectors in DRAM is expensive. Two practical strategies reduce cost while preserving accuracy:
 
-- Quantization with in‑memory ANN (e.g., FAISS IVFPQ)
+- Quantization with in‑memory ANN (e.g., IVFPQ)
 - Disk‑based ANN that stores vectors on SSDs with a small RAM cache (~10–20% of dataset)
 
 In DS Serve we support both backends:
 
-1. **FAISS IVFPQ**  
-   We use <a href="https://faiss.ai/" target="_blank">FAISS</a> with <a href="https://github.com/facebookresearch/faiss/wiki/Faiss-indexes#ivfpq" target="_blank">IVFPQ</a> to reduce memory and latency by clustering and product quantization.  
-   In our setting, FAISS supports inference within ~200 ms at ~100 GB RAM, achieving **~100 QPS** end‑to‑end.
+1. **IVFPQ**  
+   We use <a href="https://github.com/facebookresearch/faiss/wiki/Faiss-indexes#ivfpq" target="_blank">IVFPQ</a> to reduce memory and latency by clustering and product quantization.  
+   In our setting, IVFPQ supports inference within ~200 ms at ~100 GB RAM, achieving **~100 QPS** end‑to‑end.
 
 2. **DiskANN**  
    For higher throughput, we integrate <a href="https://github.com/microsoft/DiskANN" target="_blank">DiskANN</a>, a disk‑based ANN system.  
@@ -225,7 +225,7 @@ Key takeaways:
       <td style="border:1px solid #ddd; padding:6px;">Excellent</td>
     </tr>
     <tr>
-      <td style="border:1px solid #ddd; padding:6px;">IVFPQ (FAISS)</td>
+      <td style="border:1px solid #ddd; padding:6px;">IVFPQ</td>
       <td style="border:1px solid #ddd; padding:6px;">Poor</td>
       <td style="border:1px solid #ddd; padding:6px;">Good</td>
       <td style="border:1px solid #ddd; padding:6px;">Excellent</td>
@@ -279,5 +279,5 @@ In our use cases, **Diverse Search** eliminates redundant texts and improves ove
 We thank the following open‑source projects and communities:
 
 - <a href="https://github.com/RulinShao/massive-serve" target="_blank">Massive Serve</a> — for the serving infrastructure and deployment utilities that power DS Serve.
-- <a href="https://github.com/facebookresearch/faiss" target="_blank">FAISS</a> and <a href="https://github.com/microsoft/DiskANN" target="_blank">DiskANN</a> — for enabling high‑performance ANN search at scale.
+- <a href="https://github.com/facebookresearch/faiss" target="_blank">IVFPQ</a> and <a href="https://github.com/microsoft/DiskANN" target="_blank">DiskANN</a> — for enabling high‑performance ANN search at scale.
 
