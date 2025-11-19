@@ -63,21 +63,23 @@ p { font-size: 18px; margin: 6px 0; }
 ## Overview
 
 The design of **DS Serve** is motivated by current challenges in information retrieval:
-- Commercial search engines struggle with long and complex queries while being costly to deploy at scale, so a powerful yet affordable search framework is needed.
-- Exponential growth of information database obsoletes traditional linear search, urging more efficient neural retrieval.
-- User labels for search results have been difficult to collect and curate.
+- commercial search engines struggle with long and complex queries while being costly to deploy at scale, so a powerful yet affordable search framework is needed
+- exponential growth of information database obsoletes traditional linear search, urging more efficient neural retrieval.
+- a gap persists between the NLP and database search community, preventing effective uses of search tools and algorithms like ANN <sup><a href="#overview-note" aria-label="See note">&ast;</a></sup>
+- user labels for search results have been difficult to collect and curate.
 
 To address these challenges, we introduce **DS Serve**, a framework that transforms a large-scale text corpus into a high-performance neural retrieval system that's:
 - blazing fast with high throughput 🚀 
 - built upon the largest datastore (~500B tokens, ~2B vectors, ~5T vector embeddings)
-- offers high-performance neural retrieval through free public endpoints and gathers user feedback in real-time
+- featuring customizable and efficient search backends <sup><a href="#overview-note" aria-label="See note">&ast;</a></sup>
+- providing high-performance neural retrieval through free public endpoints and gathers user feedback in real-time
 
 <p align="left"><i>Figure 1: DS SERVE converts the largest pretraining dataset into an efficient neural retrieval system: a query q retrieves relevant text via ANN (IVFPQ or DiskANN), optionally reranks with exact and/or diverse search, and returns the top-k chunks with voting options for user feedback.</i></p>
 <p align="center">
   <img src="{{ 'plots/Figure-1.png' | relative_url }}" style="width: 70%;" />
 </p>
 
-<div class="callout-note">Note: For detailed technical explanations of the algorithms, see the <a href="#technical-design">Technical design</a> section.</div>
+<div id="overview-note" class="callout-note">Note: For detailed technical explanations of the algorithms, see the <a href="#technical-design">Technical design</a> section.</div>
 ---
 <br/>
 
@@ -187,12 +189,13 @@ This represents a significantly larger datastore than most prior work, and to th
 
 ### Scalable and efficient search
 <details>
-<summary><b>Neural retrieval formulation</b></summary>
+<summary><b>Neural retrieval formulation</b> [TODO: Maybe put this under ANN]</summary>
 <p>Neural retrieval can be viewed as nearest‑neighbor search: select the top‑k chunks by cosine similarity <i>sim</i>(<i>q</i>, <i>d</i><sub>i</sub>), where <i>q</i>, <i>d</i><sub>i</sub> ∈ R<sup>h</sup> are the embedding vectors of the query and a candidate chunk. We use <a href="https://arxiv.org/abs/2112.09118" target="_blank">Contriever</a> as the encoder.</p>
 </details>
 <details>
-<summary><b>Why use ANN?</b></summary>
-<p>Exact nearest neighbor search over billions of vectors is prohibitively slow and memory intensive. ANN prunes comparisons via indexing and quantization, delivering near‑exact quality with orders‑of‑magnitude fewer distance computations—cutting latency and RAM while preserving accuracy.</p>
+<summary><b>What is Approximate Nearest Neighbor(ANN) search? [TODO]</b></summary>
+<summary><b>Why use post-ANN Exact and Diversity Search? {TODO}</b></summary>
+<p></p>
 </details>
 
 
@@ -201,7 +204,7 @@ Real‑world vector datasets can contain billions of vectors and occupy terabyte
 - Quantization with in‑memory ANN (e.g., IVFPQ)
 - Disk‑based ANN that stores vectors on SSDs with a small RAM cache (~10–20% of dataset)
 
-In DS Serve we support both backends:
+In DS Serve we support dual backends:
 
 1. **IVFPQ**  
    We use <a href="https://github.com/facebookresearch/faiss/wiki/Faiss-indexes#ivfpq" target="_blank">IVFPQ</a> to reduce memory and latency by clustering and product quantization.  
