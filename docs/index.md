@@ -119,8 +119,8 @@ To address these challenges, we introduce **DS Serve**, a framework that transfo
 
 **Key Contributions**
 - We present the **DS Serve** framework to convert any text corpus into a high-performance, fully controllable in-house neural datastore, with a web interface and API endpoints.  
-- Through this framework, we enable access to and controlled experiemtation on the largest publicly-deployed datastore, featuring 500B tokens and achieving **>10000 index-level QPS** with DiskANN integration and **200+ end-to-end QPS**.
-- We demonstrate DiskANN as a scalable and more accurate alternative to IVFPQ, achieving **>10000 QPS** at the index level while maintaining manageable memory footprint (~200 GB RAM).
+- Through this framework, we enable access to and controlled experiemtation on the largest publicly-deployed datastore, featuring 500B tokens and achieving **10000+** index-level QPS with DiskANN integration and **200+** end-to-end QPS.
+- We demonstrate DiskANN as a scalable and more accurate alternative to IVFPQ, achieving **10000+** QPS at the index level while maintaining manageable memory footprint (~200 GB RAM).
 - Furthermore, **DS Serve** contributes to practical applications including data attribution, training search agents, and advancing search methods. For more details please refer to the Application section below. 
 
 ---
@@ -140,8 +140,8 @@ We envision the use of **DS Serve** for fast, controllable retrieval in RAG and 
 <details>
 <summary><b>What is Approximate Nearest Neighbor (ANN) search?</b></summary>
 <p><b>ANN</b> quickly finds near neighbors by searching only part of the index instead of scanning exhaustively. It trades a bit of accuracy for much lower latency. That said, ANN retrieval still achieves noticeable accuracy gain compared to no-retrieval baselines.</p>
-<details>
-<summary><b>What are post‑ANN Exact and Diversity Search?</b></summary>
+</details>
+<summary><b>What are post‑ANN Exact and Diverse Search?</b></summary>
 <p><b>Exact Search</b> reranks ANN candidates by computing exact similarities between the query embedding and passages. We enable it on demand; with our embedding cache, latency remains practical for repeated or similar queries.</p>
 <p><b>Diverse Search</b> reduces redundancy using maximal marginal relevance (MMR) on the ANN pool:</p>
 <p align="center"><code>Score(i) = λ · sim(q, d<sub>i</sub>) − (1 − λ) · max<sub>j ∈ S</sub> sim(d<sub>i</sub>, d<sub>j</sub>)</code></p>
@@ -150,39 +150,14 @@ We envision the use of **DS Serve** for fast, controllable retrieval in RAG and 
 </details>
 <details>
 <summary><b>Why use Exact and Diverse Search?</b></summary>
-The approximate nature of the search backend inevitably sacrifices accuracy, thus we introduce **Exact Search** as an optional reranking mode. To do so, we compute exact similarities, instead of using approximation, between queries and passages. Then search results are reranked according to the newly computed exact** scores. In our evaluation results, **Exact Search** effectively enhances accuracy across all five tasks. On a cold start, embedding the results can be slow, so we've built an embedding cache to allow ~1000ms latency on similar queries in Exact Search.
+<p>The approximate nature of the search backend inevitably sacrifices accuracy, thus we introduce <b>Exact Search</b> as an optional reranking mode. To do so, we compute exact similarities, instead of using approximation, between queries and passages. Then search results are reranked according to the newly computed exact scores. In our evaluation results, <b>Exact Search</b> effectively enhances accuracy across all five tasks. On a cold start, embedding the results can be slow, so we've built an embedding cache to allow ~1000ms latency on similar queries in Exact Search.</p>
 
-Additionally, search results often suffer from information overlap, i.e. nearly identical text chunks. To address this problem we offer a Diverse Search option that penalizes redundant information. In our use cases, we find **Diverse Search** substantially improves user experience by eliminating redundant texts and improving overall coverage. 
+<p>Additionally, search results often suffer from information overlap, i.e. nearly identical text chunks. To address this problem we offer a Diverse Search option that penalizes redundant information. In our use cases, we find <b>Diverse Search</b> substantially improves user experience by eliminating redundant texts and improving overall coverage.</p>
 
-For queries that are less common or rely on very recent knowledge — for example “Jensen Huang” — the datastore may only contain a handful of truly relevant passages, due to its frozen state. In these situations, **Exact Search** performs well because it ranks those relevant results to the top. In contrast, **Diverse Search** doesn’t necessarily improve performance since it risks surfacing less accurate results.
+<p>For queries that are less common or rely on very recent knowledge — for example “Jensen Huang” — the datastore may only contain a handful of truly relevant passages, due to its frozen state. In these situations, <b>Exact Search</b> performs well because it ranks those relevant results to the top. In contrast, <b>Diverse Search</b> doesn’t necessarily improve performance since it risks surfacing less accurate results.</p>
 
-During search, **DS Serve** initially oversamples a pool of candidates, and then easily finds top results among them. On the very rare occasion that retrieval fails, an alert message pops up to give improvement suggestions.
+<p>During search, <b>DS Serve</b> initially oversamples a pool of candidates, and then easily finds top results among them. On the very rare occasion that retrieval fails, an alert message pops up to give improvement suggestions.</p> 
 </details>
-
-
-
-<p align="left"><i>Figure 3: IVFPQ QPS scaling with nprobe parameter. Higher nprobe values improve accuracy at the cost of increased latency.</i></p>
-<p align="center">
-  <img src="{{ 'plots/faiss_qps_vs_nprobe.png' | relative_url }}" style="width: 90%; margin: 5px;" />
-</p>
-
-<p align="left"><i>Figure 4: DiskANN end-to-end QPS scaling with L parameter. Shows how throughput scales with search list size.</i></p>
-<p align="left"><i>Figure 5: DiskANN index-level QPS scaling with L parameter. DiskANN achieves >2000 QPS at the index level, enabling high-throughput deployments.</i></p>
-<p align="center">
-  <img src="{{ 'plots/diskann_qps_vs_L.png' | relative_url }}" style="width: 48%; margin: 5px;" />
-  <img src="{{ 'plots/diskann_index_only_qps_vs_L.png' | relative_url }}" style="width: 48%; margin: 5px;" />
-</p>
-
-<p align="left"><i>Figure 6: Accuracy comparison on TriviaQA and NQ-Open datasets. DiskANN consistently outperforms IVFPQ across both Exact match and F1 scores on both datasets.</i></p>
-<p align="center">
-  <img src="{{ 'plots/nq_triviaqa_diskann_vs_ann_compact_no_recall.png' | relative_url }}" style="width: 90%; margin: 5px;" />
-</p>
-
-<p align="left"><i>Figure 7: DiskANN latency breakdown showing the relative contribution of different components — embedding, index searching, and post‑search mapping — to total latency across different L parameter values.</i></p>
-<p align="center">
-  <img src="{{ 'plots/diskann_latency_breakdown_vs_L.png' | relative_url }}" style="width: 90%; margin: 5px;" />
-</p>
-
 ---
 <br/>
 
@@ -258,6 +233,30 @@ This represents a significantly larger datastore than most prior work, and to th
 Key takeaways:
 
 1.We find in real open‑source deployments that DiskANN offers the best balance of accuracy, latency, and RAM cost.
+
+
+<p align="left"><i>Figure 3: IVFPQ QPS scaling with nprobe parameter. Higher nprobe values improve accuracy at the cost of increased latency.</i></p>
+<p align="center">
+  <img src="{{ 'plots/faiss_qps_vs_nprobe.png' | relative_url }}" style="width: 90%; margin: 5px;" />
+</p>
+
+<p align="left"><i>Figure 4: DiskANN end-to-end QPS scaling with L parameter. Shows how throughput scales with search list size.</i></p>
+<p align="left"><i>Figure 5: DiskANN index-level QPS scaling with L parameter. DiskANN achieves >2000 QPS at the index level, enabling high-throughput deployments.</i></p>
+<p align="center">
+  <img src="{{ 'plots/diskann_qps_vs_L.png' | relative_url }}" style="width: 48%; margin: 5px;" />
+  <img src="{{ 'plots/diskann_index_only_qps_vs_L.png' | relative_url }}" style="width: 48%; margin: 5px;" />
+</p>
+
+<p align="left"><i>Figure 6: Accuracy comparison on TriviaQA and NQ-Open datasets. DiskANN consistently outperforms IVFPQ across both Exact match and F1 scores on both datasets.</i></p>
+<p align="center">
+  <img src="{{ 'plots/nq_triviaqa_diskann_vs_ann_compact_no_recall.png' | relative_url }}" style="width: 90%; margin: 5px;" />
+</p>
+
+<p align="left"><i>Figure 7: DiskANN latency breakdown showing the relative contribution of different components — embedding, index searching, and post‑search mapping — to total latency across different L parameter values.</i></p>
+<p align="center">
+  <img src="{{ 'plots/diskann_latency_breakdown_vs_L.png' | relative_url }}" style="width: 90%; margin: 5px;" />
+</p>
+
 
 <table style="width:100%; border-collapse:collapse; text-align:center;">
   <thead>
