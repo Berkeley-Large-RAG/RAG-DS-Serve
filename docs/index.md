@@ -50,36 +50,24 @@ p { font-size: 18px; margin: 6px 0; }
 
 ## Overview
 
-We introduce **DS Serve**, a framework that transforms a large-scale text corpus into a high-performance neural retrieval system.
+The design of **DS Serve** is motivated by current challenges in information retrieval:
+- Commercial search engines struggle with long and complex queries while being costly to deploy at scale, so a powerful yet affordable search framework is needed.
+- Exponential growth of information database obsoletes traditional linear search, urging more efficient neural retrieval.
+- User labels for search results have been difficult to collect and curate.
 
-In one word: Use our framework to retrieve data from near tillion-scale, high-quality pre-trained datasets — **blazing fast** ⚡ and **absolutely free!** 🚀
+To address these challenges, we introduce **DS Serve**, a framework that transforms a large-scale text corpus into a high-performance neural retrieval system that's:
+- blazing fast with high throughput 🚀 
+- built upon the largest datastore (~500B tokens, ~2B vectors, ~5T vector embeddings)
+- offers high-performance neural retrieval through free public endpoints and gathers user feedback in real-time
 
-**DS Serve** realizes the transformation of the largest datastore (~500B tokens, ~2B vectors, ~5T vector embeddings), into a public domain that provides free and high-performance neural retrieval endpoints.  
-
-We support two high-performance ANN backends: IVFPQ for memory-efficient retrieval and DiskANN for more accurate, high-throughput search. With IVFPQ, we can offer <b>&lt;100&nbsp;ms latency</b> and handle <b>&gt;100&nbsp;end-to-end QPS</b> with a modest memory footprint of **~100GB**. With DiskANN, we can achieve **10000+ index-level QPS** and **200+ end-to-end QPS**, with an extra RAM usage of **~200 GB**. This enables state-of-the-art retrieval performance at scale while maintaining low memory overhead.
-
-Additionally, our framework enables you to convert your in-house large-scale data into a high-performance, controllable neural retrieval endpoint that you can fully customize with different search options.
-
-### Motivation
-- Problem this project solves: [fill in]
-- Why now / what’s changed: [fill in]
-- Scale and cost considerations: [fill in]
-- Control, privacy, and governance: [fill in]
-- Reliability and reproducibility: [fill in]
-
-### Highlights
-- Dual ANN backends (IVFPQ and DiskANN): [fill in]
-- Exact Search and Diverse Search options: [fill in]
-- High throughput and low latency at scale: [fill in]
-- Web UI and programmatic API endpoints: [fill in]
-- Embedding cache for repeat/similar queries: [fill in]
-- Billion-scale open datastore coverage: [fill in]
-
-
----
-<br/>
 ## Contributions
 <p align="left"><i>Figure 1: DS SERVE converts the largest pretraining dataset into an efficient neural retrieval system: a query q retrieves relevant text via ANN, optionally reranks with exact and/or diverse search, and returns the top-k chunks with voting options for user feedback.</i></p>
+
+In particular, we support two high-performance Approximate Nearest Neighbor (ANN) search  backends: 
+- IVFPQ: <b>&lt;100&nbsp;ms latency</b>, <b>&gt;100&nbsp;end-to-end QPS</b>, and with a modest memory footprint of **~100GB**. 
+- DiskANN: **10000+ index-level QPS**, **200+ end-to-end QPS**, at a RAM usage of **~200 GB**. For improved performance, we set DiskANN as the default retrieval backend. Please refer to the technical design section for detailed explanations on the algorithms. 
+---
+<br/>
 
 <p align="center">
   <img src="{{ 'plots/Figure-1.png' | relative_url }}" style="width: 70%;" />
