@@ -4,10 +4,7 @@
       {%- assign default_paths = site.pages | map: "path" -%}
       {%- assign page_paths = site.header_pages | default: default_paths -%}
       {%- assign titles_size = site.pages | map: 'title' | join: '' | size -%}
-      <span class="site-title" style="font-weight: 800; font-size: 24px; white-space: nowrap; display: inline-block; margin-right: 24px;">
-        <img class="site-logo" src="{{ 'assets/ds-serve-logo.svg' | relative_url }}" alt="DS Serve logo" />
-        {{ site.title | escape }}
-      </span>
+      <span class="site-title" style="font-weight: 800; font-size: 24px; white-space: nowrap; display: inline-block; margin-right: 24px;">{{ site.title | escape }}</span>
 
       {%- if titles_size > 0 -%}
         <nav class="site-nav">

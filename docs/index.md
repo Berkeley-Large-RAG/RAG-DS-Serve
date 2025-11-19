@@ -9,11 +9,11 @@ p { font-size: 18px; margin: 6px 0; }
 .small-note { font-size: 14px; color: #666; margin-top: 2px; }
 /* Compact callout note for Overview */
 .callout-note {
-  font-size: 14px;
-  color: #4b5563;
-  background: #f9fafb;
-  border-left: 4px solid #e5e7eb;
-  padding: 8px 12px;
+  font-size: 13px;
+  color: #6b7280;            /* gray-500 */
+  background: #fcfcfd;       /* very light */
+  border-left: 3px solid #e5e7eb;
+  padding: 6px 10px;
   margin: 8px 0 0;
   border-radius: 4px;
   font-style: normal;
@@ -42,15 +42,15 @@ p { font-size: 18px; margin: 6px 0; }
 .note-inline:hover { text-decoration: underline; }
 /* Superscript note marker placed tight to the word */
 .note-sup {
-  font-size: 0.65em;
+  font-size: 0.55em;
   line-height: 0;
   vertical-align: super;
 }
 .note-sup a {
-  color: #6b7280;
+  color: #9ca3af;           /* gray-400 */
   text-decoration: none;
 }
-.note-sup a:hover { text-decoration: underline; }
+.note-sup a:hover { color: #6b7280; text-decoration: underline; }
 /* Make details summaries match paragraph sizing */
 details > summary {
   font-size: 18px;
@@ -66,6 +66,8 @@ details > summary {
 .site-header .site-title { font-size: 18px !important; font-weight: 600 !important; color: #111827 !important; margin-right: 12px !important; }
 .site-header .site-nav .page-link { font-size: 18px; font-weight: 600; color: #111827; }
 .site-header .site-nav .trigger { justify-content: center; gap: 10px; }
+/* Stronger header divider and single-line layout */
+.site-header { border-bottom: 3px solid #111827 !important; }
 /* Header logo sizing */
 .site-header .site-title .site-logo {
   height: 18px;
@@ -79,7 +81,7 @@ details > summary {
 .perf-table table { width: 100%; border-collapse: collapse; font-size: 14px; }
 .perf-table th, .perf-table td { border: 1px solid #e5e7eb; padding: 6px 8px; text-align: center; white-space: nowrap; }
 .perf-table thead th { background: #f9fafb; }
-.perf-table caption { caption-side: top; font-weight: 600; margin-bottom: 6px; }
+.perf-table caption { caption-side: top; font-weight: 600; margin-bottom: 6px; text-align: left; }
 </style>
 
 
@@ -124,7 +126,7 @@ The design of **DS Serve** is motivated by current challenges in information ret
 To address these challenges, we introduce **DS Serve**, a framework that transforms a large-scale text corpus into a high-performance neural retrieval system that's:
 - **[✨NEW]** blazing fast with high throughput 🚀 
 - **[✨NEW]** built upon the largest datastore (~500B tokens, ~2B vectors, ~5T vector embeddings)
-- **[✨NEW]** featuring customizable and efficient search backends -- DiskANN, Exact, and Diverse Search<sup class="note-sup"><a href="#overview-note" aria-label="See note">*</a></sup>
+- **[✨NEW]** featuring customizable and efficient search backends -- IVFPQ/DiskANN, plus Exact and Diverse Search<sup class="note-sup"><a href="#overview-note" aria-label="See note">*</a></sup>
 - **[✨NEW]** providing high-performance neural retrieval through free public endpoints and gathers user feedback in real-time
 
 <p align="left"><i>Figure 1: DS SERVE converts the largest pretraining dataset into an efficient neural retrieval system: a query q retrieves relevant text via ANN (IVFPQ or DiskANN), optionally reranks with exact and/or diverse search, and returns the top-k chunks with voting options for user feedback.</i></p>
@@ -160,7 +162,7 @@ We envision the use of **DS Serve** for fast, controllable retrieval in RAG and 
 ## Performance 
 <div class="perf-table">
   <table>
-    <caption>Evaluation results. Acc is accuracy (%); t is end‑to‑end retrieval latency (s). For Exact Search, t is without cache and t<sub>cache</sub> with cache. K=1000, k=10, n<sub>probe</sub>=256.</caption>
+    <caption>Evaluation results. <i>Acc</i> is accuracy (%); <i>t</i> is end‑to‑end retrieval latency (s). For Exact Search, <i>t</i> is without cache and <i>t</i><sub>cache</sub> with cache. We use <i>K</i>=1000, <i>k</i>=10, and <i>n</i><sub>probe</sub>=256.</caption>
     <thead>
       <tr>
         <th rowspan="2">Task</th>
