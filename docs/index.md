@@ -66,6 +66,20 @@ details > summary {
 .site-header .site-title { font-size: 18px !important; font-weight: 600 !important; color: #111827 !important; margin-right: 12px !important; }
 .site-header .site-nav .page-link { font-size: 18px; font-weight: 600; color: #111827; }
 .site-header .site-nav .trigger { justify-content: center; gap: 10px; }
+/* Header logo sizing */
+.site-header .site-title .site-logo {
+  height: 18px;
+  width: 18px;
+  object-fit: contain;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+/* Performance table */
+.perf-table { overflow-x: auto; margin: 8px 0 12px; }
+.perf-table table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.perf-table th, .perf-table td { border: 1px solid #e5e7eb; padding: 6px 8px; text-align: center; white-space: nowrap; }
+.perf-table thead th { background: #f9fafb; }
+.perf-table caption { caption-side: top; font-weight: 600; margin-bottom: 6px; }
 </style>
 
 
@@ -105,7 +119,7 @@ The design of **DS Serve** is motivated by current challenges in information ret
 - Commercial search engines struggle with long and complex queries while being costly to deploy at scale, so a powerful yet affordable search framework is needed
 - Exponential growth of information database obsoletes traditional linear search, urging more efficient neural retrieval.
 - A gap persists between the NLP and database search community, preventing effective uses of search tools and algorithms like ANN<sup class="note-sup"><a href="#overview-note" aria-label="See note">*</a></sup>
-- User labels for search results have been difficult to collect and curate.
+- User labels for search results have been difficult to collect and curate
 
 To address these challenges, we introduce **DS Serve**, a framework that transforms a large-scale text corpus into a high-performance neural retrieval system that's:
 - **[✨NEW]** blazing fast with high throughput 🚀 
@@ -118,7 +132,7 @@ To address these challenges, we introduce **DS Serve**, a framework that transfo
   <img src="{{ 'plots/Figure-1.png' | relative_url }}" style="width: 70%;" />
 </p>
 
-<div id="overview-note" class="callout-note"><span class="note-sup" aria-hidden="true">*</span> Note: For detailed technical explanations of the algorithms, see the <a href="#technical-design">Technical design</a> section.</div>
+<div id="overview-note" class="callout-note"><span class="note-sup" aria-hidden="true">*</span> Note: For detailed technical explanations of the algorithms, see the <a href="#technical-design">Technical Design</a> section.</div>
 ---
 <br/>
 
@@ -144,6 +158,31 @@ We envision the use of **DS Serve** for fast, controllable retrieval in RAG and 
 <br/>
 
 ## Performance 
+<div class="perf-table">
+  <table>
+    <caption>Evaluation results. Acc is accuracy (%); t is end‑to‑end retrieval latency (s). For Exact Search, t is without cache and t<sub>cache</sub> with cache. K=1000, k=10, n<sub>probe</sub>=256.</caption>
+    <thead>
+      <tr>
+        <th rowspan="2">Task</th>
+        <th colspan="1">No DS Serve</th>
+        <th colspan="2">DS Serve</th>
+        <th colspan="3">DS Serve + Exact</th>
+      </tr>
+      <tr>
+        <th>Acc</th>
+        <th>Acc</th><th>t (s)</th>
+        <th>Acc</th><th>t (s)</th><th>t<sub>cache</sub> (s)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td style="text-align:left">MMLU</td><td>68.9</td><td>73.5</td><td>0.17</td><td>73.7</td><td>16.44</td><td>0.30</td></tr>
+      <tr><td style="text-align:left">MMLU Pro</td><td>39.8</td><td>47.5</td><td>0.19</td><td>49.4</td><td>16.54</td><td>0.32</td></tr>
+      <tr><td style="text-align:left">AGI Eval</td><td>56.2</td><td>56.2</td><td>0.21</td><td>58.3</td><td>15.03</td><td>0.34</td></tr>
+      <tr><td style="text-align:left">MATH</td><td>46.9</td><td>50.0</td><td>0.18</td><td>53.1</td><td>16.51</td><td>0.33</td></tr>
+      <tr><td style="text-align:left">GPQA</td><td>29.9</td><td>31.7</td><td>0.17</td><td>36.6</td><td>16.57</td><td>0.32</td></tr>
+    </tbody>
+  </table>
+</div>
 <details>
 <summary><b>What is Approximate Nearest Neighbor (ANN) search?</b></summary>
 <p><b>ANN</b> quickly finds near neighbors by searching only part of the index instead of scanning exhaustively. It trades a bit of accuracy for much lower latency. That said, ANN retrieval still achieves noticeable accuracy gain compared to no-retrieval baselines.</p>
@@ -158,8 +197,7 @@ We envision the use of **DS Serve** for fast, controllable retrieval in RAG and 
 <p>In practice, Diverse Search eliminates redundant texts and improves overall coverage.</p>
 </details>
 
-<details>
-<summary><b>Why use Exact and Diverse Search?</b></summary>
+
 <p>The approximate nature of the search backend inevitably sacrifices accuracy, thus we introduce <b>Exact Search</b> as an optional reranking mode. To do so, we compute exact similarities, instead of using approximation, between queries and passages. Then search results are reranked according to the newly computed exact scores. In our evaluation results, <b>Exact Search</b> effectively enhances accuracy across all five tasks. On a cold start, embedding the results can be slow, so we've built an embedding cache to allow ~1000ms latency on similar queries in Exact Search.</p>
 
 <p>Additionally, search results often suffer from information overlap, i.e. nearly identical text chunks. To address this problem we offer a Diverse Search option that penalizes redundant information. In our use cases, we find <b>Diverse Search</b> substantially improves user experience by eliminating redundant texts and improving overall coverage.</p>
@@ -167,7 +205,7 @@ We envision the use of **DS Serve** for fast, controllable retrieval in RAG and 
 <p>For queries that are less common or rely on very recent knowledge — for example “Jensen Huang” — the datastore may only contain a handful of truly relevant passages, due to its frozen state. In these situations, <b>Exact Search</b> performs well because it ranks those relevant results to the top. In contrast, <b>Diverse Search</b> doesn’t necessarily improve performance since it risks surfacing less accurate results.</p>
 
 <p>During search, <b>DS Serve</b> initially oversamples a pool of candidates, and then easily finds top results among them. On the very rare occasion that retrieval fails, an alert message pops up to give improvement suggestions.</p> 
-</details>
+
 ---
 <br/>
 
@@ -175,25 +213,33 @@ We envision the use of **DS Serve** for fast, controllable retrieval in RAG and 
 
 We provide two ways to use **DS Serve**: API calls and a web UI.
 
-- API Call
-  - **DS Serve** provides a free API for programmatic access via HTTP requests, enabling seamless integration into your applications and workflows. The API accepts configurable parameters and returns responses with retrieved passages and metadata. For detailed API documentation and usage examples, please refer to the [API Documentation]({{ 'API_DOCUMENTATION.html' | relative_url }}) page.
+<details>
+<summary><b>API</b></summary>
+<p><b>DS Serve</b> provides a free API for programmatic access via HTTP requests, enabling seamless integration into your applications and workflows. The API accepts configurable parameters and returns responses with retrieved passages and metadata. For detailed API documentation and usage examples, please refer to the <a href="{{ 'API_DOCUMENTATION.html' | relative_url }}">API Documentation</a> page.</p>
+</details>
 
-- Web Interface
-  - <p align="left"><i>Figure 2: Control panel with tunable parameters and tooltips.</i></p>
-  - <p align="center">
-    <img src="{{ 'plots/parameter-panel.png' | relative_url }}" style="width: 90%;" />
-    </p>
-  - Use the control panel to adjust search behavior (Figure 2):
-    - <b>nprobe</b>: Higher values increase accuracy but marginally add latency. Therefore a large value is generally recommended.
-    - <b>k (max: 1000)</b>: number of top passages to display. 
-    - <b>Min words</b>: filter out passages shorter than this before display to encourage more context-rich results.
-    - <b>Exact Search</b>: improves accuracy at the cost of increased compute and overhead.
-    - <b>Diverse Search</b>: reduces redundant results for better coverage. 
-    - <b>λ (lambda)</b>: diversity weight used only for <b>Diverse Search</b>. Higher values favor diversity, and lower relevance.
-    - <b>? icon</b>: click to reveal inline tooltips explaining each control parameter.
-  - Quick Walkthrough
-    - Type a query. Optionally enable <b>Exact Search</b> to prioritize accuracy and <b>Diverse Search</b> to prioritize diversity. Then press "Enter" or click the arrow icon to search with either IVF_PQ ANN or DiskANN backend. 
-    - After results are shown, click the expand/collapse button to control the displayed chunk. Users can also vote <b>YES/NO</b> on the relevance of each result.
+<details>
+<summary><b>Web Interface</b></summary>
+<p align="left"><i>Figure 2: Control panel with tunable parameters and tooltips.</i></p>
+<p align="center">
+  <img src="{{ 'plots/parameter-panel.png' | relative_url }}" style="width: 90%;" />
+</p>
+<p>Use the control panel to adjust search behavior (Figure 2):</p>
+<ul>
+  <li><b>nprobe</b>: Higher values increase accuracy but marginally add latency. Therefore a large value is generally recommended.</li>
+  <li><b>k (max: 1000)</b>: number of top passages to display.</li>
+  <li><b>Min words</b>: filter out passages shorter than this before display to encourage more context-rich results.</li>
+  <li><b>Exact Search</b>: improves accuracy at the cost of increased compute and overhead.</li>
+  <li><b>Diverse Search</b>: reduces redundant results for better coverage.</li>
+  <li><b>λ (lambda)</b>: diversity weight used only for <b>Diverse Search</b>. Higher values favor diversity, and lower relevance.</li>
+  <li><b>? icon</b>: click to reveal inline tooltips explaining each control parameter.</li>
+</ul>
+<p><b>Quick Walkthrough</b></p>
+<ul>
+  <li>Type a query. Optionally enable <b>Exact Search</b> to prioritize accuracy and <b>Diverse Search</b> to prioritize diversity. Then press "Enter" or click the arrow icon to search with either IVF_PQ ANN or DiskANN backend.</li>
+  <li>After results are shown, click the expand/collapse button to control the displayed chunk. Users can also vote <b>YES/NO</b> on the relevance of each result.</li>
+</ul>
+</details>
 
 ---
 <br/>
@@ -208,7 +254,7 @@ This represents a significantly larger datastore than most prior work, and to th
 
 ### Scalable and efficient search
 <details>
-<summary><b>How we integrates Approximate Nearest Neighbor (ANN) search</b></summary>
+<summary><b>How we integrate Approximate Nearest Neighbor (ANN) search</b></summary>
 <p>Real‑world vector datasets can contain billions of vectors and occupy terabytes. Keeping all vectors in DRAM is expensive. Two practical strategies reduce cost while preserving accuracy:</p>
 <ul>
   <li>Quantization with in‑memory ANN (e.g., IVFPQ)</li>
