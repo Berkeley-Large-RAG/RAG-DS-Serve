@@ -7,6 +7,18 @@ title: DS Serve
 @import url('{{ "assets/infini-gram.css" | relative_url }}');
 p { font-size: 18px; margin: 6px 0; }
 .small-note { font-size: 14px; color: #666; margin-top: 2px; }
+/* Compact callout note for Overview */
+.callout-note {
+  font-size: 14px;
+  color: #4b5563;
+  background: #f9fafb;
+  border-left: 4px solid #e5e7eb;
+  padding: 8px 12px;
+  margin: 8px 0 0;
+  border-radius: 4px;
+  font-style: normal;
+}
+.callout-note a { font-weight: 600; }
 /* Hide theme-injected page title on homepage to avoid duplicate 'DS Serve' */
 .post-title, .page-title { display: none; }
 /* Hide the Minima footer on the homepage to avoid duplicate site title */
@@ -65,7 +77,7 @@ To address these challenges, we introduce **DS Serve**, a framework that transfo
   <img src="{{ 'plots/Figure-1.png' | relative_url }}" style="width: 70%;" />
 </p>
 
-> Note: For detailed technical explanations of the algorithms, see the <a href="#technical-design">Technical design</a> section.
+<div class="callout-note">Note: For detailed technical explanations of the algorithms, see the <a href="#technical-design">Technical design</a> section.</div>
 ---
 <br/>
 
@@ -73,8 +85,8 @@ To address these challenges, we introduce **DS Serve**, a framework that transfo
 
 **Key Contributions**
 - We present the **DS Serve** framework to convert any text corpus into a high-performance, fully controllable in-house neural datastore, with a web interface and API endpoints.  
-- Through this framework, we enable access to and controlled experiemtation on the largest publicly-deployed datastore, featuring 500B tokens and achieving **>2000 index-level QPS** with **DiskANN** integration and **200+ end-to-end QPS**.
-- We demonstrate **DiskANN** as a scalable and more accurate alternative to IVFPQ, achieving **>2000 QPS** at the index level while maintaining manageable memory footprint (~200 GB RAM).
+- Through this framework, we enable access to and controlled experiemtation on the largest publicly-deployed datastore, featuring 500B tokens and achieving **>10000 index-level QPS** with DiskANN integration and **200+ end-to-end QPS**.
+- We demonstrate DiskANN as a scalable and more accurate alternative to IVFPQ, achieving **>10000 QPS** at the index level while maintaining manageable memory footprint (~200 GB RAM).
 - Furthermore, **DS Serve** contributes to practical applications including data attribution, training search agents, and advancing search methods. For more details please refer to the Application section below. 
 
 ---
