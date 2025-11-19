@@ -31,6 +31,15 @@ p { font-size: 18px; margin: 6px 0; }
   text-decoration: none;
 }
 .note-ref a:hover { text-decoration: underline; }
+/* Inline note reference for balanced text flow */
+.note-inline {
+  font-size: 12px;
+  color: #6b7280;
+  margin-left: 4px;
+  white-space: nowrap;
+  text-decoration: none;
+}
+.note-inline:hover { text-decoration: underline; }
 /* Hide theme-injected page title on homepage to avoid duplicate 'DS Serve' */
 .post-title, .page-title { display: none; }
 /* Hide the Minima footer on the homepage to avoid duplicate site title */
@@ -77,13 +86,13 @@ p { font-size: 18px; margin: 6px 0; }
 The design of **DS Serve** is motivated by current challenges in information retrieval:
 - commercial search engines struggle with long and complex queries while being costly to deploy at scale, so a powerful yet affordable search framework is needed
 - exponential growth of information database obsoletes traditional linear search, urging more efficient neural retrieval.
-- a gap persists between the NLP and database search community, preventing effective uses of search tools and algorithms like ANN <sup class="note-ref"><a href="#overview-note" aria-label="See note">*</a></sup>
+- a gap persists between the NLP and database search community, preventing effective uses of search tools and algorithms like ANN <a class="note-inline" href="#overview-note">(*)</a>
 - user labels for search results have been difficult to collect and curate.
 
 To address these challenges, we introduce **DS Serve**, a framework that transforms a large-scale text corpus into a high-performance neural retrieval system that's:
 - blazing fast with high throughput 🚀 
 - built upon the largest datastore (~500B tokens, ~2B vectors, ~5T vector embeddings)
-- featuring customizable and efficient search backends <sup class="note-ref"><a href="#overview-note" aria-label="See note">*</a></sup>
+- featuring customizable and efficient search backends <a class="note-inline" href="#overview-note">(*)</a>
 - providing high-performance neural retrieval through free public endpoints and gathers user feedback in real-time
 
 <p align="left"><i>Figure 1: DS SERVE converts the largest pretraining dataset into an efficient neural retrieval system: a query q retrieves relevant text via ANN (IVFPQ or DiskANN), optionally reranks with exact and/or diverse search, and returns the top-k chunks with voting options for user feedback.</i></p>
@@ -201,31 +210,29 @@ This represents a significantly larger datastore than most prior work, and to th
 
 ### Scalable and efficient search
 <details>
-<summary><b>Neural retrieval formulation</b> [TODO: Maybe put this under ANN]</summary>
-<p>Neural retrieval can be viewed as nearest‑neighbor search: select the top‑k chunks by cosine similarity <i>sim</i>(<i>q</i>, <i>d</i><sub>i</sub>), where <i>q</i>, <i>d</i><sub>i</sub> ∈ R<sup>h</sup> are the embedding vectors of the query and a candidate chunk. We use <a href="https://arxiv.org/abs/2112.09118" target="_blank">Contriever</a> as the encoder.</p>
+<summary><b>What is Approximate Nearest Neighbor (ANN) search?</b></summary>
+<p><b>ANN</b> explores only part of the index to optimize for latency, accelerating search at a small loss of recall.</p>
+<p><b>Formulation.</b> Given a query embedding <i>q</i> and candidate embeddings <i>d</i><sub>i</sub> ∈ R<sup>h</sup> (from <a href="https://arxiv.org/abs/2112.09118" target="_blank">Contriever</a>), rank by cosine similarity <i>sim</i>(<i>q</i>, <i>d</i><sub>i</sub>) and return the top‑k.</p>
+
+<p><b>Implementation note.</b> We default to DiskANN for billion‑scale deployments, while IVFPQ remains available as a separate option.</p>
+<p>Real‑world vector datasets can contain billions of vectors and occupy terabytes. Keeping all vectors in DRAM is expensive. Two practical strategies reduce cost while preserving accuracy:</p>
+<ul>
+  <li>Quantization with in‑memory ANN (e.g., IVFPQ)</li>
+  <li>Disk‑based ANN that stores vectors on SSDs with a small RAM cache (~10–20% of dataset)</li>
+</ul>
+<p>In DS Serve we support both backends:</p>
+<ol>
+  <li><b>IVFPQ</b><br/>
+     We use <a href="https://github.com/facebookresearch/faiss/wiki/Faiss-indexes#ivfpq" target="_blank">IVFPQ</a> to reduce memory and latency by clustering and product quantization.<br/>
+     In our setting, IVFPQ supports inference within ~200 ms at ~100 GB RAM, achieving <b>~100 QPS</b> end‑to‑end.
+  </li>
+  <li><b>DiskANN</b><br/>
+     For higher throughput, we integrate <a href="https://github.com/microsoft/DiskANN" target="_blank">DiskANN</a>, a disk‑based ANN system.<br/>
+     DiskANN achieves <b>&gt;10000</b> index‑level QPS and <b>~200+ end‑to‑end QPS</b> at ~200 GB RAM, making it suitable for high‑throughput deployments while maintaining competitive accuracy.<br/>
+     In our internal evaluations, DiskANN’s implicit reranking improved downstream accuracy compared to pure ANN and, on some tasks (e.g., MMLU), matched or exceeded Exact Search.
+  </li>
+</ol>
 </details>
-<details>
-<summary><b>What is Approximate Nearest Neighbor(ANN) search? [TODO]</b></summary>
-<summary><b>Why use post-ANN Exact and Diversity Search? {TODO}</b></summary>
-<p></p>
-</details>
-
-
-Real‑world vector datasets can contain billions of vectors and occupy terabytes. Keeping all vectors in DRAM is expensive. Two practical strategies reduce cost while preserving accuracy:
-
-- Quantization with in‑memory ANN (e.g., IVFPQ)
-- Disk‑based ANN that stores vectors on SSDs with a small RAM cache (~10–20% of dataset)
-
-In DS Serve we support dual backends:
-
-1. **IVFPQ**  
-   We use <a href="https://github.com/facebookresearch/faiss/wiki/Faiss-indexes#ivfpq" target="_blank">IVFPQ</a> to reduce memory and latency by clustering and product quantization.  
-   In our setting, IVFPQ supports inference within ~200 ms at ~100 GB RAM, achieving **~100 QPS** end‑to‑end.
-
-2. **DiskANN**  
-   For higher throughput, we integrate <a href="https://github.com/microsoft/DiskANN" target="_blank">DiskANN</a>, a disk‑based ANN system.  
-   DiskANN achieves **>1000 index‑level QPS** and **~200+ end‑to‑end QPS** at ~200 GB RAM, making it suitable for high‑throughput deployments while maintaining competitive accuracy.  
-   In our internal evaluations, DiskANN’s implicit reranking improved downstream accuracy compared to pure ANN and, on some tasks (e.g., MMLU), matched or exceeded Exact Search.
 
 <details>
 <summary><b>How DiskANN works</b></summary>
@@ -281,21 +288,21 @@ Key takeaways:
 </table>
 
 
-2.yichuan add more take away[TODO]
-
-### Exact Search
-
-This mode boosts search accuracy by computing exact similarities between the query embedding and candidate passages (no approximation). It costs more compute, so we enable it on demand; combined with our embedding cache, latency remains practical for repeated or similar queries.
-
-### Diversity Search
-
-Search results often contain redundant passages (near‑duplicates). **Diverse Search** improves coverage by penalizing redundancy using maximal marginal relevance (MMR) <a href="https://dl.acm.org/doi/10.1145/290941.291025" target="_blank">MMR, diversity-based reranking</a> on the ANN candidates.
-
-<p><b>MMR scoring</b> at step <i>t</i> with selected set <i>S</i>:</p>
+<details>
+<summary><b>Why use post‑ANN Exact and Diversity Search?</b></summary>
+<p><b>Exact Search</b> reranks ANN candidates by computing exact similarities between the query embedding and passages. We enable it on demand; with our embedding cache, latency remains practical for repeated or similar queries.</p>
+<p><b>Diverse Search</b> reduces redundancy using maximal marginal relevance (MMR) on the ANN pool:</p>
 <p align="center"><code>Score(i) = λ · sim(q, d<sub>i</sub>) − (1 − λ) · max<sub>j ∈ S</sub> sim(d<sub>i</sub>, d<sub>j</sub>)</code></p>
 <p><small><code>sim(·,·)</code> is cosine similarity; <code>λ</code> (lambda) balances relevance and diversity.</small></p>
+<p>In practice, Diverse Search eliminates redundant texts and improves overall coverage.</p>
+</details>
 
-In our use cases, **Diverse Search** eliminates redundant texts and improves overall coverage.
+
+
+
+2.yichuan add more take away[TODO]
+
+ 
 
 
 ---
