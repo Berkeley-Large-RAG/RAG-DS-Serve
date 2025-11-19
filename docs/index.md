@@ -162,7 +162,7 @@ We envision the use of **DS Serve** for fast, controllable retrieval in RAG and 
 ## Performance 
 <div class="perf-table">
   <table>
-    <caption>Evaluation results. <i>Acc</i> is accuracy (%); <i>t</i> is end‑to‑end retrieval latency (s). For Exact Search, <i>t</i> is without cache and <i>t</i><sub>cache</sub> with cache. We use <i>K</i>=1000, <i>k</i>=10, and <i>n</i><sub>probe</sub>=256.</caption>
+    <caption>Table 1: Evaluation results. <i>Acc</i> is accuracy (%); <i>t</i> is end‑to‑end retrieval latency (s). For Exact Search, <i>t</i> is without cache and <i>t</i><sub>cache</sub> with cache. We use <i>K</i>=1000, <i>k</i>=10, and <i>n</i><sub>probe</sub>=256.</caption>
     <thead>
       <tr>
         <th rowspan="2">Task</th>
@@ -187,7 +187,7 @@ We envision the use of **DS Serve** for fast, controllable retrieval in RAG and 
 </div>
 <details>
 <summary><b>What is Approximate Nearest Neighbor (ANN) search?</b></summary>
-<p><b>ANN</b> quickly finds near neighbors by searching only part of the index instead of scanning exhaustively. It trades a bit of accuracy for much lower latency. That said, ANN retrieval still achieves noticeable accuracy gain compared to no-retrieval baselines.</p>
+<p>First, a database is embedded into a colleciton of vectors named datastore <i>D</i>. Then an index over <i>D</i> is built for easy lookup. Given a user query <i>q</i>, ANN returns the nearest neighbors — the vectors in <i>D</i> most semantically similar to <i>q</i> -- through approximation. By visiting only part of the index, ANN retrieves faster than exhaustive search, which is infeasible at a billion‑vector scale. Therefore, ANN optimizes for latency with a small tradeoff in recall.<sup class="note-sup"><a href="#technical-design" aria-label="See Technical design">*</a></sup></p>
 </details>
 
 <details>
@@ -199,14 +199,16 @@ We envision the use of **DS Serve** for fast, controllable retrieval in RAG and 
 <p>In practice, Diverse Search eliminates redundant texts and improves overall coverage.</p>
 </details>
 
+<details>
+<summary><b>Performance Analysis</b></summary>
+The approximate nature of the ANN backend inevitably sacrifices accuracy, thus we integrate <b>Exact Search</b> as an optional reranking mode. To do so, we compute exact similarities, instead of using approximation, between queries and passages. Then search results are reranked according to the newly computed exact scores. In our evaluation results, <b>Exact Search</b> effectively enhances accuracy across all five tasks. On a cold start, embedding the results can be slow, so we've built an embedding cache to allow ~1000ms latency on similar queries in Exact Search. (Table 1)</p>
 
-<p>The approximate nature of the search backend inevitably sacrifices accuracy, thus we introduce <b>Exact Search</b> as an optional reranking mode. To do so, we compute exact similarities, instead of using approximation, between queries and passages. Then search results are reranked according to the newly computed exact scores. In our evaluation results, <b>Exact Search</b> effectively enhances accuracy across all five tasks. On a cold start, embedding the results can be slow, so we've built an embedding cache to allow ~1000ms latency on similar queries in Exact Search.</p>
+<p>Additionally, search results often suffer from information overlap, i.e. nearly identical text chunks. To address this problem we offer a Diverse Search option that penalizes redundant information. In our use cases, we find <b>Diverse Search</b> substantially improves user experience.</p>
 
-<p>Additionally, search results often suffer from information overlap, i.e. nearly identical text chunks. To address this problem we offer a Diverse Search option that penalizes redundant information. In our use cases, we find <b>Diverse Search</b> substantially improves user experience by eliminating redundant texts and improving overall coverage.</p>
+<p>For queries that are less common or rely on very recent knowledge — for example “Jensen Huang” — the datastore may only contain a handful of truly relevant passages due to its frozen state. In these situations, <b>Exact Search</b> performs well because it ranks those relevant results to the top. In contrast, <b>Diverse Search</b> risks surfacing less accurate results.</p>
 
-<p>For queries that are less common or rely on very recent knowledge — for example “Jensen Huang” — the datastore may only contain a handful of truly relevant passages, due to its frozen state. In these situations, <b>Exact Search</b> performs well because it ranks those relevant results to the top. In contrast, <b>Diverse Search</b> doesn’t necessarily improve performance since it risks surfacing less accurate results.</p>
-
-<p>During search, <b>DS Serve</b> initially oversamples a pool of candidates, and then easily finds top results among them. On the very rare occasion that retrieval fails, an alert message pops up to give improvement suggestions.</p> 
+<p>During search, <b>DS Serve</b> initially oversamples a pool of candidates, and then finds top results among them. To make it easier for users, a with improvement suggestions shows in the case of failing to retrieve enough results, even though this is very rare.</p> 
+</details>
 
 ---
 <br/>
