@@ -52,13 +52,28 @@ p { font-size: 18px; margin: 6px 0; }
 
 We introduce **DS Serve**, a framework that transforms a large-scale text corpus into a high-performance neural retrieval system.
 
-In one word: Use our framework to **retrieve** data from **near tillion-scale**, **high-quality pre-trained datasets** — **blazing fast** ⚡ and **absolutely free!** 🚀
+In one word: Use our framework to retrieve data from near tillion-scale, high-quality pre-trained datasets — **blazing fast** ⚡ and **absolutely free!** 🚀
 
-**DS Serve** realizes the transformation of the **largest datastore** (~**500B tokens**, ~**2B vectors**, ~**5T vector embeddings**), into a public domain that provides **free and high-performance neural retrieval endpoints**.  
+**DS Serve** realizes the transformation of the largest datastore (~500B tokens, ~2B vectors, ~5T vector embeddings), into a public domain that provides free and high-performance neural retrieval endpoints.  
 
-We support two high-performance ANN backends: **IVFPQ** for memory-efficient retrieval and **DiskANN** for more accurate, high-throughput search. With **IVFPQ**, we can offer <b>&lt;100&nbsp;ms latency</b> and handle <b>&gt;100&nbsp;end-to-end QPS</b> with a modest memory footprint of **~100GB**. With **DiskANN**, we can achieve **10000+ index-level QPS** and **200+ end-to-end QPS**, with an extra RAM usage of **~200 GB**. This enables state-of-the-art retrieval performance at scale while maintaining low memory overhead.
+We support two high-performance ANN backends: IVFPQ for memory-efficient retrieval and DiskANN for more accurate, high-throughput search. With IVFPQ, we can offer <b>&lt;100&nbsp;ms latency</b> and handle <b>&gt;100&nbsp;end-to-end QPS</b> with a modest memory footprint of **~100GB**. With DiskANN, we can achieve **10000+ index-level QPS** and **200+ end-to-end QPS**, with an extra RAM usage of **~200 GB**. This enables state-of-the-art retrieval performance at scale while maintaining low memory overhead.
 
-Additionally, our framework enables you to convert your **in-house large-scale data** into a **high-performance, controllable** neural retrieval endpoint that you can fully customize with different search options.
+Additionally, our framework enables you to convert your in-house large-scale data into a high-performance, controllable neural retrieval endpoint that you can fully customize with different search options.
+
+### Motivation
+- Problem this project solves: [fill in]
+- Why now / what’s changed: [fill in]
+- Scale and cost considerations: [fill in]
+- Control, privacy, and governance: [fill in]
+- Reliability and reproducibility: [fill in]
+
+### Highlights
+- Dual ANN backends (IVFPQ and DiskANN): [fill in]
+- Exact Search and Diverse Search options: [fill in]
+- High throughput and low latency at scale: [fill in]
+- Web UI and programmatic API endpoints: [fill in]
+- Embedding cache for repeat/similar queries: [fill in]
+- Billion-scale open datastore coverage: [fill in]
 
 
 ---
