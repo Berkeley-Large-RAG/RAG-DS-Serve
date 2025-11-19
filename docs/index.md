@@ -137,7 +137,19 @@ We envision the use of **DS Serve** for fast, controllable retrieval in RAG and 
 <br/>
 
 ## Performance 
-
+<details>
+<summary><b>What is Approximate Nearest Neighbor (ANN) search?</b></summary>
+<p><b>ANN</b> quickly finds near neighbors by searching only part of the index instead of scanning exhaustively. It trades a bit of accuracy for much lower latency. That said, ANN retrieval still achieves noticeable accuracy gain compared to no-retrieval baselines.</p>
+<details>
+<summary><b>What are post‑ANN Exact and Diversity Search?</b></summary>
+<p><b>Exact Search</b> reranks ANN candidates by computing exact similarities between the query embedding and passages. We enable it on demand; with our embedding cache, latency remains practical for repeated or similar queries.</p>
+<p><b>Diverse Search</b> reduces redundancy using maximal marginal relevance (MMR) on the ANN pool:</p>
+<p align="center"><code>Score(i) = λ · sim(q, d<sub>i</sub>) − (1 − λ) · max<sub>j ∈ S</sub> sim(d<sub>i</sub>, d<sub>j</sub>)</code></p>
+<p><small><code>sim(·,·)</code> is cosine similarity; <code>λ</code> (lambda) balances relevance and diversity.</small></p>
+<p>In practice, Diverse Search eliminates redundant texts and improves overall coverage.</p>
+</details>
+<details>
+<summary><b>Why use Exact and Diverse Search?</b></summary>
 The approximate nature of the search backend inevitably sacrifices accuracy, thus we introduce **Exact Search** as an optional reranking mode. To do so, we compute exact similarities, instead of using approximation, between queries and passages. Then search results are reranked according to the newly computed exact** scores. In our evaluation results, **Exact Search** effectively enhances accuracy across all five tasks. On a cold start, embedding the results can be slow, so we've built an embedding cache to allow ~1000ms latency on similar queries in Exact Search.
 
 Additionally, search results often suffer from information overlap, i.e. nearly identical text chunks. To address this problem we offer a Diverse Search option that penalizes redundant information. In our use cases, we find **Diverse Search** substantially improves user experience by eliminating redundant texts and improving overall coverage. 
@@ -145,6 +157,7 @@ Additionally, search results often suffer from information overlap, i.e. nearly 
 For queries that are less common or rely on very recent knowledge — for example “Jensen Huang” — the datastore may only contain a handful of truly relevant passages, due to its frozen state. In these situations, **Exact Search** performs well because it ranks those relevant results to the top. In contrast, **Diverse Search** doesn’t necessarily improve performance since it risks surfacing less accurate results.
 
 During search, **DS Serve** initially oversamples a pool of candidates, and then easily finds top results among them. On the very rare occasion that retrieval fails, an alert message pops up to give improvement suggestions.
+</details>
 
 
 
@@ -217,12 +230,7 @@ This represents a significantly larger datastore than most prior work, and to th
 
 ### Scalable and efficient search
 <details>
-<summary><b>What is Approximate Nearest Neighbor (ANN) search?</b></summary>
-<p><b>ANN</b> explores only part of the index to optimize for latency, accelerating search at a small loss of recall.</p>
-<p><b>Formulation.</b></p>
-<p align="center"><code>TopK(q) = top‑k<sub>i</sub> sim(q, d<sub>i</sub>)</code></p>
-<p><small><code>q, d<sub>i</sub> ∈ R<sup>h</sup></code> are <a href="https://arxiv.org/abs/2112.09118" target="_blank">Contriever</a> embeddings; <code>sim(·,·)</code> is cosine similarity.</small></p>
-
+<summary><b>How we integrates Approximate Nearest Neighbor (ANN) search</b></summary>
 <p>Real‑world vector datasets can contain billions of vectors and occupy terabytes. Keeping all vectors in DRAM is expensive. Two practical strategies reduce cost while preserving accuracy:</p>
 <ul>
   <li>Quantization with in‑memory ANN (e.g., IVFPQ)</li>
@@ -295,14 +303,7 @@ Key takeaways:
 </table>
 
 
-<details>
-<summary><b>Why use post‑ANN Exact and Diversity Search?</b></summary>
-<p><b>Exact Search</b> reranks ANN candidates by computing exact similarities between the query embedding and passages. We enable it on demand; with our embedding cache, latency remains practical for repeated or similar queries.</p>
-<p><b>Diverse Search</b> reduces redundancy using maximal marginal relevance (MMR) on the ANN pool:</p>
-<p align="center"><code>Score(i) = λ · sim(q, d<sub>i</sub>) − (1 − λ) · max<sub>j ∈ S</sub> sim(d<sub>i</sub>, d<sub>j</sub>)</code></p>
-<p><small><code>sim(·,·)</code> is cosine similarity; <code>λ</code> (lambda) balances relevance and diversity.</small></p>
-<p>In practice, Diverse Search eliminates redundant texts and improves overall coverage.</p>
-</details>
+
 
 
 
