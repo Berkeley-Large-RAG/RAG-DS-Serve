@@ -138,30 +138,7 @@ uv pip install --no-deps diskannpy==0.7.0
 
 From the repo root (absolute paths):
 ```bash
-DATASTORE_PATH=/mnt/md-256k/jinjian/DS
-
-mkdir -p "$DATASTORE_PATH/runtime/votes" "$DATASTORE_PATH/runtime/query_logs"
-
-
-PYTHONPATH="rerank/contriever/src" \
-VOTES_DIR="$DATASTORE_PATH/runtime/votes" \
-QUERY_LOG_DIR="$DATASTORE_PATH/runtime/query_logs" \
-MASSIVE_SERVE_PORT=30888 \
-MS_BACKEND=diskann \
-DATASTORE_PATH="$DATASTORE_PATH" \
-DISKANN_INDEX_DIR="$DATASTORE_PATH/DiskANN-build/DiskANN_index" \
-DISKANN_INDEX_PREFIX=diskann_mips_f32_R60_L80_B200_M500 \
-DISKANN_DISTANCE=mips \
-DISKANN_NUM_THREADS=128 \
-DISKANN_NODES_TO_CACHE=100000 \
-DISKANN_L=500 \
-DISKANN_W=4 \
-DISKANN_WARMUP=1 \
-DISKANN_WARMUP_QUERIES=5000 \
-DISKANN_WARMUP_BATCH=256 \
-DISKANN_WARMUP_QUERY_FILE="$DISKANN_INDEX_DIR/diskann_mips_f32_R60_L80_B200_M500_sample_data.bin" \
-DISKANN_WARMUP_KEEPALIVE=1 \
-python -m massive_serve.cli serve --domain_name data
+PYTHONPATH=rerank/contriever/src:$PYTHONPATH DATASTORE_PATH=/mnt/data/jinjian/DS-Serve PASSAGE_DIR=/mnt/data/jinjian/DS-Serve/index_dev/passages VOTES_DIR=/mnt/data/jinjian/DS-Serve/runtime/votes QUERY_LOG_DIR=/mnt/data/jinjian/DS-Serve/runtime/query_logs MASSIVE_SERVE_PORT=30999 DISKANN_INDEX_DIR=/mnt/data/jinjian/DS-Serve/DiskANN-build/index_450 DISKANN_INDEX_PREFIX=diskann_mips_f32_R60_L80_B200_M450_T64 DISKANN_DISTANCE=mips DISKANN_DIMENSIONS=769 DISKANN_NUM_THREADS=128 DISKANN_NODES_TO_CACHE=200000 DISKANN_L=500 DISKANN_W=4 DISKANN_K_FETCH=1000 DISKANN_WARMUP=1 DISKANN_WARMUP_QUERIES=5000 DISKANN_WARMUP_BATCH=256 DISKANN_WARMUP_QUERY_FILE=/mnt/data/jinjian/DS-Serve/DiskANN-build/index_450/diskann_mips_f32_R60_L80_B200_M450_T64_sample_data.bin DISKANN_WARMUP_KEEPALIVE=30 FAISS_K_FETCH=1000 python -m massive_serve.cli serve --domain_name index_dev
 ```
 
 Tips:
