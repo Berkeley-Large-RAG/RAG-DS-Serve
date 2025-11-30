@@ -167,9 +167,9 @@ During search, **DS Serve** initially oversamples a pool of candidates, and then
   <img src="{{ 'accuracy_ivfpq_vs_diskann_naturalqs.png' | relative_url }}" style="width: 90%; margin: 5px;" />
 </p>
 
-<p align="left"><i>Figure 7: DiskANN latency breakdown showing the relative contribution of different components — embedding, index searching, and post‑search mapping — to total latency across different L parameter values.</i></p>
+<p align="left"><i>Figure 7: DiskANN single-request latency breakdown (COUNT=20). Shows per-query cost split across embedding, DiskANN search, mapping, and total latency for different L settings.</i></p>
 <p align="center">
-  <img src="{{ 'plots/diskann_latency_breakdown_vs_L.png' | relative_url }}" style="width: 90%; margin: 5px;" />
+  <img src="{{ 'plots/diskann_single_request_latency_vs_L.png' | relative_url }}" style="width: 90%; margin: 5px;" />
 </p>
 
 ---
