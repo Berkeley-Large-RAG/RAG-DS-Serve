@@ -152,6 +152,10 @@ During search, **DS Serve** initially oversamples a pool of candidates, and then
   <img src="{{ 'plots/diskann_qps_vs_L.png' | relative_url }}" style="width: 48%; margin: 5px;" />
   <img src="{{ 'plots/diskann_index_only_qps_vs_L.png' | relative_url }}" style="width: 48%; margin: 5px;" />
 </p>
+<p align="left"><i>Figure 5 (single-request): DiskANN throughput when issuing individual queries sequentially (COUNT=20, no batching). Highlights the latency-limited regime seen by interactive clients.</i></p>
+<p align="center">
+  <img src="{{ 'plots/diskann_single_request_qps_vs_L.png' | relative_url }}" style="width: 90%; margin: 5px;" />
+</p>
 
 <p align="left"><i>Figure 6a: TriviaQA accuracy (Recall → F1 → EM). DiskANN outperforms IVFPQ across all metrics when displayed individually per task.</i></p>
 <p align="center">
