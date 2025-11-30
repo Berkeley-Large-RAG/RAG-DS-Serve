@@ -25,7 +25,8 @@ except Exception:  # pragma: no cover - seaborn is optional
 
 IVFPQ_COLOR = "#4C78A8"
 DISKANN_COLOR = "#F58518"
-DOCS_DIR = "/mnt/data/jinjian/DS-Serve/docs"
+REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+DOCS_DIR = os.path.join(REPO_ROOT, "docs")
 METRIC_ORDER = ["Recall", "F1", "EM"]
 DATASETS = {
     "TriviaQA": {

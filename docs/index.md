@@ -69,7 +69,7 @@ Additionally, our framework enables you to convert your **in-house large-scale d
 <p align="left"><i>Figure 1: DS SERVE converts the largest pretraining dataset into an efficient neural retrieval system: a query q retrieves relevant text via ANN, optionally reranks with exact and/or diverse search, and returns the top-k chunks with voting options for user feedback.</i></p>
 
 <p align="center">
-  <img src="{{ 'Figure-1.png' | relative_url }}" style="width: 70%;" />
+  <img src="{{ 'plots/Figure-1.png' | relative_url }}" style="width: 70%;" />
 </p>
 
 **Key Contributions**
@@ -108,7 +108,7 @@ Additionally, **DS Serve** offers a **Web Interface** for interactive exploratio
 <p align="left"><i>Figure 2: Control panel with tunable parameters and tooltips.</i></p>
 
 <p align="center">
-<img src="{{ 'parameter-panel.png' | relative_url }}" style="width: 90%;" />
+<img src="{{ 'plots/parameter-panel.png' | relative_url }}" style="width: 90%;" />
 </p>
 
 - Use the control panel to adjust search behavior through the following parameters (Figure 2):
@@ -143,14 +143,14 @@ During search, **DS Serve** initially oversamples a pool of candidates, and then
 
 <p align="left"><i>Figure 3: FAISS QPS scaling with nprobe parameter. Higher nprobe values improve accuracy at the cost of increased latency.</i></p>
 <p align="center">
-  <img src="{{ 'faiss_qps_vs_nprobe.png' | relative_url }}" style="width: 90%; margin: 5px;" />
+  <img src="{{ 'plots/faiss_qps_vs_nprobe.png' | relative_url }}" style="width: 90%; margin: 5px;" />
 </p>
 
 <p align="left"><i>Figure 4: DiskANN end-to-end QPS scaling with L parameter. Shows how throughput scales with search list size.</i></p>
 <p align="left"><i>Figure 5: DiskANN index-level QPS scaling with L parameter. DiskANN achieves >2000 QPS at the index level, enabling high-throughput deployments.</i></p>
 <p align="center">
-  <img src="{{ 'diskann_qps_vs_L.png' | relative_url }}" style="width: 48%; margin: 5px;" />
-  <img src="{{ 'diskann_index_only_qps_vs_L.png' | relative_url }}" style="width: 48%; margin: 5px;" />
+  <img src="{{ 'plots/diskann_qps_vs_L.png' | relative_url }}" style="width: 48%; margin: 5px;" />
+  <img src="{{ 'plots/diskann_index_only_qps_vs_L.png' | relative_url }}" style="width: 48%; margin: 5px;" />
 </p>
 
 <p align="left"><i>Figure 6a: TriviaQA accuracy (Recall → F1 → EM). DiskANN outperforms IVFPQ across all metrics when displayed individually per task.</i></p>
@@ -165,7 +165,7 @@ During search, **DS Serve** initially oversamples a pool of candidates, and then
 
 <p align="left"><i>Figure 7: DiskANN latency breakdown showing the relative contribution of different components — embedding, index searching, and post‑search mapping — to total latency across different L parameter values.</i></p>
 <p align="center">
-  <img src="{{ 'diskann_latency_breakdown_vs_L.png' | relative_url }}" style="width: 90%; margin: 5px;" />
+  <img src="{{ 'plots/diskann_latency_breakdown_vs_L.png' | relative_url }}" style="width: 90%; margin: 5px;" />
 </p>
 
 ---
