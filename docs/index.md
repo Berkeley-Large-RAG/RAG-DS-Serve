@@ -151,13 +151,13 @@ During search, **DS Serve** initially oversamples a pool of candidates, and then
   <img src="{{ 'plots/diskann_qps_vs_L.png' | relative_url }}" style="width: 48%; margin: 5px;" />
   <img src="{{ 'plots/diskann_index_only_qps_vs_L.png' | relative_url }}" style="width: 48%; margin: 5px;" />
 </p>
-<p align="left"><i>Figures 6a,6b: TriviaQA and NaturalQS accuracy on the metrics: Recall, F1, Exact Match. DiskANN outperforms IVFPQ across both datasets.</i></p>
+<p align="left"><i>Figures 5a,5b: TriviaQA and NaturalQS accuracy on the metrics: Recall, F1, Exact Match. DiskANN outperforms IVFPQ across both datasets.</i></p>
 <p align="center">
   <img src="{{ 'accuracy_ivfpq_vs_diskann_triviaqa.png' | relative_url }}" style="width: 45%; margin: 5px;" />
   <img src="{{ 'accuracy_ivfpq_vs_diskann_naturalqs.png' | relative_url }}" style="width: 45%; margin: 5px;" />
 </p>
 
-<p align="left"><i>Figure 7: DiskANN single-request latency breakdown with W=8, threads=64. In particular, search time is the latency for searching just on the index, mapping means to fetch actual passage content based on the returned passage ids, and total is the backend search latency as a wholeThis contrasts with Figures 4a–4b, which report high-throughput batch measurements. Single-request is the mode set on user-facing interface, and batching requests is recommended for more demanding search with the API.</i></p>
+<p align="left"><i>Figure 6: DiskANN single-request latency breakdown with W=8, threads=64. In particular, search time is the latency for searching just on the index, mapping means to fetch actual passage content based on the returned passage ids, and total is the backend search latency as a wholeThis contrasts with Figures 4a–4b, which report high-throughput batch measurements. Single-request is the mode set on user-facing interface, and batching requests is recommended for more demanding search with the API.</i></p>
 <p align="center">
   <img src="{{ 'plots/diskann_single_request_latency_vs_L.png' | relative_url }}" style="width: 90%; margin: 5px;" />
 </p>
