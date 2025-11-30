@@ -55,6 +55,27 @@ if [ -n "$NPROBE_LIST" ] && [ "$BATCHED" = "1" ]; then
     printf "%-8s %-8s %-10ss %-8s %-12s %-12s %-12s\n" "$NP" "$COUNT" "$DUR" "$QPS" "$EMBED" "$SEARCH" "$TOTAL"
   done
   rm -f "$QUERIES_JSON"
+elif [ -n "$NPROBE_LIST" ] && [ "$BATCHED" = "0" ]; then
+  for NP in $NPROBE_LIST; do
+    START=$(date +%s)
+    TMP=$(mktemp)
+    jq -Rr @base64 < "$SAMPLE_FILE" | \
+    xargs -P "$CONCURRENCY" -I{} bash -c '
+      q=$(printf "%s" "$1" | base64 -d)
+      jq -Rn --arg query "$q" --argjson k '"$K"' --argjson np '"$NP"' \
+        --argjson ex '"$EXACT"' --argjson dv '"$DIVERSE"' --argjson lb '"$LAMBDA"' \
+        '"'"'{query:$query, n_docs:$k, backend:"faiss", nprobe:$np, exact_search:$ex, diverse_search:$dv, lambda:$lb}'"'"' \
+      | curl -s -X POST -H "Content-Type: application/json" --data-binary @- '"$HOST"'/search
+    ' _ {} | jq -r '(.results.timings_ms) as $t | [$t.embed, $t.search, $t.total] | @tsv' > "$TMP"
+    END=$(date +%s)
+    DUR=$((END-START)); if [ "$DUR" -le 0 ]; then DUR=1; fi
+    QPS=$(awk -v c="$COUNT" -v d="$DUR" 'BEGIN{ printf "%.2f", c/d }')
+    EMBED=$(awk -F'\t' '($1!="" && $1!="null"){sum+=$1; n++} END{ if(n>0) printf "%.2f", sum/n; else print "NA"}' "$TMP")
+    SEARCH=$(awk -F'\t' '($2!="" && $2!="null"){sum+=$2; n++} END{ if(n>0) printf "%.2f", sum/n; else print "NA"}' "$TMP")
+    TOTAL=$(awk -F'\t' '($3!="" && $3!="null"){sum+=$3; n++} END{ if(n>0) printf "%.2f", sum/n; else print "NA"}' "$TMP")
+    printf "%-8s %-8s %-10ss %-8s %-12s %-12s %-12s\n" "$NP" "$COUNT" "$DUR" "$QPS" "$EMBED" "$SEARCH" "$TOTAL"
+    rm -f "$TMP"
+  done
 elif [ "$BATCHED" = "1" ]; then
   # Build JSON array of queries
   QUERIES_JSON=$(mktemp)

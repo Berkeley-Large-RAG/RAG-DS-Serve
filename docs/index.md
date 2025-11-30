@@ -141,9 +141,10 @@ During search, **DS Serve** initially oversamples a pool of candidates, and then
 
 
 
-<p align="left"><i>Figure 3: FAISS QPS scaling with nprobe parameter. Higher nprobe values improve accuracy at the cost of increased latency.</i></p>
+<p align="left"><i>Figures 3a–3b: FAISS IVFPQ batched (left) vs single-request (right) behavior (COUNT=400, shared query list). Batched mode keeps one continuous POST open, while single-request fires one POST per query to mimic the user-facing interface.</i></p>
 <p align="center">
-  <img src="{{ 'plots/faiss_qps_vs_nprobe.png' | relative_url }}" style="width: 90%; margin: 5px;" />
+  <img src="{{ 'plots/faiss_qps_batch_vs_single.png' | relative_url }}" style="width: 48%; margin: 5px;" />
+  <img src="{{ 'plots/faiss_latency_batch_vs_single.png' | relative_url }}" style="width: 48%; margin: 5px;" />
 </p>
 
 <p align="left"><i>Figures 4a,4b (batched throughput): DiskANN end-to-end (left) and index-only (right) QPS when processing continuous query batches. L controls the search list size; higher L trades latency for accuracy.</i></p>
@@ -157,7 +158,7 @@ During search, **DS Serve** initially oversamples a pool of candidates, and then
   <img src="{{ 'accuracy_ivfpq_vs_diskann_naturalqs.png' | relative_url }}" style="width: 45%; margin: 5px;" />
 </p>
 
-<p align="left"><i>Figure 6: DiskANN single-request latency breakdown with W=8, threads=64. In particular, search time is the latency for searching just on the index, mapping means to fetch actual passage content based on the returned passage ids, and total is the backend search latency as a wholeThis contrasts with Figures 4a–4b, which report high-throughput batch measurements. Single-request is the mode set on user-facing interface, and batching requests is recommended for more demanding search with the API.</i></p>
+<p align="left"><i>Figure 6: DiskANN single-request latency breakdown with W=8, threads=64. Search time is the latency for searching the index, mapping fetches passage content by ID, and total is the backend latency as a whole. This contrasts with Figures 4a–4b (batched throughput). Single-request is what the UI uses, while batching is recommended for high-volume API use.</i></p>
 <p align="center">
   <img src="{{ 'plots/diskann_single_request_latency_vs_L.png' | relative_url }}" style="width: 90%; margin: 5px;" />
 </p>
