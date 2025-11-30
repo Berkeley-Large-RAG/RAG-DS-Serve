@@ -11,6 +11,7 @@ W=${W:-4}
 THREADS=${THREADS:-128}
 L_LIST=${L_LIST:-"500 1000 1500 2000 2500 3000"}
 REQUEST_MODE=${REQUEST_MODE:-batch}  # Accepted values: batch, single
+WARMUP_SKIP=${WARMUP_SKIP:-0}
 
 if ! command -v jq >/dev/null 2>&1; then
   echo "jq is required (apt-get install -y jq)." >&2
@@ -21,6 +22,10 @@ printf "%-6s %-8s %-10s %-8s %-12s %-12s %-12s %-15s %-12s\n" \
        "L" "Reqs" "Duration" "QPS" "embed_ms(avg)" "search_ms(avg)" "total_ms(avg)" "DA_batch_ms(avg)" "map_ms(avg)"
 SAMPLE_FILE=$(mktemp)
 shuf -n "$COUNT" "$QUERIES" > "$SAMPLE_FILE"
+if [ "$REQUEST_MODE" = "single" ]; then
+  SHARED_SAMPLE=$(mktemp)
+  cp "$SAMPLE_FILE" "$SHARED_SAMPLE"
+fi
 for L in $L_LIST; do
   START=$(date +%s)
   if [ "$REQUEST_MODE" = "batch" ]; then
@@ -53,6 +58,16 @@ for L in $L_LIST; do
     DABATCH_TOTAL=0
     MAP_TOTAL=0
     SUCCESS=0
+    TARGET=$((COUNT - WARMUP_SKIP))
+    if [ "$TARGET" -le 0 ]; then
+      echo "TARGET count (COUNT - WARMUP_SKIP) must be positive" >&2
+      exit 1
+    fi
+    WARMUP_LEFT=$WARMUP_SKIP
+    INPUT_FILE="$SAMPLE_FILE"
+    if [ -n "${SHARED_SAMPLE:-}" ]; then
+      INPUT_FILE="$SHARED_SAMPLE"
+    fi
     while IFS= read -r QUERY; do
       [ -z "$QUERY" ] && continue
       RESP=$(jq -n \
@@ -65,6 +80,10 @@ for L in $L_LIST; do
         echo "Warning: empty response for query '${QUERY:0:60}'" >&2
         continue
       fi
+      if [ "$WARMUP_LEFT" -gt 0 ]; then
+        WARMUP_LEFT=$((WARMUP_LEFT - 1))
+        continue
+      fi
       IFS=$'\t' read -r EMBED_ONE SEARCH_ONE TOTAL_ONE DABATCH_ONE MAP_ONE <<<"$READS"
       EMBED_TOTAL=$(awk -v total="$EMBED_TOTAL" -v val="$EMBED_ONE" 'BEGIN{printf "%.6f", total + val}')
       SEARCH_TOTAL=$(awk -v total="$SEARCH_TOTAL" -v val="$SEARCH_ONE" 'BEGIN{printf "%.6f", total + val}')
@@ -72,10 +91,10 @@ for L in $L_LIST; do
       DABATCH_TOTAL=$(awk -v total="$DABATCH_TOTAL" -v val="$DABATCH_ONE" 'BEGIN{printf "%.6f", total + val}')
       MAP_TOTAL=$(awk -v total="$MAP_TOTAL" -v val="$MAP_ONE" 'BEGIN{printf "%.6f", total + val}')
       SUCCESS=$((SUCCESS + 1))
-      if [ "$SUCCESS" -ge "$COUNT" ]; then
+      if [ "$SUCCESS" -ge "$TARGET" ]; then
         break
       fi
-    done < "$SAMPLE_FILE"
+    done < "$INPUT_FILE"
     END=$(date +%s)
     if [ "$SUCCESS" -eq 0 ]; then
       echo "No successful queries for L=$L" >&2
@@ -93,5 +112,8 @@ for L in $L_LIST; do
   fi
 done
 rm -f "$SAMPLE_FILE"
+if [ -n "${SHARED_SAMPLE:-}" ]; then
+  rm -f "$SHARED_SAMPLE"
+fi
 
 

@@ -21,11 +21,11 @@ REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 PLOT_PATH = os.path.join(REPO_ROOT, "docs", "plots", "diskann_single_request_latency_vs_L.png")
 
 SINGLE_REQUEST_LATENCY: List[dict] = [
-    {"L": 1000, "embed_ms": 23.05, "search_ms": 350.32, "map_ms": 185.37, "total_ms": 373.38},
-    {"L": 1500, "embed_ms": 22.50, "search_ms": 238.81, "map_ms": 75.26, "total_ms": 261.32},
-    {"L": 2000, "embed_ms": 39.74, "search_ms": 230.19, "map_ms": 56.74, "total_ms": 269.93},
-    {"L": 2500, "embed_ms": 22.21, "search_ms": 274.06, "map_ms": 43.02, "total_ms": 296.27},
-    {"L": 3000, "embed_ms": 22.15, "search_ms": 294.56, "map_ms": 39.07, "total_ms": 316.71},
+    {"L": 1000, "embed_ms": 26.10, "search_ms": 87.08, "map_ms": 28.77, "total_ms": 113.18},
+    {"L": 1500, "embed_ms": 26.24, "search_ms": 115.50, "map_ms": 33.79, "total_ms": 141.74},
+    {"L": 2000, "embed_ms": 25.60, "search_ms": 130.94, "map_ms": 32.63, "total_ms": 156.54},
+    {"L": 2500, "embed_ms": 24.92, "search_ms": 152.34, "map_ms": 32.95, "total_ms": 177.26},
+    {"L": 3000, "embed_ms": 24.05, "search_ms": 164.28, "map_ms": 33.85, "total_ms": 188.33},
 ]
 
 

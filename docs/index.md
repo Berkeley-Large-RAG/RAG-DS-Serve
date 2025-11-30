@@ -152,11 +152,6 @@ During search, **DS Serve** initially oversamples a pool of candidates, and then
   <img src="{{ 'plots/diskann_qps_vs_L.png' | relative_url }}" style="width: 48%; margin: 5px;" />
   <img src="{{ 'plots/diskann_index_only_qps_vs_L.png' | relative_url }}" style="width: 48%; margin: 5px;" />
 </p>
-<p align="left"><i>Figure 5 (single-request): DiskANN throughput when issuing individual queries sequentially (COUNT=20, no batching). Highlights the latency-limited regime seen by interactive clients.</i></p>
-<p align="center">
-  <img src="{{ 'plots/diskann_single_request_qps_vs_L.png' | relative_url }}" style="width: 90%; margin: 5px;" />
-</p>
-
 <p align="left"><i>Figure 6a: TriviaQA accuracy (Recall → F1 → EM). DiskANN outperforms IVFPQ across all metrics when displayed individually per task.</i></p>
 <p align="center">
   <img src="{{ 'accuracy_ivfpq_vs_diskann_triviaqa.png' | relative_url }}" style="width: 90%; margin: 5px;" />
@@ -167,10 +162,11 @@ During search, **DS Serve** initially oversamples a pool of candidates, and then
   <img src="{{ 'accuracy_ivfpq_vs_diskann_naturalqs.png' | relative_url }}" style="width: 90%; margin: 5px;" />
 </p>
 
-<p align="left"><i>Figure 7: DiskANN single-request latency breakdown (COUNT=20). Shows per-query cost split across embedding, DiskANN search, mapping, and total latency for different L settings.</i></p>
+<p align="left"><i>Figure 7: DiskANN single-request latency breakdown (W=8, threads=64). Shows per-query cost split different processes. In particular, search time is the latency for searching just on the index; mapping means to fetch actual passage content based on the returned passage ids; and total is the backend search latency as a whole.</i></p>
 <p align="center">
   <img src="{{ 'plots/diskann_single_request_latency_vs_L.png' | relative_url }}" style="width: 90%; margin: 5px;" />
 </p>
+<p class="small-note"><b>Note:</b> The UI latency pill measures end-to-end wall-clock time (request setup, network travel, JSON encode/decode, rendering). Our plot uses the server-reported <code>timings_ms.total</code>, which only covers embedding + search + post-processing. Expect UI numbers to run higher.</p>
 
 ---
 <br/>
