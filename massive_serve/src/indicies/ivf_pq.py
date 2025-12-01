@@ -6,6 +6,7 @@ import pickle
 import numpy as np
 import time
 import glob
+import math
 from tqdm import tqdm
 from rerank.exact_rerank import exact_rerank_topk
 from rerank.diverse_rerank import diverse_rerank_topk
@@ -61,6 +62,25 @@ def print_mem_use(label=""):
     mem_bytes = process.memory_info().rss
     mem_mb = mem_bytes / 1024 / 1024
     print(f"[{label}] Memory usage: {mem_mb:.2f} MB")
+
+
+
+def _resolve_k_fetch(requested_k: int, min_words, env_key: str, hard_cap: int = 256) -> int:
+    base = max(1, int(requested_k))
+    env_val = os.environ.get(env_key)
+    if env_val is not None and env_val.strip():
+        try:
+            return max(base, int(env_val))
+        except Exception:
+            pass
+    try:
+        mw = max(0, int(min_words)) if min_words is not None else 0
+    except Exception:
+        mw = 0
+    if mw <= 0:
+        return base
+    factor = 1 + min(4, max(1, math.ceil(mw / 50)))
+    return min(hard_cap, base * factor)
 
 
 
@@ -543,25 +563,7 @@ class IVFPQIndexer(object):
                 current = self.probe if hasattr(self, "probe") else 256
             print(f"[IVFPQIndexer] nprobe not provided; using default {current}")
 
-        # Dynamic oversampling policy (env override):
-        # - If FAISS_K_FETCH is set -> use max(k, FAISS_K_FETCH)
-        # - Else if min_words > 0 -> K_FETCH = min(1000, k * 5)
-        # - Else -> K_FETCH = k (no oversampling)
-        try:
-            _kfetch_env = os.environ.get("FAISS_K_FETCH")
-            if _kfetch_env is not None and _kfetch_env.strip() != "":
-                K_FETCH = max(int(k), int(_kfetch_env))
-            else:
-                try:
-                    _mw = int(min_words) if (min_words is not None) else 0
-                except Exception:
-                    _mw = 0
-                if _mw > 0:
-                    K_FETCH = min(1000, max(1, int(k)) * 5)
-                else:
-                    K_FETCH = max(1, int(k))
-        except Exception:
-            K_FETCH = max(1, int(k))
+        K_FETCH = _resolve_k_fetch(k, min_words, "FAISS_K_FETCH")
         base_Ks = [K_FETCH]
         
         print(f"[DEBUG] Input k={k}, type={type(k)}")

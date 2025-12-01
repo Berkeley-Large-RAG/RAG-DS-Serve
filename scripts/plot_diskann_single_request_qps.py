@@ -27,11 +27,11 @@ OUTPUT_PATH = os.path.join(REPO_ROOT, "docs", "plots", "diskann_single_request_q
 
 # Measurements captured via `REQUEST_MODE=single COUNT=20` sweep.
 SINGLE_REQUEST_RESULTS: List[dict] = [
-    {"L": 1000, "QPS": 2.99},
-    {"L": 1500, "QPS": 3.39},
-    {"L": 2000, "QPS": 3.12},
-    {"L": 2500, "QPS": 3.12},
-    {"L": 3000, "QPS": 2.70},
+    {"L": 100, "QPS": 12.86},
+    {"L": 500, "QPS": 10.34},
+    {"L": 1000, "QPS": 8.41},
+    {"L": 1500, "QPS": 7.09},
+    {"L": 2000, "QPS": 5.77},
 ]
 
 

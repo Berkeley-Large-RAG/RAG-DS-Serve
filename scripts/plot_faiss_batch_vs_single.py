@@ -20,19 +20,19 @@ except Exception:
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 DOCS_DIR = os.path.join(REPO_ROOT, "docs")
 
-# Hard-coded measurements (COUNT=400, shared queries, nprobe=32/64/128/256)
+# Measurements (COUNT=100 shared queries, nprobe ∈ {64, 128, 256, 512})
 BATCHED_RESULTS: List[Dict[str, float]] = [
-    {"nprobe": 32, "qps": 3.33, "embed": 2.47, "search": 297.75, "total": 300.22},
-    {"nprobe": 64, "qps": 3.42, "embed": 2.29, "search": 292.17, "total": 294.47},
-    {"nprobe": 128, "qps": 3.39, "embed": 2.57, "search": 291.86, "total": 294.43},
-    {"nprobe": 256, "qps": 3.36, "embed": 2.40, "search": 293.60, "total": 296.01},
+    {"nprobe": 64, "qps": 9.09, "embed": 2.54, "search": 10.71, "total": 13.25},
+    {"nprobe": 128, "qps": 10.00, "embed": 2.41, "search": 10.79, "total": 13.19},
+    {"nprobe": 256, "qps": 9.09, "embed": 2.52, "search": 12.60, "total": 15.12},
+    {"nprobe": 512, "qps": 9.09, "embed": 2.54, "search": 18.76, "total": 21.30},
 ]
 
 SINGLE_RESULTS: List[Dict[str, float]] = [
-    {"nprobe": 32, "qps": 4.12, "embed": 29.27, "search": 213.39, "total": 242.67},
-    {"nprobe": 64, "qps": 3.57, "embed": 30.16, "search": 246.77, "total": 276.93},
-    {"nprobe": 128, "qps": 2.92, "embed": 30.61, "search": 310.37, "total": 340.99},
-    {"nprobe": 256, "qps": 2.20, "embed": 30.20, "search": 423.83, "total": 454.03},
+    {"nprobe": 64, "qps": 3.12, "embed": 27.23, "search": 113.87, "total": 141.11},
+    {"nprobe": 128, "qps": 2.56, "embed": 27.76, "search": 179.66, "total": 207.42},
+    {"nprobe": 256, "qps": 2.04, "embed": 28.73, "search": 281.10, "total": 309.83},
+    {"nprobe": 512, "qps": 1.47, "embed": 32.15, "search": 486.72, "total": 518.88},
 ]
 
 

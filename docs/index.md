@@ -141,7 +141,8 @@ During search, **DS Serve** initially oversamples a pool of candidates, and then
 
 
 
-<p align="left"><i>Figures 3a–3b: FAISS IVFPQ batched (left) vs single-request (right) behavior (COUNT=400, shared query list). Batched mode keeps one continuous POST open, while single-request fires one POST per query to mimic the user-facing interface.</i></p>
+<p align="left"><i>Figures 3a–3b: FAISS IVFPQ batched (left) vs single-request (right) behavior (COUNT=100 shared queries, nprobe ∈ {64, 128, 256, 512}). Batched mode keeps one continuous POST open, while single-request fires one POST per query to mimic the user-facing interface.</i></p>
+<p>With these settings, batched throughput stays near 9–10 QPS and ~13–21&nbsp;ms backend latency as nprobe rises, while single-request throughput drops from ~3.1 to ~1.5 QPS and latency grows from ~141&nbsp;ms to ~519&nbsp;ms.</p>
 <p align="center">
   <img src="{{ 'plots/faiss_qps_batch_vs_single.png' | relative_url }}" style="width: 48%; margin: 5px;" />
   <img src="{{ 'plots/faiss_latency_batch_vs_single.png' | relative_url }}" style="width: 48%; margin: 5px;" />
@@ -158,10 +159,15 @@ During search, **DS Serve** initially oversamples a pool of candidates, and then
   <img src="{{ 'accuracy_ivfpq_vs_diskann_naturalqs.png' | relative_url }}" style="width: 45%; margin: 5px;" />
 </p>
 
-<p align="left"><i>Figure 6: DiskANN single-request latency breakdown with W=8, threads=64. Search time is the latency for searching the index, mapping fetches passage content by ID, and total is the backend latency as a whole. This contrasts with Figures 4a–4b (batched throughput). Single-request is what the UI uses, while batching is recommended for high-volume API use.</i></p>
+<p align="left"><i>Figure 6a: DiskANN single-request QPS vs L with W=8, threads=64, COUNT=1000 (WARMUP_SKIP=100). Each point represents a continuous stream of single-query POSTs against the same host used for the batched benchmarks.</i></p>
+<p align="center">
+  <img src="{{ 'plots/diskann_single_request_qps_vs_L.png' | relative_url }}" style="width: 70%; margin: 5px;" />
+</p>
+<p align="left"><i>Figure 6b: DiskANN single-request latency breakdown with W=8, threads=64, sweeping L ∈ {100, 500, 1000, 1500, 2000}. Search time is the latency for searching the index, mapping fetches passage content by ID, and total is the backend latency as a whole. This contrasts with Figures 4a–4b (batched throughput). Single-request is what the UI uses, while batching is recommended for high-volume API use.</i></p>
 <p align="center">
   <img src="{{ 'plots/diskann_single_request_latency_vs_L.png' | relative_url }}" style="width: 90%; margin: 5px;" />
 </p>
+<p>Embedding remains steady around 30&nbsp;ms per query while DiskANN search grows from ~11&nbsp;ms at L=100 to ~93&nbsp;ms at L=2000; mapping stays under 1&nbsp;ms thanks to shard caching. Together with the QPS trend above, this shows single-query throughput falling from ~13 QPS at L=100 to ~5.8 QPS at L=2000 on the same hardware.</p>
 <p class="small-note"><b>Note:</b> The UI latency pill measures end-to-end wall-clock time (request setup, network travel, JSON encode/decode, rendering). Our plot uses the server-reported <code>timings_ms.total</code>, which only covers embedding + search + post-processing. Expect UI numbers to run higher.</p>
 
 ---
@@ -198,7 +204,7 @@ In DS Serve we support both backends:
 
 2. **DiskANN**  
    For higher throughput, we integrate <a href="https://github.com/microsoft/DiskANN" target="_blank">DiskANN</a>, a disk‑based ANN system.  
-   DiskANN achieves **>1000 index‑level QPS** and **~200+ end‑to‑end QPS** at ~200 GB RAM, making it suitable for high‑throughput deployments while maintaining competitive accuracy.  
+   DiskANN achieves **>1000 index‑level QPS** and **~200+ end‑to‑end QPS** at ~200 GB RAM, making it suitable for high‑throughput deployments while maintaining competitive accuracy. 
    In our internal evaluations, DiskANN’s implicit reranking improved downstream accuracy compared to pure ANN and, on some tasks (e.g., MMLU), matched or exceeded Exact Search.
 
 <details>
