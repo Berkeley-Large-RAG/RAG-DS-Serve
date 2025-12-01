@@ -3,12 +3,31 @@ import json
 import sys
 import threading
 from pathlib import Path
+import math
 import numpy as np
 
 try:
     import diskannpy as dap  # type: ignore
 except Exception as _e:
     dap = None
+
+
+def _resolve_k_fetch(requested_k: int, min_words, env_key: str, hard_cap: int = 256) -> int:
+    base = max(1, int(requested_k))
+    env_val = os.environ.get(env_key)
+    if env_val is not None and env_val.strip():
+        try:
+            return max(base, int(env_val))
+        except Exception:
+            pass
+    try:
+        mw = max(0, int(min_words)) if min_words is not None else 0
+    except Exception:
+        mw = 0
+    if mw <= 0:
+        return base
+    factor = 1 + min(4, max(1, math.ceil(mw / 50)))
+    return min(hard_cap, base * factor)
 
 
 class DiskANNBackend:
@@ -250,7 +269,7 @@ class DiskANNBackend:
         # Queries are used as-is (MIPS build); no query normalization.
         k = int(k)
         L = int(L)
-        W = int(W) if W is not None else 2
+        W = int(W) if W is not None else 4
         # threads: use exactly what is requested (no capping)
         eff_threads = max(1, int(threads if threads is not None else self.num_threads))
         try:
@@ -265,21 +284,7 @@ class DiskANNBackend:
         # Policy: env DISKANN_K_FETCH overrides. Otherwise:
         # - If no min_words filter: K_FETCH = k (no oversampling)
         # - If min_words > 0: K_FETCH = min(1000, k * 5)
-        try:
-            kfetch_env = os.environ.get("DISKANN_K_FETCH")
-            if kfetch_env is not None and kfetch_env.strip() != "":
-                K_FETCH = max(1, int(kfetch_env))
-            else:
-                try:
-                    _mw = int(min_words) if (min_words is not None) else 0
-                except Exception:
-                    _mw = 0
-                if _mw > 0:
-                    K_FETCH = min(1000, max(1, int(k)) * 5)
-                else:
-                    K_FETCH = max(1, int(k))
-        except Exception:
-            K_FETCH = max(1, int(k))
+        K_FETCH = _resolve_k_fetch(k, min_words, "DISKANN_K_FETCH")
         # Log a concise, clean effective config line for sanity
         try:
             print(
