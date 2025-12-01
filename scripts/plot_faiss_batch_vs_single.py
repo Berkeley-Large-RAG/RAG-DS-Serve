@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Plot FAISS batched vs single-request QPS/latency for nprobe sweep."""
-
+"""Generate IVFPQ benchmarking plots (batched & single) per nprobe sweep."""
 from __future__ import annotations
 
 import os
-from typing import List, Dict
+from typing import Dict, List
 
 import matplotlib
 
@@ -18,9 +17,12 @@ except Exception:
 
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-DOCS_DIR = os.path.join(REPO_ROOT, "docs")
+PLOT_DIR = os.path.join(REPO_ROOT, "docs", "plots")
+COLOR_QPS = "#4C78A8"
+COLOR_EMBED = "#4C78A8"
+COLOR_SEARCH = "#F58518"
 
-# Measurements (COUNT=100 shared queries, nprobe ∈ {64, 128, 256, 512})
+# Measurements collected with COUNT=100 shared queries.
 BATCHED_RESULTS: List[Dict[str, float]] = [
     {"nprobe": 64, "qps": 9.09, "embed": 2.54, "search": 10.71, "total": 13.25},
     {"nprobe": 128, "qps": 10.00, "embed": 2.41, "search": 10.79, "total": 13.19},
@@ -36,98 +38,94 @@ SINGLE_RESULTS: List[Dict[str, float]] = [
 ]
 
 
-def plot_qps(out_dir: str) -> str:
-    np_values = [str(row["nprobe"]) for row in BATCHED_RESULTS]
-    batched_qps = [row["qps"] for row in BATCHED_RESULTS]
-    single_qps = [row["qps"] for row in SINGLE_RESULTS]
+def _plot_qps(rows: List[Dict[str, float]], mode_label: str, filename: str) -> str:
+    labels = [str(r["nprobe"]) for r in rows]
+    values = [r["qps"] for r in rows]
 
-    plt.figure(figsize=(8, 4))
+    plt.figure(figsize=(7, 4))
     if sns:
         sns.set_theme(style="whitegrid")
-        ax = sns.barplot(
-            x=np_values + np_values,
-            y=batched_qps + single_qps,
-            hue=(["Batched"] * len(np_values)) + (["Single-request"] * len(np_values)),
-            palette=["#4C78A8", "#F58518"],
+    ax = plt.gca()
+    ax.bar(labels, values, color=COLOR_QPS)
+    ax.set_xlabel("nprobe", fontsize=12, fontweight="bold")
+    ax.set_ylabel("QPS", fontsize=12, fontweight="bold")
+    ax.set_title(f"IVFPQ {mode_label} QPS vs nprobe", fontsize=15, fontweight="bold")
+
+    for label, val in zip(labels, values):
+        ax.annotate(
+            f"{val:.2f}",
+            (label, val),
+            ha="center",
+            va="bottom",
+            fontweight="bold",
+            fontsize=10,
+            xytext=(0, 3),
+            textcoords="offset points",
         )
-    else:
-        width = 0.4
-        x = range(len(np_values))
-        ax = plt.gca()
-        ax.bar([i - width / 2 for i in x], batched_qps, width=width, label="Batched", color="#4C78A8")
-        ax.bar([i + width / 2 for i in x], single_qps, width=width, label="Single-request", color="#F58518")
-        ax.set_xticks(list(x))
-        ax.set_xticklabels(np_values)
 
-    plt.xlabel("nprobe")
-    plt.ylabel("QPS")
-    plt.title("FAISS QPS: Batched vs Single-request (COUNT=400)")
-    plt.legend()
+    for tick in list(ax.get_xticklabels()) + list(ax.get_yticklabels()):
+        tick.set_fontsize(11)
+        tick.set_fontweight("bold")
+
     plt.tight_layout()
-
-    out_path = os.path.join(out_dir, "faiss_qps_batch_vs_single.png")
+    out_path = os.path.join(PLOT_DIR, filename)
     plt.savefig(out_path, dpi=200)
     plt.close()
     return out_path
 
 
-def plot_latency(out_dir: str) -> str:
-    np_values = [str(row["nprobe"]) for row in BATCHED_RESULTS]
-    metrics = [("embed", "Embed"), ("search", "Search"), ("total", "Total")]
+def _plot_latency(rows: List[Dict[str, float]], mode_label: str, filename: str) -> str:
+    labels = [str(r["nprobe"]) for r in rows]
+    embed = [r["embed"] for r in rows]
+    search = [r["search"] for r in rows]
+    totals = [r["total"] for r in rows]
 
-    plt.figure(figsize=(10, 5))
+    plt.figure(figsize=(7.5, 4.2))
     if sns:
         sns.set_theme(style="whitegrid")
     ax = plt.gca()
+    ax.bar(labels, embed, color=COLOR_EMBED, label="Embed")
+    ax.bar(labels, search, bottom=embed, color=COLOR_SEARCH, label="Search")
 
-    width = 0.35
-    x = range(len(np_values))
-
-    for idx, (key, label) in enumerate(metrics):
-        batched = [row[key] for row in BATCHED_RESULTS]
-        single = [row[key] for row in SINGLE_RESULTS]
-        offsets = [-width, width]
-        ax.bar(
-            [i + offsets[0] + idx * width / len(metrics) for i in x],
-            batched,
-            width=width / len(metrics),
-            label=f"Batched {label}" if idx == 0 else "",
-            color="#4C78A8",
-            alpha=0.8 - idx * 0.1,
-        )
-        ax.bar(
-            [i + offsets[1] + idx * width / len(metrics) for i in x],
-            single,
-            width=width / len(metrics),
-            label=f"Single {label}" if idx == 0 else "",
-            color="#F58518",
-            alpha=0.8 - idx * 0.1,
+    for label, e, s, total in zip(labels, embed, search, totals):
+        ax.annotate(
+            f"{total:.1f}",
+            (label, e + s),
+            ha="center",
+            va="bottom",
+            fontweight="bold",
+            fontsize=10,
+            xytext=(0, 3),
+            textcoords="offset points",
         )
 
-    ax.set_xticks(list(x))
-    ax.set_xticklabels(np_values)
-    ax.set_xlabel("nprobe")
-    ax.set_ylabel("Latency (ms)")
-    ax.set_title("FAISS Latency Components: Batched vs Single-request")
-    handles, labels = ax.get_legend_handles_labels()
-    ax.legend(handles[:2], labels[:2], fontsize=10)
+    ax.set_xlabel("nprobe", fontsize=12, fontweight="bold")
+    ax.set_ylabel("Latency per query (ms)", fontsize=12, fontweight="bold")
+    ax.set_title(f"IVFPQ {mode_label} latency breakdown", fontsize=15, fontweight="bold")
+    ax.legend(fontsize=10)
+
+    for tick in list(ax.get_xticklabels()) + list(ax.get_yticklabels()):
+        tick.set_fontsize(11)
+        tick.set_fontweight("bold")
 
     plt.tight_layout()
-    out_path = os.path.join(out_dir, "faiss_latency_batch_vs_single.png")
+    out_path = os.path.join(PLOT_DIR, filename)
     plt.savefig(out_path, dpi=200)
     plt.close()
     return out_path
 
 
 def main() -> None:
-    out_dir = os.path.join(DOCS_DIR, "plots")
-    os.makedirs(out_dir, exist_ok=True)
-    qps_path = plot_qps(out_dir)
-    lat_path = plot_latency(out_dir)
-    print(f"Wrote {qps_path}")
-    print(f"Wrote {lat_path}")
+    os.makedirs(PLOT_DIR, exist_ok=True)
+    outputs = [
+        _plot_qps(BATCHED_RESULTS, "Batched", "ivfpq_qps_batched.png"),
+        _plot_latency(BATCHED_RESULTS, "Batched", "ivfpq_latency_batched.png"),
+        _plot_qps(SINGLE_RESULTS, "Single-request", "ivfpq_qps_single.png"),
+        _plot_latency(SINGLE_RESULTS, "Single-request", "ivfpq_latency_single.png"),
+    ]
+    for path in outputs:
+        print(f"Wrote {path}")
 
 
 if __name__ == "__main__":
     main()
-

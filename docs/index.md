@@ -141,34 +141,37 @@ During search, **DS Serve** initially oversamples a pool of candidates, and then
 
 
 
-<p align="left"><i>Figures 3a–3b: FAISS IVFPQ batched (left) vs single-request (right) behavior (COUNT=100 shared queries, nprobe ∈ {64, 128, 256, 512}). Batched mode keeps one continuous POST open, while single-request fires one POST per query to mimic the user-facing interface.</i></p>
-<p>With these settings, batched throughput stays near 9–10 QPS and ~13–21&nbsp;ms backend latency as nprobe rises, while single-request throughput drops from ~3.1 to ~1.5 QPS and latency grows from ~141&nbsp;ms to ~519&nbsp;ms.</p>
+<p align="left"><i>Figures 3a–3b: IVFPQ batched search.</i></p>
 <p align="center">
-  <img src="{{ 'plots/faiss_qps_batch_vs_single.png' | relative_url }}" style="width: 48%; margin: 5px;" />
-  <img src="{{ 'plots/faiss_latency_batch_vs_single.png' | relative_url }}" style="width: 48%; margin: 5px;" />
+  <img src="{{ 'plots/ivfpq_qps_batched.png' | relative_url }}" style="width: 48%; margin: 5px;" />
+  <img src="{{ 'plots/ivfpq_latency_batched.png' | relative_url }}" style="width: 48%; margin: 5px;" />
 </p>
 
-<p align="left"><i>Figures 4a,4b (batched throughput): DiskANN end-to-end (left) and index-only (right) QPS when processing continuous query batches. L controls the search list size; higher L trades latency for accuracy.</i></p>
+<p align="left"><i>Figures 4a–4b: IVFPQ single-request search.</i></p>
+<p align="center">
+  <img src="{{ 'plots/ivfpq_qps_single.png' | relative_url }}" style="width: 48%; margin: 5px;" />
+  <img src="{{ 'plots/ivfpq_latency_single.png' | relative_url }}" style="width: 48%; margin: 5px;" />
+</p>
+
+<p align="left"><i>Figures 5a–5b: DiskANN batched search, where all queries are processed at once. Left: end-to-end QPS; right: latency breakdown from server timings.</i></p>
 <p align="center">
   <img src="{{ 'plots/diskann_qps_vs_L.png' | relative_url }}" style="width: 48%; margin: 5px;" />
-  <img src="{{ 'plots/diskann_index_only_qps_vs_L.png' | relative_url }}" style="width: 48%; margin: 5px;" />
+  <img src="{{ 'plots/diskann_latency_breakdown_vs_L.png' | relative_url }}" style="width: 48%; margin: 5px;" />
 </p>
-<p align="left"><i>Figures 5a,5b: TriviaQA and NaturalQS accuracy on the metrics: Recall, F1, Exact Match. DiskANN outperforms IVFPQ across both datasets.</i></p>
+
+<p align="left"><i>Figures 6a–6b: DiskANN single-request search, where each query is processed individually. Left: QPS vs L; right: latency decomposition (embed, search, mapping).</i></p>
+<p align="center">
+  <img src="{{ 'plots/diskann_single_request_qps_vs_L.png' | relative_url }}" style="width: 48%; margin: 5px;" />
+  <img src="{{ 'plots/diskann_single_request_latency_vs_L.png' | relative_url }}" style="width: 48%; margin: 5px;" />
+</p>
+<p>Single-request search is typically only used on the UI where the users searches one query at a time light and easy. However, as tested batched search is always faster thanks to less overhead per request on average, so using a bigger batch is recommended for more intense retrieval with the API.</p>
+
+<p align="left"><i>Figures 7a–7b: TriviaQA and NaturalQS accuracy on the metrics: Recall, F1, Exact Match. DiskANN outperforms IVFPQ across both datasets.</i></p>
 <p align="center">
   <img src="{{ 'accuracy_ivfpq_vs_diskann_triviaqa.png' | relative_url }}" style="width: 45%; margin: 5px;" />
   <img src="{{ 'accuracy_ivfpq_vs_diskann_naturalqs.png' | relative_url }}" style="width: 45%; margin: 5px;" />
 </p>
-
-<p align="left"><i>Figure 6a: DiskANN single-request QPS vs L with W=8, threads=64, COUNT=1000 (WARMUP_SKIP=100). Each point represents a continuous stream of single-query POSTs against the same host used for the batched benchmarks.</i></p>
-<p align="center">
-  <img src="{{ 'plots/diskann_single_request_qps_vs_L.png' | relative_url }}" style="width: 70%; margin: 5px;" />
-</p>
-<p align="left"><i>Figure 6b: DiskANN single-request latency breakdown with W=8, threads=64, sweeping L ∈ {100, 500, 1000, 1500, 2000}. Search time is the latency for searching the index, mapping fetches passage content by ID, and total is the backend latency as a whole. This contrasts with Figures 4a–4b (batched throughput). Single-request is what the UI uses, while batching is recommended for high-volume API use.</i></p>
-<p align="center">
-  <img src="{{ 'plots/diskann_single_request_latency_vs_L.png' | relative_url }}" style="width: 90%; margin: 5px;" />
-</p>
-<p>Embedding remains steady around 30&nbsp;ms per query while DiskANN search grows from ~11&nbsp;ms at L=100 to ~93&nbsp;ms at L=2000; mapping stays under 1&nbsp;ms thanks to shard caching. Together with the QPS trend above, this shows single-query throughput falling from ~13 QPS at L=100 to ~5.8 QPS at L=2000 on the same hardware.</p>
-<p class="small-note"><b>Note:</b> The UI latency pill measures end-to-end wall-clock time (request setup, network travel, JSON encode/decode, rendering). Our plot uses the server-reported <code>timings_ms.total</code>, which only covers embedding + search + post-processing. Expect UI numbers to run higher.</p>
+<p class="small-note"><b>Note:</b> The latency number shown on the UI measures end-to-end wall-clock time (request setup, network travel, JSON encode/decode, rendering). Our plots use the server-reported <code>timings_ms.total</code>, which only covers embedding + search + post-processing. Expect UI numbers to run higher.</p>
 
 ---
 <br/>
@@ -198,7 +201,7 @@ Real‑world vector datasets can contain billions of vectors and occupy terabyte
 
 In DS Serve we support both backends:
 
-1. **FAISS IVFPQ**  
+1. **IVFPQ**  
    We use <a href="https://faiss.ai/" target="_blank">FAISS</a> with <a href="https://github.com/facebookresearch/faiss/wiki/Faiss-indexes#ivfpq" target="_blank">IVFPQ</a> to reduce memory and latency by clustering and product quantization.  
    In our setting, FAISS supports inference within ~200 ms at ~100 GB RAM, achieving **~100 QPS** end‑to‑end.
 
