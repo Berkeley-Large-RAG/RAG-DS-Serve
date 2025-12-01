@@ -210,6 +210,8 @@ The approximate nature of the ANN backend inevitably sacrifices accuracy, thus w
 <p>During search, <b>DS Serve</b> initially oversamples a pool of candidates, and then finds top results among them. To make it easier for users, a with improvement suggestions shows in the case of failing to retrieve enough results, even though this is very rare.</p> 
 </details>
 
+
+<!-- NO CHANGE -->
 <p align="left"><i>Figures 3a–3b: IVFPQ batched search.</i></p>
 <p align="center">
   <img src="{{ 'plots/ivfpq_qps_batched.png' | relative_url }}" style="width: 48%; margin: 5px;" />
@@ -235,7 +237,7 @@ The approximate nature of the ANN backend inevitably sacrifices accuracy, thus w
 </p>
 <p>Single-request search is typically only used on the UI where the users search one query at a time light and easy. However, as tested batched search is always faster thanks to less overhead per request on average, so using a bigger batch is recommended for more intense retrieval with the API.</p>
 
-<p align="left"><i>Figures 7a–7b: TriviaQA and NaturalQS accuracy on the metrics: Recall, F1, Exact Match. DiskANN outperforms IVFPQ across both datasets.</i></p>
+<p align="left"><i>Figures 7a–7b: TriviaQA and NaturalQS accuracy on the metrics: Recall, F1, Exact Match. DiskANN outperforms IVFPQ across both datasets. L=5000 for DiskANN and nprobe=256 for IVFPQ</i></p>
 <p align="center">
   <img src="{{ 'accuracy_ivfpq_vs_diskann_triviaqa.png' | relative_url }}" style="width: 45%; margin: 5px;" />
   <img src="{{ 'accuracy_ivfpq_vs_diskann_naturalqs.png' | relative_url }}" style="width: 45%; margin: 5px;" />
@@ -244,7 +246,7 @@ The approximate nature of the ANN backend inevitably sacrifices accuracy, thus w
 
 ---
 <br/>
-
+<!-- NO CHANGE -->
 ## User guide
 
 We provide two ways to use **DS Serve**: API calls and a web UI.
@@ -258,7 +260,7 @@ We provide two ways to use **DS Serve**: API calls and a web UI.
 <summary><b>Web Interface</b></summary>
 <p align="left"><i>Figure 2: Control panel with tunable parameters and tooltips.</i></p>
 <p align="center">
-  <img src="{{ 'plots/parameter-panel.png' | relative_url }}" style="width: 90%;" />
+  <img src="{{ 'panel.png' | relative_url }}" style="width: 90%;" />
 </p>
 <p>Use the control panel to adjust search behavior (Figure 2):</p>
 <ul>
