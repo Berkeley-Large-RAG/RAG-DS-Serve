@@ -76,29 +76,39 @@ def _plot_qps(rows: List[Dict[str, float]], mode_label: str, filename: str) -> s
 
 def _plot_latency(rows: List[Dict[str, float]], mode_label: str, filename: str) -> str:
     labels = [str(r["nprobe"]) for r in rows]
-    embed = [r["embed"] for r in rows]
-    search = [r["search"] for r in rows]
-    totals = [r["total"] for r in rows]
+    metrics = [
+        ("embed", "Embed", COLOR_EMBED),
+        ("search", "Search", COLOR_SEARCH),
+        ("total", "Total", "#54A24B"),
+    ]
 
-    plt.figure(figsize=(7.5, 4.2))
+    plt.figure(figsize=(8.5, 4.2))
     if sns:
         sns.set_theme(style="whitegrid")
     ax = plt.gca()
-    ax.bar(labels, embed, color=COLOR_EMBED, label="Embed")
-    ax.bar(labels, search, bottom=embed, color=COLOR_SEARCH, label="Search")
 
-    for label, e, s, total in zip(labels, embed, search, totals):
-        ax.annotate(
-            f"{total:.1f}",
-            (label, e + s),
-            ha="center",
-            va="bottom",
-            fontweight="bold",
-            fontsize=10,
-            xytext=(0, 3),
-            textcoords="offset points",
-        )
+    num_metrics = len(metrics)
+    width = 0.8 / num_metrics
+    base_positions = list(range(len(labels)))
 
+    for idx, (key, disp, color) in enumerate(metrics):
+        values = [r[key] for r in rows]
+        offsets = [pos + (idx - (num_metrics - 1) / 2) * width for pos in base_positions]
+        ax.bar(offsets, values, width=width, label=disp, color=color)
+        for x, val in zip(offsets, values):
+            ax.annotate(
+                f"{val:.1f}",
+                (x, val),
+                ha="center",
+                va="bottom",
+                fontweight="bold",
+                fontsize=10,
+                xytext=(0, 3),
+                textcoords="offset points",
+            )
+
+    ax.set_xticks(base_positions)
+    ax.set_xticklabels(labels)
     ax.set_xlabel("nprobe", fontsize=12, fontweight="bold")
     ax.set_ylabel("Latency per query (ms)", fontsize=12, fontweight="bold")
     ax.set_title(f"IVFPQ {mode_label} latency breakdown", fontsize=15, fontweight="bold")

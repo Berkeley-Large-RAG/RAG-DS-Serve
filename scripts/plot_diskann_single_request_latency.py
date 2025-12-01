@@ -37,7 +37,7 @@ def annotate(ax: plt.Axes, width: float, metrics: List[str]) -> None:
                 continue
             x = group_idx + idx * width - (width * (len(metrics) - 1) / 2)
             ax.annotate(
-                f"{val:.1f}",
+                f"{val:.2f}",
                 (x, val),
                 ha="center",
                 va="bottom",
@@ -75,7 +75,7 @@ def main() -> None:
 
     ax.set_xticks(range(num_groups))
     ax.set_xticklabels(labels)
-    ax.set_xlabel("L (DiskANN list size)", fontsize=13, fontweight="bold")
+    ax.set_xlabel("DiskANN list size L", fontsize=13, fontweight="bold")
     ax.set_ylabel("Latency per request (ms)", fontsize=13, fontweight="bold")
     ax.set_title("DiskANN Single-request Latency Breakdown", fontsize=16, fontweight="bold")
     ax.legend(ncol=4, fontsize=11)

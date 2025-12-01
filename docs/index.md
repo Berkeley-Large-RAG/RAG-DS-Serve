@@ -171,7 +171,7 @@ During search, **DS Serve** initially oversamples a pool of candidates, and then
   <img src="{{ 'accuracy_ivfpq_vs_diskann_triviaqa.png' | relative_url }}" style="width: 45%; margin: 5px;" />
   <img src="{{ 'accuracy_ivfpq_vs_diskann_naturalqs.png' | relative_url }}" style="width: 45%; margin: 5px;" />
 </p>
-<p class="small-note"><b>Note:</b> The latency number shown on the UI measures end-to-end wall-clock time (request setup, network travel, JSON encode/decode, rendering). Our plots use the server-reported <code>timings_ms.total</code>, which only covers embedding + search + post-processing. Expect UI numbers to run higher.</p>
+<p class="small-note"><b>Note:</b> The latency number shown on the UI measures end-to-end wall-clock time (request setup, network travel, JSON encode/decode, rendering). Please be aware QPS and latency can have small fluctuations depending on network speed due online network travels.</p>
 
 ---
 <br/>
