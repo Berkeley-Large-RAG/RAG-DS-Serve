@@ -5,7 +5,6 @@ header_pages:
   - API_DOCUMENTATION.md
   - VOTES_DOCUMENTATION.md
   - code.md
-  - paper.md
 
 theme: minima
 plugins:
