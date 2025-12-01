@@ -1,5 +1,6 @@
 import os
 import math
+import argparse
 
 # Use a non-interactive backend for servers without a display
 import matplotlib
@@ -46,6 +47,13 @@ def plot_diskann_qps(data, out_dir: str) -> None:
     plt.title("DiskANN QPS vs L")
     plt.xlabel("L")
     plt.ylabel("QPS")
+    # Add headroom so value labels don't clip at the top
+    try:
+        ymax = max(y)
+        if math.isfinite(ymax) and ymax > 0:
+            plt.ylim(0, ymax * 1.15)
+    except Exception:
+        pass
     annotate_bars(ax)
     plt.tight_layout()
     plt.savefig(os.path.join(out_dir, "diskann_qps_vs_L.png"), dpi=160)
@@ -68,8 +76,7 @@ def plot_diskann_latency_breakdown(data, out_dir: str) -> None:
     # metrics to plot as grouped bars
     metrics = [
         ("embed_ms", "Embed"),
-        ("search_ms", "Search (server)"),
-        ("DA_batch_ms", "DiskANN batch"),
+        ("DA_batch_ms", "Index search"),
         ("map_ms", "Passage map"),
         ("total_ms", "Total"),
     ]
@@ -101,85 +108,110 @@ def plot_diskann_latency_breakdown(data, out_dir: str) -> None:
     ax.set_xticklabels(labels)
     ax.set_xlabel("L")
     ax.set_ylabel("Latency (ms)")
-    ax.set_title("DiskANN Latency Breakdown vs L")
+    ax.set_title("DiskANN Latency Breakdown")
     ax.legend(ncol=3, fontsize=9)
 
-    # Annotate only the Total bars to reduce clutter
-    total_index = [i for i, (k, _d) in enumerate(metrics) if k == "total_ms"][0]
-    for i, r in enumerate(rows):
-        xpos = i + total_index * width - (width * (num_bars - 1) / 2)
-        h = r["total_ms"]
-        if math.isfinite(h) and h > 0:
-            ax.annotate(f"{h:.2f}", (xpos, h), ha="center", va="bottom", fontsize=8, xytext=(0, 3), textcoords="offset points")
+    # Add headroom so annotations don't clip
+    try:
+        ymax = max(max(series) for series in values_by_metric if series)
+        if math.isfinite(ymax) and ymax > 0:
+            ax.set_ylim(0, ymax * 1.20)
+    except Exception:
+        pass
+
+    # Annotate every bar with larger, clearer labels
+    for idx, (series, _m) in enumerate(zip(values_by_metric, metrics)):
+        for i, val in enumerate(series):
+            if math.isfinite(val) and val > 0:
+                xpos = i + idx * width - (width * (num_bars - 1) / 2)
+                ax.annotate(f"{val:.2f}", (xpos, val), ha="center", va="bottom",
+                            fontsize=12, fontweight='bold', xytext=(0, 4), textcoords="offset points")
 
     plt.tight_layout()
     plt.savefig(os.path.join(out_dir, "diskann_latency_breakdown_vs_L.png"), dpi=160)
     plt.close()
 
 
-def plot_faiss_qps_and_latency(data, out_dir: str) -> None:
+def plot_faiss_qps_and_latency(data, out_dir: str, which: str = "both") -> None:
     rows = sorted(data, key=lambda r: r["nprobe"])
     x = [str(r["nprobe"]) for r in rows]
 
     # QPS
-    y_qps = [r["QPS"] for r in rows]
-    plt.figure(figsize=(9, 4))
-    if sns:
-        sns.set_theme(style="whitegrid")
-        ax = sns.barplot(x=x, y=y_qps, color="#4C78A8")
-    else:
-        ax = plt.bar(x, y_qps, color="#4C78A8")
-        ax = plt.gca()
-    plt.title("FAISS QPS vs nprobe")
-    plt.xlabel("nprobe")
-    plt.ylabel("QPS")
-    annotate_bars(ax)
-    plt.tight_layout()
-    plt.savefig(os.path.join(out_dir, "faiss_qps_vs_nprobe.png"), dpi=160)
-    plt.close()
+    if which in ("both", "qps"):
+        y_qps = [r["QPS"] for r in rows]
+        plt.figure(figsize=(9, 4))
+        if sns:
+            sns.set_theme(style="whitegrid")
+            ax = sns.barplot(x=x, y=y_qps, color="#4C78A8")
+        else:
+            ax = plt.bar(x, y_qps, color="#4C78A8")
+            ax = plt.gca()
+        plt.title("IVF_PQ QPS")
+        plt.xlabel("nprobe")
+        plt.ylabel("QPS")
+        # Add headroom so value labels don't clip at the top
+        try:
+            ymax = max(y_qps)
+            if math.isfinite(ymax) and ymax > 0:
+                plt.ylim(0, ymax * 1.15)
+        except Exception:
+            pass
+        annotate_bars(ax)
+        plt.tight_layout()
+        plt.savefig(os.path.join(out_dir, "faiss_qps_vs_nprobe.png"), dpi=160)
+        plt.close()
 
     # Latency grouped bars
-    metrics = [
-        ("embed_ms", "Embed"),
-        ("search_ms", "Search (server)"),
-        ("total_ms", "Total"),
-    ]
-    values_by_metric = []
-    for key, _disp in metrics:
-        values_by_metric.append([r[key] for r in rows])
+    if which in ("both", "latency"):
+        metrics = [
+            ("embed_ms", "Embed"),
+            ("search_ms", "Search (server)"),
+            ("total_ms", "Total"),
+        ]
+        values_by_metric = []
+        for key, _disp in metrics:
+            values_by_metric.append([r[key] for r in rows])
 
-    num_groups = len(rows)
-    num_bars = len(metrics)
-    x_idx = range(num_groups)
-    width = 0.85 / num_bars
+        num_groups = len(rows)
+        num_bars = len(metrics)
+        x_idx = range(num_groups)
+        width = 0.85 / num_bars
 
-    plt.figure(figsize=(12, 5))
-    if sns:
-        sns.set_theme(style="whitegrid")
-    ax = plt.gca()
-    palette = ["#4C78A8", "#F58518", "#54A24B"]
-    for idx, (series, (key, disp)) in enumerate(zip(values_by_metric, metrics)):
-        bar_positions = [i + idx * width - (width * (num_bars - 1) / 2) for i in x_idx]
-        ax.bar(bar_positions, series, width=width, label=disp, color=palette[idx % len(palette)])
+        plt.figure(figsize=(12, 5))
+        if sns:
+            sns.set_theme(style="whitegrid")
+        ax = plt.gca()
+        palette = ["#4C78A8", "#F58518", "#54A24B"]
+        for idx, (series, (key, disp)) in enumerate(zip(values_by_metric, metrics)):
+            bar_positions = [i + idx * width - (width * (num_bars - 1) / 2) for i in x_idx]
+            ax.bar(bar_positions, series, width=width, label=disp, color=palette[idx % len(palette)])
 
-    ax.set_xticks(list(x_idx))
-    ax.set_xticklabels([str(r["nprobe"]) for r in rows])
-    ax.set_xlabel("nprobe")
-    ax.set_ylabel("Latency (ms)")
-    ax.set_title("FAISS Latency vs nprobe")
-    ax.legend(ncol=3, fontsize=9)
+        ax.set_xticks(list(x_idx))
+        ax.set_xticklabels([str(r["nprobe"]) for r in rows])
+        ax.set_xlabel("nprobe")
+        ax.set_ylabel("Latency (ms)")
+        ax.set_title("IVF_PQ ANN Latency")
+        ax.legend(ncol=3, fontsize=9, loc="upper left")
 
-    # Annotate Total bars
-    total_index = [i for i, (k, _d) in enumerate(metrics) if k == "total_ms"][0]
-    for i, r in enumerate(rows):
-        xpos = i + total_index * width - (width * (num_bars - 1) / 2)
-        h = r["total_ms"]
-        if math.isfinite(h) and h > 0:
-            ax.annotate(f"{h:.2f}", (xpos, h), ha="center", va="bottom", fontsize=8, xytext=(0, 3), textcoords="offset points")
+        # Add headroom so annotations don't clip
+        try:
+            ymax = max(max(series) for series in values_by_metric if series)
+            if math.isfinite(ymax) and ymax > 0:
+                ax.set_ylim(0, ymax * 1.20)
+        except Exception:
+            pass
 
-    plt.tight_layout()
-    plt.savefig(os.path.join(out_dir, "faiss_latency_vs_nprobe.png"), dpi=160)
-    plt.close()
+        # Annotate every bar with larger, clearer labels
+        for idx, series in enumerate(values_by_metric):
+            for i, val in enumerate(series):
+                if math.isfinite(val) and val > 0:
+                    xpos = i + idx * width - (width * (num_bars - 1) / 2)
+                    ax.annotate(f"{val:.2f}", (xpos, val), ha="center", va="bottom",
+                                fontsize=12, fontweight='bold', xytext=(0, 4), textcoords="offset points")
+
+        plt.tight_layout()
+        plt.savefig(os.path.join(out_dir, "faiss_latency_vs_nprobe.png"), dpi=160)
+        plt.close()
 
 
 def plot_diskann_index_only_qps(data, out_dir: str) -> None:
@@ -194,9 +226,16 @@ def plot_diskann_index_only_qps(data, out_dir: str) -> None:
     else:
         ax = plt.bar(x, y, color="#72B7B2")
         ax = plt.gca()
-    plt.title("DiskANN Index-only QPS vs L (Beamwidth=4)")
+    plt.title("DiskANN Index-only QPS")
     plt.xlabel("L")
     plt.ylabel("QPS")
+    # Add headroom so value labels don't clip at the top
+    try:
+        ymax = max(y)
+        if math.isfinite(ymax) and ymax > 0:
+            plt.ylim(0, ymax * 1.15)
+    except Exception:
+        pass
     annotate_bars(ax)
     plt.tight_layout()
     plt.savefig(os.path.join(out_dir, "diskann_index_only_qps_vs_L.png"), dpi=160)
@@ -358,14 +397,12 @@ def plot_compact_ds_ann_exact_diskann(out_dir: str) -> None:
 
     ax.set_xticks(x)
     ax.set_xticklabels(datasets)
-    ax.set_ylabel("Score", fontsize=14, fontweight='bold')
-    ax.set_title("DiskANN vs ANN", fontsize=18, fontweight='bold')
+    ax.set_ylabel("Score", fontsize=14)
+    ax.set_title("DiskANN and IVF_PQ ANN Accuracy Comparison", fontsize=18)
     ax.legend(fontsize=12)
 
-    # Bold tick labels
     for lbl in ax.get_xticklabels() + ax.get_yticklabels():
         lbl.set_fontsize(12)
-        lbl.set_fontweight('bold')
 
     # Zoom Y scale for clarity (scores are 0-100 range here)
     vals = no_retr + ann_only + ann_exact + diskann
@@ -407,13 +444,12 @@ def plot_ann_diskann_full_table_bars(out_dir: str) -> None:
 
     ax.set_xticks(x)
     ax.set_xticklabels(datasets)
-    ax.set_ylabel("Score", fontsize=14, fontweight='bold')
-    ax.set_title("DiskANN vs ANN", fontsize=18, fontweight='bold')
+    ax.set_ylabel("Score", fontsize=14)
+    ax.set_title("DiskANN and IVF_PQ ANN Accuracy Comparison", fontsize=18)
     ax.legend(fontsize=12)
 
     for lbl in ax.get_xticklabels() + ax.get_yticklabels():
         lbl.set_fontsize(12)
-        lbl.set_fontweight('bold')
 
     vals = no_retr + ann_only + ann_exact + diskann
     vmin, vmax = min(vals), max(vals)
@@ -478,7 +514,30 @@ def plot_ann_diskann_full_table_lines(out_dir: str) -> None:
     plt.close()
 
 def main() -> None:
-    out_dir = "/mnt/md-256k/jinjian/DS/runtime/plots"
+    parser = argparse.ArgumentParser(description="Generate DS-Serve plots")
+    parser.add_argument(
+        "--only",
+        nargs="+",
+        choices=[
+            "diskann_qps",
+            "diskann_latency",
+            "faiss_qps",
+            "faiss_latency",
+            "diskann_index_only",
+            "accuracy_triviaqa",
+            "accuracy_nqopen",
+            "accuracy_combined",
+            "compact_ds_ann_exact_diskann",
+            "accuracy_full_table_bars",
+            "accuracy_full_table_lines",
+        ],
+        help="Generate only the specified figure(s)",
+    )
+    args = parser.parse_args()
+
+    # Resolve output directory relative to this script to avoid hardcoded paths
+    repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    out_dir = os.path.join(repo_root, "docs", "plots")
     ensure_output_dir(out_dir)
 
     # === DiskANN E2E data (from user) ===
@@ -508,15 +567,33 @@ def main() -> None:
     ]
 
     # Generate plots
-    plot_diskann_qps(diskann_rows, out_dir)
-    plot_diskann_latency_breakdown(diskann_rows, out_dir)
-    plot_faiss_qps_and_latency(faiss_rows, out_dir)
-    plot_diskann_index_only_qps(idx_only_rows, out_dir)
-    plot_accuracy_triviaqa_faiss_vs_diskann(out_dir)
-    plot_accuracy_nqopen_faiss_vs_diskann(out_dir)
-    plot_accuracy_combined_faiss_vs_diskann(out_dir)
-    plot_compact_ds_ann_exact_diskann(out_dir)
-    plot_ann_diskann_full_table_bars(out_dir)
+    if args.only:
+        actions = {
+            "diskann_qps": lambda: plot_diskann_qps(diskann_rows, out_dir),
+            "diskann_latency": lambda: plot_diskann_latency_breakdown(diskann_rows, out_dir),
+            "faiss_qps": lambda: plot_faiss_qps_and_latency(faiss_rows, out_dir, which="qps"),
+            "faiss_latency": lambda: plot_faiss_qps_and_latency(faiss_rows, out_dir, which="latency"),
+            "diskann_index_only": lambda: plot_diskann_index_only_qps(idx_only_rows, out_dir),
+            "accuracy_triviaqa": lambda: plot_accuracy_triviaqa_faiss_vs_diskann(out_dir),
+            "accuracy_nqopen": lambda: plot_accuracy_nqopen_faiss_vs_diskann(out_dir),
+            "accuracy_combined": lambda: plot_accuracy_combined_faiss_vs_diskann(out_dir),
+            "compact_ds_ann_exact_diskann": lambda: plot_compact_ds_ann_exact_diskann(out_dir),
+            "accuracy_full_table_bars": lambda: plot_ann_diskann_full_table_bars(out_dir),
+            "accuracy_full_table_lines": lambda: plot_ann_diskann_full_table_lines(out_dir),
+        }
+        for key in args.only:
+            actions[key]()
+    else:
+        plot_diskann_qps(diskann_rows, out_dir)
+        plot_diskann_latency_breakdown(diskann_rows, out_dir)
+        plot_faiss_qps_and_latency(faiss_rows, out_dir)
+        plot_diskann_index_only_qps(idx_only_rows, out_dir)
+        plot_accuracy_triviaqa_faiss_vs_diskann(out_dir)
+        plot_accuracy_nqopen_faiss_vs_diskann(out_dir)
+        plot_accuracy_combined_faiss_vs_diskann(out_dir)
+        plot_compact_ds_ann_exact_diskann(out_dir)
+        plot_ann_diskann_full_table_bars(out_dir)
+        plot_ann_diskann_full_table_lines(out_dir)
 
     print(f"Saved plots to: {out_dir}")
 

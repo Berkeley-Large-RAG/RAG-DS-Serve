@@ -56,6 +56,9 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   float: none !important; 
   display: inline-block; 
   margin-right: 20px !important; 
+  white-space: nowrap; 
+  text-decoration: none !important;
 }
+.site-header .site-title:hover { text-decoration: none !important; }
 .site-header .site-nav { float: none !important; display: inline-block; margin-left: 0; }
 
