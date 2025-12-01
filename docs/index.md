@@ -69,7 +69,7 @@ Additionally, our framework enables you to convert your **in-house large-scale d
 <p align="left"><i>Figure 1: DS SERVE converts the largest pretraining dataset into an efficient neural retrieval system: a query q retrieves relevant text via ANN, optionally reranks with exact and/or diverse search, and returns the top-k chunks with voting options for user feedback.</i></p>
 
 <p align="center">
-  <img src="{{ 'Figure-1.png' | relative_url }}" style="width: 70%;" />
+  <img src="{{ 'plots/Figure-1.png' | relative_url }}" style="width: 70%;" />
 </p>
 
 **Key Contributions**
@@ -108,7 +108,7 @@ Additionally, **DS Serve** offers a **Web Interface** for interactive exploratio
 <p align="left"><i>Figure 2: Control panel with tunable parameters and tooltips.</i></p>
 
 <p align="center">
-<img src="{{ 'parameter-panel.png' | relative_url }}" style="width: 90%;" />
+<img src="{{ 'plots/parameter-panel.png' | relative_url }}" style="width: 90%;" />
 </p>
 
 - Use the control panel to adjust search behavior through the following parameters (Figure 2):
@@ -141,27 +141,37 @@ During search, **DS Serve** initially oversamples a pool of candidates, and then
 
 
 
-<p align="left"><i>Figure 3: FAISS QPS scaling with nprobe parameter. Higher nprobe values improve accuracy at the cost of increased latency.</i></p>
+<p align="left"><i>Figures 3a–3b: IVFPQ batched search.</i></p>
 <p align="center">
-  <img src="{{ 'faiss_qps_vs_nprobe.png' | relative_url }}" style="width: 90%; margin: 5px;" />
+  <img src="{{ 'plots/ivfpq_qps_batched.png' | relative_url }}" style="width: 48%; margin: 5px;" />
+  <img src="{{ 'plots/ivfpq_latency_batched.png' | relative_url }}" style="width: 48%; margin: 5px;" />
 </p>
 
-<p align="left"><i>Figure 4: DiskANN end-to-end QPS scaling with L parameter. Shows how throughput scales with search list size.</i></p>
-<p align="left"><i>Figure 5: DiskANN index-level QPS scaling with L parameter. DiskANN achieves >2000 QPS at the index level, enabling high-throughput deployments.</i></p>
+<p align="left"><i>Figures 4a–4b: IVFPQ single-request search.</i></p>
 <p align="center">
-  <img src="{{ 'diskann_qps_vs_L.png' | relative_url }}" style="width: 48%; margin: 5px;" />
-  <img src="{{ 'diskann_index_only_qps_vs_L.png' | relative_url }}" style="width: 48%; margin: 5px;" />
+  <img src="{{ 'plots/ivfpq_qps_single.png' | relative_url }}" style="width: 48%; margin: 5px;" />
+  <img src="{{ 'plots/ivfpq_latency_single.png' | relative_url }}" style="width: 48%; margin: 5px;" />
 </p>
 
-<p align="left"><i>Figure 6: Accuracy comparison on TriviaQA and NQ-Open datasets. DiskANN consistently outperforms FAISS across both Exact match and F1 scores on both datasets.</i></p>
+<p align="left"><i>Figures 5a–5b: DiskANN batched search, where all queries are processed at once. Left: end-to-end QPS; right: latency breakdown from server timings.</i></p>
 <p align="center">
-  <img src="{{ 'triviaqa_nq.png' | relative_url }}" style="width: 90%; margin: 5px;" />
+  <img src="{{ 'plots/diskann_qps_vs_L.png' | relative_url }}" style="width: 48%; margin: 5px;" />
+  <img src="{{ 'plots/diskann_latency_breakdown_vs_L.png' | relative_url }}" style="width: 48%; margin: 5px;" />
 </p>
 
-<p align="left"><i>Figure 7: DiskANN latency breakdown showing the relative contribution of different components — embedding, index searching, and post‑search mapping — to total latency across different L parameter values.</i></p>
+<p align="left"><i>Figures 6a–6b: DiskANN single-request search, where each query is processed individually. Left: QPS vs L; right: latency decomposition (embed, search, mapping).</i></p>
 <p align="center">
-  <img src="{{ 'diskann_latency_breakdown_vs_L.png' | relative_url }}" style="width: 90%; margin: 5px;" />
+  <img src="{{ 'plots/diskann_single_request_qps_vs_L.png' | relative_url }}" style="width: 48%; margin: 5px;" />
+  <img src="{{ 'plots/diskann_single_request_latency_vs_L.png' | relative_url }}" style="width: 48%; margin: 5px;" />
 </p>
+<p>Single-request search is typically only used on the UI where the users search one query at a time light and easy. However, as tested batched search is always faster thanks to less overhead per request on average, so using a bigger batch is recommended for more intense retrieval with the API.</p>
+
+<p align="left"><i>Figures 7a–7b: TriviaQA and NaturalQS accuracy on the metrics: Recall, F1, Exact Match. DiskANN outperforms IVFPQ across both datasets.</i></p>
+<p align="center">
+  <img src="{{ 'accuracy_ivfpq_vs_diskann_triviaqa.png' | relative_url }}" style="width: 45%; margin: 5px;" />
+  <img src="{{ 'accuracy_ivfpq_vs_diskann_naturalqs.png' | relative_url }}" style="width: 45%; margin: 5px;" />
+</p>
+<p class="small-note"><b>Note:</b> The latency number shown on the UI measures end-to-end wall-clock time (request setup, network travel, JSON encode/decode, rendering). QPS and latency can have small fluctuations depending on network speed.</p>
 
 ---
 <br/>
@@ -191,13 +201,13 @@ Real‑world vector datasets can contain billions of vectors and occupy terabyte
 
 In DS Serve we support both backends:
 
-1. **FAISS IVFPQ**  
+1. **IVFPQ**  
    We use <a href="https://faiss.ai/" target="_blank">FAISS</a> with <a href="https://github.com/facebookresearch/faiss/wiki/Faiss-indexes#ivfpq" target="_blank">IVFPQ</a> to reduce memory and latency by clustering and product quantization.  
    In our setting, FAISS supports inference within ~200 ms at ~100 GB RAM, achieving **~100 QPS** end‑to‑end.
 
 2. **DiskANN**  
    For higher throughput, we integrate <a href="https://github.com/microsoft/DiskANN" target="_blank">DiskANN</a>, a disk‑based ANN system.  
-   DiskANN achieves **>1000 index‑level QPS** and **~200+ end‑to‑end QPS** at ~200 GB RAM, making it suitable for high‑throughput deployments while maintaining competitive accuracy.  
+   DiskANN achieves **>1000 index‑level QPS** and **~200+ end‑to‑end QPS** at ~200 GB RAM, making it suitable for high‑throughput deployments while maintaining competitive accuracy. 
    In our internal evaluations, DiskANN’s implicit reranking improved downstream accuracy compared to pure ANN and, on some tasks (e.g., MMLU), matched or exceeded Exact Search.
 
 <details>

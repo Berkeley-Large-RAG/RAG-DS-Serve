@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DS Serve — Local GitHub Pages Preview</title>
+  <!-- Minima theme CSS to mimic GitHub Pages rendering -->
+  <link rel="stylesheet" href="https://jekyll.github.io/minima/assets/main.css">
+  <!-- Project styles used by the real site -->
+  <link rel="stylesheet" href="assets/infini-gram.css">
+  <!-- Markdown renderer -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    /* Minor tweaks to align spacing with the deployed site */
+    .page-content { padding: 2rem 0; }
+    .site-header .site-title { font-weight: 900; font-size: 24px; letter-spacing: 0.2px; text-decoration: none; margin-right: 24px; }
+    .site-header .site-nav .trigger { display: flex; gap: 18px; align-items: center; }
+    .markdown-body img { max-width: 100%; height: auto; }
+    /* Ensure code blocks look close to Minima defaults when rendered by marked */
+    .markdown-body pre, .markdown-body code {
+      background: #f6f8fa;
+      border-radius: 6px;
+    }
+    .markdown-body pre { padding: 12px 14px; overflow: auto; }
+    .markdown-body code { padding: 2px 6px; }
+  </style>
+</head>
+<body>
+  <!-- Minimal Minima-like chrome -->
+  <header class="site-header" role="banner">
+    <div class="wrapper">
+      <span class="site-title">DS Serve</span>
+      <nav class="site-nav">
+        <span class="menu-icon"></span>
+        <div class="trigger">
+          <a class="page-link" href="API_DOCUMENTATION.html">API Documentation</a>
+          <a class="page-link" href="https://tinyurl.com/compact-ds-dive">Web Interface</a>
+          <a class="page-link" href="VOTES_DOCUMENTATION.html">Votes</a>
+          <a class="page-link" href="code.html">Code</a>
+          <a class="page-link" href="paper.html">Paper</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page-content" aria-label="Content">
+    <div class="wrapper">
+      <article class="post">
+        <header class="post-header">
+          <h1 class="post-title">DS Serve</h1>
+        </header>
+        <div id="content" class="post-content markdown-body"></div>
+      </article>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrapper">
+      <div class="footer-col-wrapper">
+        <div class="footer-col footer-col-1">
+          <p class="text-small">Local preview emulating GitHub Pages (Minima).</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Load markdown content from index.md and render it,
+    // approximating what GitHub Pages (Jekyll + Minima) would produce.
+    fetch('index.md?cb=' + Date.now())
+      .then(r => r.text())
+      .then(markdown => {
+        // Strip YAML front matter
+        let cleaned = markdown.replace(/^---[\s\S]*?---\s*/, '');
+        // Replace Jekyll relative_url liquid tags for local preview
+        cleaned = cleaned
+          .replace(/\{\{\s*'([^']+)'\s*\|\s*relative_url\s*\}\}/g, '$1')
+          .replace(/\{\{\s*\"([^\"]+)\"\s*\|\s*relative_url\s*\}\}/g, '$1');
+        // Avoid single-tilde pairs being treated as strikethrough by the preview renderer
+        cleaned = cleaned.replace(/~(?=\d)/g, '&#126;');
+        // Render
+        document.getElementById('content').innerHTML = marked.parse(cleaned);
+      })
+      .catch(err => {
+        document.getElementById('content').innerHTML =
+          '<p>Error loading content. Please check <code>docs/index.md</code>.</p>';
+        console.error(err);
+      });
+  </script>
+</body>
+</html>
+
+

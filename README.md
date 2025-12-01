@@ -108,6 +108,56 @@ curl -X POST http://compactds.duckdns.org:30888/search \
   -d '{"queries": ["quantum computing", "Who is Nikola Tesla", "AI ethics"], "n_docs": 2}'
 ```
 
+## Benchmark & plotting scripts
+
+Helper scripts in `scripts/` reproduce the QPS/latency sweeps used in the docs. Run them from the repo root and override parameters via environment variables.
+
+### DiskANN batched benchmark
+Continuous POST with shared payload (Figures 4a–4b).
+```bash
+L_LIST="100 500 1000 1500 2000" \
+COUNT=2000 \
+HOST=http://api.ds-serve.org:30888 \
+scripts/diskann_qps_batch.sh
+```
+Knobs: `HOST`, `QUERIES`, `COUNT`, `CONCURRENCY`, `K`, `W`, `THREADS`, `L_LIST`.
+
+### DiskANN single-request benchmark
+One POST per query (Figure 6).
+```bash
+COUNT=1000 \
+WARMUP_SKIP=100 \
+L_LIST="100 500 1000 1500 2000" \
+scripts/diskann_qps_single.sh
+```
+Supports the same overrides as the batched script plus `WARMUP_SKIP` to drop warmup queries.
+
+### FAISS / IVFPQ batched benchmark
+```bash
+COUNT=100 \
+NPROBE_LIST="64 128 256 512" \
+scripts/ivfpq_qps_batch.sh
+```
+Set `K`, `NPROBE`, `EXACT`, `DIVERSE`, `LAMBDA`, `HOST`, and `QUERIES` as needed. When `NPROBE_LIST` is provided the script sweeps through each value using the same shuffled sample.
+
+### FAISS / IVFPQ single-request benchmark
+```bash
+COUNT=100 \
+CONCURRENCY=64 \
+NPROBE_LIST="64 128 256 512" \
+scripts/ivfpq_qps_single.sh
+```
+Each query is sent independently; `CONCURRENCY` controls the `xargs -P` fan-out.
+
+### Regenerating plots
+After collecting new measurements, run:
+```bash
+python scripts/plot_diskann_single_request_qps.py
+python scripts/plot_diskann_single_request_latency.py
+python scripts/plot_faiss_batch_vs_single.py
+```
+These write to `docs/plots/` and keep the figures used in `docs/index.md` in sync.
+
 
 ##  DiskANN build 
 NOTE: THIS IS ONLY FOR INTERNAL TESTING CURRENTLY \
@@ -138,7 +188,30 @@ uv pip install --no-deps diskannpy==0.7.0
 
 From the repo root (absolute paths):
 ```bash
-PYTHONPATH=rerank/contriever/src:$PYTHONPATH DATASTORE_PATH=/mnt/data/jinjian/DS-Serve PASSAGE_DIR=/mnt/data/jinjian/DS-Serve/index_dev/passages VOTES_DIR=/mnt/data/jinjian/DS-Serve/runtime/votes QUERY_LOG_DIR=/mnt/data/jinjian/DS-Serve/runtime/query_logs MASSIVE_SERVE_PORT=30999 DISKANN_INDEX_DIR=/mnt/data/jinjian/DS-Serve/DiskANN-build/index_450 DISKANN_INDEX_PREFIX=diskann_mips_f32_R60_L80_B200_M450_T64 DISKANN_DISTANCE=mips DISKANN_DIMENSIONS=769 DISKANN_NUM_THREADS=128 DISKANN_NODES_TO_CACHE=200000 DISKANN_L=500 DISKANN_W=4 DISKANN_K_FETCH=1000 DISKANN_WARMUP=1 DISKANN_WARMUP_QUERIES=5000 DISKANN_WARMUP_BATCH=256 DISKANN_WARMUP_QUERY_FILE=/mnt/data/jinjian/DS-Serve/DiskANN-build/index_450/diskann_mips_f32_R60_L80_B200_M450_T64_sample_data.bin DISKANN_WARMUP_KEEPALIVE=30 FAISS_K_FETCH=1000 python -m massive_serve.cli serve --domain_name index_dev
+DATASTORE_PATH=/mnt/md-256k/jinjian/DS
+
+mkdir -p "$DATASTORE_PATH/runtime/votes" "$DATASTORE_PATH/runtime/query_logs"
+
+
+PYTHONPATH="rerank/contriever/src" \
+VOTES_DIR="$DATASTORE_PATH/runtime/votes" \
+QUERY_LOG_DIR="$DATASTORE_PATH/runtime/query_logs" \
+MASSIVE_SERVE_PORT=30888 \
+MS_BACKEND=diskann \
+DATASTORE_PATH="$DATASTORE_PATH" \
+DISKANN_INDEX_DIR="$DATASTORE_PATH/DiskANN-build/DiskANN_index" \
+DISKANN_INDEX_PREFIX=diskann_mips_f32_R60_L80_B200_M500 \
+DISKANN_DISTANCE=mips \
+DISKANN_NUM_THREADS=128 \
+DISKANN_NODES_TO_CACHE=100000 \
+DISKANN_L=500 \
+DISKANN_W=4 \
+DISKANN_WARMUP=1 \
+DISKANN_WARMUP_QUERIES=5000 \
+DISKANN_WARMUP_BATCH=256 \
+DISKANN_WARMUP_QUERY_FILE="$DISKANN_INDEX_DIR/diskann_mips_f32_R60_L80_B200_M500_sample_data.bin" \
+DISKANN_WARMUP_KEEPALIVE=1 \
+python -m massive_serve.cli serve --domain_name data
 ```
 
 Tips:
