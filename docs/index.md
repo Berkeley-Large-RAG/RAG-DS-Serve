@@ -104,7 +104,7 @@ details > summary {
 </p>
 <p align="center"><sup>*</sup>Equal contribution.</p>
 
-<p align="center">[<a href="https://tinyurl.com/compact-ds-dive">Web Interface</a>] [<a href="{{ 'API_DOCUMENTATION.html' | relative_url }}">API Endpoint</a>] [<a href="{{ 'VOTES_DOCUMENTATION.html' | relative_url }}">Voting System</a>] [<a href="https://github.com/Berkeley-Large-RAG/RAG-DS-Serve">Code</a>] [<a href="{{ 'assets/DS_SERVE_Camera_Ready.pdf' | relative_url }}">Paper</a>]</p>
+<p align="center">[<a href="http://api.ds-serve.org:30888/ui">Web Interface</a>] [<a href="{{ 'API_DOCUMENTATION.html' | relative_url }}">API Endpoint</a>] [<a href="{{ 'VOTES_DOCUMENTATION.html' | relative_url }}">Voting System</a>] [<a href="https://github.com/Berkeley-Large-RAG/RAG-DS-Serve">Code</a>] [<a href="{{ 'assets/DS_SERVE_Camera_Ready.pdf' | relative_url }}">Paper</a>]</p>
 
 <!-- **[✨NEW]** DiskANN integration: >2000 index-level QPS and ~200+ end-to-end QPS at 500B-token scale with ~200 GB RAM.
 
