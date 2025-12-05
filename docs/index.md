@@ -67,13 +67,41 @@ details > summary {
   margin: 6px 0;
   cursor: pointer;
 }
+/* Responsive gallery + accessibility helpers */
+.overview-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+  margin: 14px 0;
+}
+.overview-gallery img {
+  width: 280px;
+  max-width: 40%;
+  min-width: 200px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
 /* Hide theme-injected page title on homepage to avoid duplicate 'DS Serve' */
 .post-title, .page-title { display: none; }
 /* Hide the Minima footer on the homepage to avoid duplicate site title */
 .site-footer { display: none !important; }
 /* Center the top navigation and enlarge links on the homepage */
-.site-header .wrapper { justify-content: center; }
+.site-header .wrapper { justify-content: center; flex-wrap: wrap; gap: 8px; }
 .site-header .site-title { font-size: 18px !important; font-weight: 600 !important; color: #111827 !important; margin-right: 12px !important; }
+.site-header .site-nav .page-link { display: inline-block; margin: 2px 6px; font-size: 16px; }
+.site-header .site-nav .trigger { justify-content: center; gap: 10px; flex-wrap: wrap; }
 /* Stronger header divider and single-line layout */
 .site-header { border-bottom: 3px solid #111827 !important; }
 /* Header logo sizing */
@@ -128,11 +156,11 @@ details > summary {
   <p>Our prototype, built on 400B words of high-quality LLM pre-training data, is readily available and provides downstream gains comparable to commercial search engine endpoints.</p>
 </div>
 
-<p align="center">
-  <img src="{{ 'assets/UI.png' | relative_url }}" alt="UI snippet" style="width: 36%; margin: 5px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);" />
-  <img src="{{ 'assets/panel.png' | relative_url }}" alt="Parameter panel snippet" style="width: 24%; margin: 5px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);" />
-</p>
-<p align="center" class="small-note"><i>UI and parameter panel snippets</i></p>
+<div class="overview-gallery">
+  <img src="{{ 'assets/UI.png' | relative_url }}" alt="UI snippet" />
+  <img src="{{ 'assets/panel.png' | relative_url }}" alt="Parameter panel snippet" />
+</div>
+<p class="small-note" style="text-align:center;"><i>UI and parameter panel snippets</i></p>
 ### Why was it previously challenging?
 
 - **Scaling neural retrieval is hard.** Achieving high throughput, low memory use, and strong accuracy on very large datasets is non-trivial—traditional linear scan is simply infeasible.

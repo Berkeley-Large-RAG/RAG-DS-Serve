@@ -26,6 +26,17 @@
     body.sidebar-open #historySidebar {
       transform: translateX(0);
     }
+.sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
     body.sidebar-hidden #historySidebar {
       transform: translateX(-105%);
     }
@@ -245,7 +256,7 @@
             </div>
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
               <label class="text-sm font-medium text-gray-700">Min words</label>
-              <input type="number" id="minWords" min="0" placeholder="Min words" class="border rounded-md p-1 text-sm w-24 text-center">
+              <input type="number" id="minWords" min="0" value="10" placeholder="Min words" class="border rounded-md p-1 text-sm w-24 text-center">
             </div>
             
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
@@ -297,11 +308,10 @@
   <div id="historySidebar" class="fixed left-0 top-0 h-full w-1/4 min-w-[200px] max-w-[300px] bg-gray-50 shadow-[4px_0_16px_rgba(15,23,42,0.08)] flex flex-col z-30 transform -translate-x-full lg:translate-x-0 transition-transform duration-300">
     <div class="p-3 sm:p-4 border-b border-gray-200 flex items-center justify-between">
       <h1 class="text-sm sm:text-lg font-semibold text-gray-700">Search History</h1>
-      <button id="sidebarHidePill" class="bg-white text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-3 py-1 rounded-full shadow-sm text-xs font-semibold flex items-center gap-1 transition-colors">
+      <button id="sidebarHidePill" class="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 text-gray-600 bg-white/90 hover:bg-white shadow-sm transition-colors" aria-label="Hide history">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
         </svg>
-        Hide
       </button>
     </div>
     <div id="queryHistory" class="flex-1 overflow-y-auto">
@@ -309,11 +319,11 @@
     </div>
   </div>
 
-  <button id="historyToggleBtn" class="hidden fixed top-5 left-4 z-40 bg-white/90 border border-gray-200 px-3 py-2 rounded-full shadow-lg flex items-center gap-2 text-sm font-medium text-gray-700 hover:bg-white transition-all duration-300">
-    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h10M4 18h16"/>
+  <button id="historyToggleBtn" class="hidden fixed top-24 left-2 z-40 w-8 h-8 rounded-full border border-gray-300 bg-white/90 flex items-center justify-center shadow-lg transition-all duration-300" aria-label="Show history">
+    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
     </svg>
-    <span id="historyToggleLabel">Show history</span>
+    <span id="historyToggleLabel" class="sr-only">Show history</span>
   </button>
 
   <!-- Main Content Area (adjusted for sidebar) -->
