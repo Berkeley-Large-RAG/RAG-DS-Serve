@@ -1,4 +1,4 @@
-# DS Serve API Documentation
+# API Documentationhttps://berkeley-large-rag.github.io/RAG-DS-Serve/
 
 ## 🚀 Overview
 
