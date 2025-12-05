@@ -19,3 +19,6 @@ DiskANN-build/converted/
 DiskANN-build/index_450/
 DiskANN-build/sharded_diskann_index/
 DiskANN-build/cpds_embeddings/
+DiskANN-build/DiskANN/build/
+.tmp_markdown_pkg/
+

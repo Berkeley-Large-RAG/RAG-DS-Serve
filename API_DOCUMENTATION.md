@@ -4,12 +4,7 @@
 
 **DS Serve** is a single-node RAG server backed by CompactDS (2B passages). It exposes both a web UI and a JSON API. Two ANN engines are available:
 
-- **DiskANN** (default) for high-recall search over the on-disk index.
-- **IVFPQ** for in-memory approximate search with lower footprint.
-
-Optional exact reranking and diversity controls can be layered on top of either engine.
-
-**🌐 Live UI:** http://api.ds-serve.org:30888/ui
+**🌐 Live Demo**: [http://api.ds-serve.org:30888/ui](http://api.ds-serve.org:30888/ui)
 
 ### Key Features
 - Dual ANN backends (DiskANN + IVFPQ), can be chosen by user.
