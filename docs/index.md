@@ -74,8 +74,8 @@ details > summary {
 /* Center the top navigation and enlarge links on the homepage */
 .site-header .wrapper { justify-content: center; }
 .site-header .site-title { font-size: 18px !important; font-weight: 600 !important; color: #111827 !important; margin-right: 12px !important; }
-.site-header .site-nav .page-link { font-size: 18px; font-weight: 600; color: #111827; }
-.site-header .site-nav .trigger { justify-content: center; gap: 10px; }
+/* Hide default nav so we can use custom hero links */
+.site-header .site-nav { display: none !important; }
 /* Stronger header divider and single-line layout */
 .site-header { border-bottom: 3px solid #111827 !important; }
 /* Header logo sizing */
@@ -180,7 +180,7 @@ We envision the use of **DS Serve** for fast, controllable retrieval in RAG and 
 ## Performance 
 <div class="perf-table">
   <table>
-    <caption>Table 1: Evaluation results. <i>Acc</i> is accuracy (%); <i>t</i> is end‑to‑end retrieval latency (s). For Exact Search, <i>t</i> is without cache and <i>t</i><sub>cache</sub> with cache. We use <i>K</i>=1000, <i>k</i>=10, and <i>n</i><sub>probe</sub>=256.</caption>
+    <caption>Table 1: Evaluation results (LLaMa 3.1 8B). <i>Acc</i> is accuracy (%); <i>t</i> is end‑to‑end retrieval latency (s). For Exact Search, <i>t</i> is without cache and <i>t</i><sub>cache</sub> with cache. We use <i>K</i>=1000, <i>k</i>=10, and <i>n</i><sub>probe</sub>=256.</caption>
     <thead>
       <tr>
         <th rowspan="2">Task</th>
