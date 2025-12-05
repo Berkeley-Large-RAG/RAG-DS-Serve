@@ -92,26 +92,4 @@ curl -X POST http://api.ds-serve.org:30888/search \
   }'
 ```
 
----
 
-## 📊 Response Format
-
-```json
-{
-  "message": "Search completed for 'machine learning' from demo",
-  "query": "machine learning",
-  "n_docs": 5,
-  "nprobe": 32,
-  "results": {
-    "scores": [[0.85, 0.82, 0.79, 0.76, 0.73]],
-    "passages": [[
-      {
-        "text": "Machine learning is a subset of artificial intelligence...",
-        "source": "c4_dclm_mixed",
-        "index_id": 123456789,
-        "passage_id": "passage_123"
-      }
-    ]]
-  }
-}
-```
