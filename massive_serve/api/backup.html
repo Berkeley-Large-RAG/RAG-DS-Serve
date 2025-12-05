@@ -3,10 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DS Serve Dev</title>
+  <title>DS Serve</title>
+  <link rel="icon" type="image/png" href="./styles/tab-cropped.png">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
+    :root {
+      --sidebar-width: min(300px, 25vw);
+    }
+
     .param-disabled {
       opacity: 0.5;
       pointer-events: none;
@@ -14,6 +19,26 @@
     body {
       font-family: 'Inter', sans-serif;
       background-color: #f7f9fc;
+      min-height: 100vh;
+      margin: 0;
+      transition: background-color 0.3s ease;
+    }
+    body.sidebar-open #historySidebar {
+      transform: translateX(0);
+    }
+    body.sidebar-hidden #historySidebar {
+      transform: translateX(-105%);
+    }
+    @media (min-width: 1024px) {
+      #contentArea {
+        transition: margin-left 0.3s ease;
+      }
+      body.sidebar-open #contentArea {
+        margin-left: var(--sidebar-width);
+      }
+      body.sidebar-hidden #contentArea {
+        margin-left: 0;
+      }
     }
     
     /* Hide scrollbar on parameter panel */
@@ -74,23 +99,6 @@
     }
     .animate-spin {
       animation: spin 1s linear infinite;
-    }
-    
-    /* Drop Pod Animation */
-    @keyframes dropPod {
-      0%, 100% {
-        transform: translateY(0px);
-      }
-      50% {
-        transform: translateY(-8px);
-      }
-    }
-    
-    .drop-pod-animation {
-      animation: dropPod 3s ease-in-out infinite;
-      image-rendering: pixelated;
-      image-rendering: -moz-crisp-edges;
-      image-rendering: crisp-edges;
     }
     
     /* Lambda Slider Styling */
@@ -161,35 +169,32 @@
       z-index: 9999 !important;
     }
 
-    /* Typewriter caret for welcome headline while typing */
-    @keyframes caretBlink {
-      0%, 49% { opacity: 1; }
-      50%, 100% { opacity: 0; }
-    }
-    .typewriter-caret::after {
-      content: "";
-      display: inline-block;
-      width: 0.3ch;            /* wider block caret */
-      height: 0.95em;          /* near full line height */
-      background-color: #111827; /* black/gray-900 */
-      border-radius: 2px;      /* soften edges slightly */
-      margin-left: 4px;
-      animation: caretBlink 1s step-end infinite;
-      vertical-align: -0.1em;
-    }
   </style>
 </head>
 <body>
 
-  <div id="welcomeMessage" class="absolute inset-0 flex flex-col items-center justify-center text-center px-2 sm:px-4 lg:px-6 text-gray-700 pointer-events-none">
-    <img src="./styles/capsule.png" alt="Icon" class="w-24 h-24 sm:w-32 sm:h-32 lg:w-48 lg:h-48 xl:w-64 xl:h-64 mb-2 sm:mb-4 drop-pod-animation" />
-    <h2 id="welcomeTitle" class="text-lg sm:text-2xl lg:text-3xl xl:text-4xl font-bold mb-1 sm:mb-2">This is the Dev Version of DS Serve</h2>
+  <div id="welcomeMessage" class="absolute inset-0 flex flex-col items-center justify-center text-center px-2 sm:px-4 lg:px-6 text-gray-700 pointer-events-none transition-all duration-300">
+    <div class="relative w-[63rem] h-[18rem] sm:w-[67rem] sm:h-[19rem] lg:w-[71rem] lg:h-[20rem] xl:w-[75rem] xl:h-[21rem] mb-6">
+      <img src="./styles/try.png" alt="DS Serve icon" class="absolute inset-0 w-full h-full object-contain" />
+    </div>
+    <h2 id="welcomeTitle" class="text-lg sm:text-2xl lg:text-3xl xl:text-4xl font-bold mb-1 sm:mb-2">Search with DS Serve</h2>
+    <p id="welcomeSubtitle" class="text-sm sm:text-base text-gray-500">Query and cast your valuable vote for relevance.</p>
+    <div class="mt-4 flex flex-wrap gap-3 pointer-events-auto">
+      <a href="https://github.com/Berkeley-Large-RAG/RAG-DS-Serve" target="_blank" class="bg-slate-900 text-white text-sm sm:text-base font-semibold py-2 px-4 rounded-full flex items-center gap-2 hover:bg-black transition-colors">
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 0C4.477 0 0 4.484 0 10.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.007-.866-.013-1.703-2.782.603-3.37-1.34-3.37-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.618.069-.606.069-.606 1.003.07 1.531 1.032 1.531 1.032.892 1.529 2.341 1.089 2.91.833.091-.647.35-1.088.636-1.338-2.22-.253-4.555-1.119-4.555-4.976 0-1.101.392-1.997 1.03-2.696-.103-.253-.448-1.274.097-2.659 0 0 .84-.27 2.75 1.025A9.564 9.564 0 0110 4.875c.85.004 1.7.113 2.5.322 1.909-1.295 2.747-1.025 2.747-1.025.546 1.385.202 2.406.099 2.659.649.699 1.03 1.595 1.03 2.696 0 3.86-2.339 4.721-4.569 4.967.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482C17.146 18.183 20 14.425 20 10.017 20 4.484 15.522 0 10 0z" clip-rule="evenodd"></path></svg>
+        GitHub
+      </a>
+      <a href="https://berkeley-large-rag.github.io/RAG-DS-Serve/" target="_blank" class="bg-teal-500 text-white text-sm sm:text-base font-semibold py-2 px-4 rounded-full flex items-center gap-2 hover:bg-teal-600 transition-colors">
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/></svg>
+        Blog
+      </a>
+    </div>
   </div>
 
   <!-- Centered Search Group -->
-  <div id="centeredSearchGroup" class="fixed bottom-2 sm:bottom-4 left-0 right-0 lg:left-[25%] px-2 sm:px-4 flex justify-center pointer-events-none z-20 overflow-visible">
-    <div class="pointer-events-auto bg-white rounded-xl shadow-lg p-2 sm:p-3 lg:p-4 border w-full max-w-5xl mx-auto overflow-visible">
-      <div class="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 lg:gap-3 justify-center">
+  <div id="centeredSearchGroup" class="fixed bottom-4 left-0 right-0 px-2 sm:px-4 flex justify-center pointer-events-none z-20 overflow-visible transition-all duration-300">
+    <div id="searchCard" class="pointer-events-auto bg-white rounded-2xl shadow-lg p-3 sm:p-4 lg:p-5 border border-gray-100 w-full max-w-5xl mx-auto overflow-visible">
+      <div class="flex flex-col sm:flex-row items-center gap-2 sm:gap-3 lg:gap-4 justify-center">
         <div class="relative">
           <button id="toggleParamsBtn" class="text-xs sm:text-sm bg-gray-100 hover:bg-gray-200 px-2 sm:px-3 py-1 sm:py-2 rounded-md font-medium flex items-center gap-1">
             <svg class="w-3 h-3 sm:w-4 sm:h-4 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
@@ -212,7 +217,7 @@
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
               <label class="text-sm font-medium text-gray-700">Backend</label>
               <select id="backend" class="border rounded-md p-1 text-sm w-full sm:w-36">
-                <option value="faiss">FAISS (IVFPQ)</option>
+                <option value="ivfpq">IVFPQ</option>
                 <option value="diskann" selected>DiskANN</option>
               </select>
             </div>
@@ -224,15 +229,15 @@
             </div>
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2" id="diskannLRow">
               <label class="text-sm font-medium text-gray-700" title="DiskANN search complexity L">L (DiskANN)</label>
-              <input type="number" id="diskannL" min="25" step="25" value="300" class="border rounded-md p-1 text-sm w-20 text-center">
+              <input type="number" id="diskannL" min="25" step="25" value="500" class="border rounded-md p-1 text-sm w-20 text-center">
             </div>
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2" id="diskannWRow">
               <label class="text-sm font-medium text-gray-700" title="DiskANN beam width W">W (beam)</label>
-              <input type="number" id="diskannW" min="2" step="2" value="4" class="border rounded-md p-1 text-sm w-20 text-center">
+              <input type="number" id="diskannW" min="2" step="2" value="8" class="border rounded-md p-1 text-sm w-20 text-center">
             </div>
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2" id="diskannThreadsRow">
               <label class="text-sm font-medium text-gray-700" title="DiskANN search threads">Threads</label>
-              <input type="number" id="diskannThreads" min="2" step="2" value="4" class="border rounded-md p-1 text-sm w-20 text-center">
+              <input type="number" id="diskannThreads" min="2" step="2" value="64" class="border rounded-md p-1 text-sm w-20 text-center">
             </div>
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
               <label class="text-sm font-medium text-gray-700">k (max: 1000)</label>
@@ -266,9 +271,15 @@
         </div>
         <div class="relative flex-grow w-full min-w-0">
           <input id="queryInput" type="text" placeholder="Enter your query here" class="w-full border rounded-2xl p-2 sm:p-3 pr-14 sm:pr-16 text-xs sm:text-sm lg:text-base" />
-          <button id="sendButton" class="absolute right-3 sm:right-3 top-1/2 -translate-y-1/2 bg-teal-600 text-white hover:bg-teal-700 flex items-center justify-center w-[24px] h-[24px] sm:w-[32px] sm:h-[32px] lg:w-[36px] lg:h-[36px] rounded-full">
+          <button id="sendButton" class="absolute right-3 sm:right-3 top-1/2 -translate-y-1/2 bg-teal-600 text-white hover:bg-teal-700 flex items-center justify-center w-[28px] h-[28px] sm:w-[36px] sm:h-[36px] lg:w-[40px] lg:h-[40px] rounded-full">
+            <!-- Original paper airplane icon preserved for reference
             <svg id="sendButtonText" class="w-2 h-2 sm:w-3 sm:h-3 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+            </svg>
+            -->
+            <svg id="sendButtonText" class="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.2">
+              <circle cx="11" cy="11" r="6"/>
+              <line x1="16" y1="16" x2="21" y2="21" stroke-linecap="round"/>
             </svg>
           </button>
           <div id="loadingSpinner" class="hidden absolute right-3 sm:right-3 top-1/2 -translate-y-1/2 bg-teal-600 flex items-center justify-center w-[24px] h-[24px] sm:w-[32px] sm:h-[32px] lg:w-[36px] lg:h-[36px] rounded-full">
@@ -283,13 +294,14 @@
   </div>
 
   <!-- History Panel Sidebar -->
-  <div id="historySidebar" class="fixed left-0 top-0 h-full w-1/4 min-w-[200px] max-w-[300px] bg-white border-r border-gray-200 flex flex-col z-30 transform -translate-x-full lg:translate-x-0 transition-transform duration-300">
+  <div id="historySidebar" class="fixed left-0 top-0 h-full w-1/4 min-w-[200px] max-w-[300px] bg-gray-50 shadow-[4px_0_16px_rgba(15,23,42,0.08)] flex flex-col z-30 transform -translate-x-full lg:translate-x-0 transition-transform duration-300">
     <div class="p-3 sm:p-4 border-b border-gray-200 flex items-center justify-between">
-      <h1 class="text-sm sm:text-lg font-semibold text-gray-700">Query History</h1>
-      <button id="sidebarCloseBtn" class="lg:hidden bg-gray-100 hover:bg-gray-200 p-1 rounded-md transition-colors">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+      <h1 class="text-sm sm:text-lg font-semibold text-gray-700">Search History</h1>
+      <button id="sidebarHidePill" class="bg-white text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-3 py-1 rounded-full shadow-sm text-xs font-semibold flex items-center gap-1 transition-colors">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
         </svg>
+        Hide
       </button>
     </div>
     <div id="queryHistory" class="flex-1 overflow-y-auto">
@@ -297,19 +309,19 @@
     </div>
   </div>
 
-  <!-- Mobile Menu Toggle -->
-  <button id="mobileMenuToggle" class="fixed top-20 right-4 z-40 lg:hidden bg-white p-2 rounded-lg shadow-lg border transition-transform duration-300">
-    <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+  <button id="historyToggleBtn" class="hidden fixed top-5 left-4 z-40 bg-white/90 border border-gray-200 px-3 py-2 rounded-full shadow-lg flex items-center gap-2 text-sm font-medium text-gray-700 hover:bg-white transition-all duration-300">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h10M4 18h16"/>
     </svg>
+    <span id="historyToggleLabel">Show history</span>
   </button>
 
   <!-- Main Content Area (adjusted for sidebar) -->
-  <div class="flex-1 flex flex-col items-stretch ml-0 lg:ml-[25%]">
+  <div id="contentArea" class="flex-1 flex flex-col items-stretch ml-0 lg:ml-[25%]">
     <!-- Rounded Header -->
-    <header class="fixed top-0 left-0 right-0 z-20 bg-gradient-to-b from-white to-gray-50 border-b border-gray-200 shadow-sm">
-      <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-center">
-        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">DS Serve Dev</h1>
+    <header id="mainHeader" class="fixed top-0 left-0 right-0 z-20 bg-gradient-to-b from-white to-gray-50 border-b border-gray-200 shadow-sm">
+      <div id="headerContent" class="w-full px-4 py-3 flex items-center justify-center">
+        <h1 id="headerTitle" class="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">DS Serve</h1>
       </div>
     </header>
     
@@ -326,13 +338,109 @@
     // Preserve multi-line query content with single-line input by intercepting paste
     window.__preservedPasteRaw = null;       // raw text with \n
     window.__preservedPasteDisplay = null;   // what is shown in the input (\n -> space)
-    // Query History Management
+    document.body.classList.add('sidebar-open');
+
+    const bodyEl = document.body;
     let queryHistory = [];
+
+    const HELP_CONTENT = {
+      shared: [
+        { label: 'n_docs (k)', description: 'Number of passages returned and displayed.' },
+        { label: 'Exact Search', description: 'Runs an exact rerank on top of ANN results for better accuracy at the cost of latency.' },
+        { label: 'Diverse Search', description: 'Penalizes near-duplicate passages so the final set covers more unique information.' },
+        { label: 'λ (lambda)', description: 'Tradeoff knob used with Diverse Search. Lower λ favors accuracy, higher λ favors coverage.' },
+        { label: 'Min words', description: 'Filter out passages shorter than this threshold before final selection.' }
+      ],
+      ivfpq: [
+        { label: 'nprobe', description: 'Number of IVF clusters scanned per query. Increase for higher recall at the cost of slightly more latency.' }
+      ],
+      diskann: [
+        { label: 'DiskANN L', description: 'Candidate list size explored each iteration. Larger L yields higher recall but adds latency linearly.' },
+        { label: 'DiskANN W', description: 'Beam width for traversing the DiskANN graph. Wider beams reduce latency. NOTE: Thoeretically, higher W might reduce accuracy/recall, but the negative effect is often negligible.' },
+        { label: 'DiskANN Threads', description: 'Customize the number of CPU threads used by DiskANN. Higher increases speed.' }
+      ]
+    };
+    
+    function isSidebarOpen() {
+      return bodyEl.classList.contains('sidebar-open');
+    }
+
+    function openSidebar() {
+      bodyEl.classList.add('sidebar-open');
+      bodyEl.classList.remove('sidebar-hidden');
+      syncHistoryPills();
+      adjustSearchGroupPosition();
+    }
+
+    function closeSidebar() {
+      bodyEl.classList.add('sidebar-hidden');
+      bodyEl.classList.remove('sidebar-open');
+      syncHistoryPills();
+      adjustSearchGroupPosition();
+    }
+
+    function syncHistoryPills() {
+      const showBtn = document.getElementById('historyToggleBtn');
+      const showLabel = document.getElementById('historyToggleLabel');
+      const hideBtn = document.getElementById('sidebarHidePill');
+      if (!showBtn || !showLabel || !hideBtn) return;
+      const desktop = window.innerWidth >= 1024;
+      if (desktop) {
+        hideBtn.classList.remove('hidden');
+        if (isSidebarOpen()) {
+          showBtn.classList.add('hidden');
+        } else {
+          showBtn.classList.remove('hidden');
+          showLabel.textContent = 'Show history';
+        }
+      } else {
+        hideBtn.classList.add('hidden');
+        showBtn.classList.remove('hidden');
+        showLabel.textContent = isSidebarOpen() ? 'Hide history' : 'Show history';
+      }
+    }
+
+    function adjustSearchGroupPosition() {
+      const searchGroup = document.getElementById('centeredSearchGroup');
+      const welcomeMessage = document.getElementById('welcomeMessage');
+      const sidebar = document.getElementById('historySidebar');
+      const headerContent = document.getElementById('headerContent');
+      if (!searchGroup || !welcomeMessage || !sidebar || !headerContent) return;
+
+      const isDesktop = window.innerWidth >= 1024;
+      const sidebarWidth = (isDesktop && isSidebarOpen()) ? sidebar.offsetWidth : 0;
+
+      if (isDesktop) {
+        searchGroup.style.left = `${sidebarWidth}px`;
+        searchGroup.style.right = '0px';
+        welcomeMessage.style.left = `${sidebarWidth}px`;
+        welcomeMessage.style.right = '0px';
+        headerContent.style.marginLeft = `${sidebarWidth}px`;
+        headerContent.style.marginRight = '0px';
+        headerContent.style.width = `calc(100% - ${sidebarWidth}px)`;
+      } else {
+        searchGroup.style.left = '0px';
+        searchGroup.style.right = '0px';
+        welcomeMessage.style.left = '0px';
+        welcomeMessage.style.right = '0px';
+        headerContent.style.marginLeft = '0px';
+        headerContent.style.marginRight = '0px';
+        headerContent.style.width = '100%';
+      }
+    }
+
+    function autoHideSidebarOnSmallScreens() {
+      if (window.innerWidth < 1024) {
+        closeSidebar();
+      } else {
+        openSidebar();
+      }
+    }
 
     // Load query history from localStorage
     function loadQueryHistory() {
       try {
-        const saved = localStorage.getItem('faiss-rag-query-history');
+        const saved = localStorage.getItem('ds-serve-search-history');
         if (saved) {
           queryHistory = JSON.parse(saved);
           renderQueryHistory();
@@ -346,7 +454,7 @@
     function saveQueryHistory() {
       try {
         const toSave = queryHistory.slice(0, 50); // Keep only last 50 queries
-        localStorage.setItem('faiss-rag-query-history', JSON.stringify(toSave));
+        localStorage.setItem('ds-serve-search-history', JSON.stringify(toSave));
       } catch (error) {
         console.error('Failed to save query history:', error);
       }
@@ -371,64 +479,51 @@
     function openHelpCover() {
       const paramPanel = document.getElementById('paramPanel');
       if (!paramPanel) return;
+
+      if (window.currentHelpCover && window.currentHelpCover.parentNode) {
+        window.currentHelpCover.parentNode.removeChild(window.currentHelpCover);
+        window.currentHelpCover = null;
+      }
+
+      const backendValue = document.getElementById('backend')?.value || 'diskann';
+      const helpTitle = backendValue === 'diskann' ? 'DiskANN Parameters' : 'IVFPQ Parameters';
+      const mergedSections = [
+        ...HELP_CONTENT.shared,
+        ...(backendValue === 'diskann' ? HELP_CONTENT.diskann : HELP_CONTENT.ivfpq)
+      ];
+      const sectionsHtml = mergedSections.map(item => `
+        <div class="p-3 bg-gray-50 rounded-lg border-l-4 border-teal-500">
+          <span class="font-semibold text-teal-700">${item.label}:</span>
+          <span class="text-gray-700"> ${item.description}</span>
+        </div>
+      `).join('');
       
-      // Create help cover
       const helpCover = document.createElement('div');
       helpCover.id = 'helpCover';
       helpCover.className = 'absolute inset-0 bg-white rounded-lg shadow-lg p-3 sm:p-4 z-40 transform transition-transform duration-300 ease-in-out';
       helpCover.style.transform = 'translateY(100%)';
-      
       helpCover.innerHTML = `
         <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-100">
           <h3 class="text-lg font-bold text-teal-600 flex items-center gap-2">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
-            Parameter Help
+            ${helpTitle}
           </h3>
           <button id="helpCloseBtn" class="text-gray-400 hover:text-teal-600 hover:bg-teal-50 text-xl font-bold w-7 h-7 rounded-full flex items-center justify-center transition-colors duration-200">×</button>
         </div>
         <div class="space-y-4 text-sm overflow-y-auto max-h-[calc(100%-4rem)]">
-          <div class="p-3 bg-gray-50 rounded-lg border-l-4 border-teal-500">
-            <span class="font-semibold text-teal-700">nprobe:</span> 
-            <span class="text-gray-700">Number of clusters to search. Higher values typically improve accuracy.</span>
-          </div>
-          <div class="p-3 bg-gray-50 rounded-lg border-l-4 border-teal-500">
-            <span class="font-semibold text-teal-700">k:</span> 
-            <span class="text-gray-700">Number of top passages to retrieve.</span>
-          </div>
-          <div class="p-3 bg-gray-50 rounded-lg border-l-4 border-teal-500">
-            <span class="font-semibold text-teal-700">Exact Search:</span> 
-            <span class="text-gray-700">Use exact search instead of ANN. More accurate but slower.</span>
-          </div>
-          <div class="p-3 bg-gray-50 rounded-lg border-l-4 border-teal-500">
-            <span class="font-semibold text-teal-700">Diverse Search:</span> 
-            <span class="text-gray-700">Use diverse search to avoid similar results but may reduce relevance. Tune the tradeoff with λ.</span>
-          </div>
-          <div class="p-3 bg-gray-50 rounded-lg border-l-4 border-teal-500">
-            <span class="font-semibold text-teal-700">λ (lambda):</span> 
-            <span class="text-gray-700">Diversity tradeoff parameter: higher for diversity, lower for relevance.</span>
-          </div>
-          <div class="p-3 bg-gray-50 rounded-lg border-l-4 border-teal-500">
-            <span class="font-semibold text-teal-700">Min words:</span> 
-            <span class="text-gray-700">Minimum passage length (in words). Applied on the big-K pool before picking top-k.</span>
-          </div>
+          ${sectionsHtml}
         </div>
       `;
       
-      // Add to parameter panel
       paramPanel.appendChild(helpCover);
-      
-      // Animate in
-      setTimeout(() => {
+      requestAnimationFrame(() => {
         helpCover.style.transform = 'translateY(0)';
-      }, 10);
+      });
       
-      // Close functionality
       const closeBtn = helpCover.querySelector('#helpCloseBtn');
       closeBtn.addEventListener('click', closeHelpCover);
-      
-      // Store reference
       window.currentHelpCover = helpCover;
     }
     
@@ -465,12 +560,13 @@
     function renderHistoryItem(item) {
       const date = new Date(item.timestamp).toLocaleDateString();
       const time = new Date(item.timestamp).toLocaleTimeString();
+      const safeHistoryQuery = escapeHtml(item.query || '');
       
       return `
         <div class="sidebar-item group hover:bg-gray-100 cursor-pointer" data-id="${item.id}" data-select-query>
           <div class="flex justify-between items-start">
             <div class="flex-1 min-w-0">
-              <div class="text-sm font-medium text-gray-900 truncate">${item.query}</div>
+              <div class="text-sm font-medium text-gray-900 truncate">Searched: "<span class="font-semibold">${safeHistoryQuery}</span>"</div>
               <div class="text-xs text-gray-500 mt-1">${date} ${time}</div>
               ${item.latency ? `<div class="text-xs text-gray-400">${item.latency}s</div>` : ''}
             </div>
@@ -530,15 +626,11 @@
             // Show welcome message, title, and centered search group
             const welcomeMessage = document.getElementById('welcomeMessage');
             const centeredSearchGroup = document.getElementById('centeredSearchGroup');
-            const header = document.querySelector('header');
             if (welcomeMessage) {
               welcomeMessage.style.display = 'flex';
             }
             if (centeredSearchGroup) {
               centeredSearchGroup.style.display = 'flex';
-            }
-            if (header) {
-              header.style.display = 'flex';
             }
           }
         });
@@ -568,18 +660,15 @@
       
       // Hide welcome message and title when displaying results
       const welcomeMessage = document.getElementById('welcomeMessage');
-      const header = document.querySelector('header');
       if (welcomeMessage) {
         welcomeMessage.style.display = 'none';
-      }
-      if (header) {
-        header.style.display = 'none';
       }
       // Do NOT hide the search group here!
       
       // Add query and parameter display at the top (fixed position)
       if (query) {
-        const backend = searchParams?.method || document.getElementById('backend').value;
+        const backendSelect = document.getElementById('backend');
+        const backend = searchParams?.method || (backendSelect && backendSelect.value ? backendSelect.value : 'diskann');
         const nprobe = searchParams?.nprobe || document.getElementById('nprobe').value;
         const k = searchParams?.k || document.getElementById('k').value;
         const minWordsChip = searchParams?.minWords ?? (document.getElementById('minWords')?.value || '').trim();
@@ -613,11 +702,11 @@
         const collapse = shouldCollapseQuery(safeQuery, queryDisplay);
         const headerMarkup = collapse
           ? `<details class="mt-1" data-query-collapsible data-full='${safeQueryAttr}' data-preview='${previewAttr}'>
-               <summary class="cursor-pointer select-none">Query: <span class="font-semibold whitespace-pre-wrap break-words">${previewEscaped}</span></summary>
+               <summary class="cursor-pointer select-none">Searched: <span class="font-semibold whitespace-pre-wrap break-words">"${previewEscaped}"</span></summary>
              </details>`
-          : `<div>Query: <span class="font-semibold whitespace-pre-wrap break-words">${safeQuery}</span></div>`;
+          : `<div>Searched: <span class="font-semibold whitespace-pre-wrap break-words">"${safeQuery}"</span></div>`;
 
-        // DiskANN vs FAISS specific chips
+        // DiskANN vs IVFPQ specific chips
         const diskannL = searchParams?.diskannL || document.getElementById('diskannL')?.value;
         const diskannW = searchParams?.diskannW || document.getElementById('diskannW')?.value;
         const diskannThreads = searchParams?.diskannThreads || document.getElementById('diskannThreads')?.value;
@@ -781,13 +870,13 @@
       const diskannWRow = document.getElementById('diskannWRow');
       const diskannThreadsRow = document.getElementById('diskannThreadsRow');
 
-      // Gray out FAISS params when DiskANN
+      // Gray out IVFPQ params when DiskANN
       setRowDisabled(nprobeRow, isDiskANN);
       setRowDisabled(rerankBtn.parentElement, isDiskANN);
       setRowDisabled(diverseBtn.parentElement, isDiskANN);
       setRowDisabled(lambdaRow, isDiskANN);
 
-      // Gray out DiskANN params when FAISS
+      // Gray out DiskANN params when IVFPQ
       setRowDisabled(diskannLRow, !isDiskANN);
       setRowDisabled(diskannWRow, !isDiskANN);
       setRowDisabled(diskannThreadsRow, !isDiskANN);
@@ -838,7 +927,8 @@
         ? window.__preservedPasteRaw
         : displayVal.replace(/\\n/g, "\n"); // allow manual \\n entry
       const query = candidate.replace(/\r\n|\r/g, "\n").trim();
-      const method = document.getElementById('backend').value;
+      const backendSelect = document.getElementById('backend');
+      const method = backendSelect && backendSelect.value ? backendSelect.value : 'diskann';
       const nprobe = document.getElementById('nprobe').value;
       const diskannL = document.getElementById('diskannL').value;
       const diskannW = document.getElementById('diskannW').value;
@@ -1105,7 +1195,7 @@
         dt.addEventListener('toggle', () => {
           const content = dt.open ? full : preview;
           if (summary) {
-            summary.innerHTML = `Query: <span class="font-semibold whitespace-pre-wrap break-words">${content}</span>`;
+        summary.innerHTML = `Searched: <span class="font-semibold whitespace-pre-wrap break-words">"${content}"</span>`;
           }
         });
       });
@@ -1121,7 +1211,7 @@
       temp.style.fontWeight = '600';
       temp.style.fontSize = getComputedStyle(headerContainer).fontSize || '1rem';
       temp.style.maxWidth = 'none';
-      temp.innerHTML = `Query: <span class="font-semibold whitespace-pre-wrap break-words">${fullHtmlEscaped}</span>`;
+      temp.innerHTML = `Searched: <span class="font-semibold whitespace-pre-wrap break-words">"${fullHtmlEscaped}"</span>`;
       document.body.appendChild(temp);
       const textWidth = temp.getBoundingClientRect().width;
       document.body.removeChild(temp);
@@ -1146,7 +1236,7 @@
         const collapse = shouldCollapseQuery(full, queryBox);
         const existsDetails = queryBox.querySelector('details[data-query-collapsible]');
         if (collapse && !existsDetails) {
-          queryBox.insertAdjacentHTML('afterbegin', `<details class="mt-1" data-query-collapsible data-full='${full.replace(/'/g, "&#39;")}' data-preview='${preview.replace(/'/g, "&#39;")}'><summary class="cursor-pointer select-none">Query: <span class="font-semibold whitespace-pre-wrap break-words">${preview}</span></summary></details>`);
+          queryBox.insertAdjacentHTML('afterbegin', `<details class="mt-1" data-query-collapsible data-full='${full.replace(/'/g, "&#39;")}' data-preview='${preview.replace(/'/g, "&#39;")}'><summary class="cursor-pointer select-none">Searched: <span class="font-semibold whitespace-pre-wrap break-words">"${preview}"</span></summary></details>`);
           // remove static div header if present
           const staticDiv = queryBox.querySelector(':scope > div');
           if (staticDiv) staticDiv.remove();
@@ -1155,7 +1245,7 @@
           // replace details with static full text
           const det = existsDetails;
           if (det) det.remove();
-          queryBox.insertAdjacentHTML('afterbegin', `<div>Query: <span class="font-semibold whitespace-pre-wrap break-words">${full}</span></div>`);
+          queryBox.insertAdjacentHTML('afterbegin', `<div>Searched: <span class="font-semibold whitespace-pre-wrap break-words">"${full}"</span></div>`);
         }
       };
       window.addEventListener('resize', relayout);
@@ -1236,53 +1326,32 @@
 
 
 
-    // Mobile menu toggle functionality
-    document.getElementById('mobileMenuToggle').addEventListener('click', () => {
-      const sidebar = document.getElementById('historySidebar');
-      const menuToggle = document.getElementById('mobileMenuToggle');
-      const searchGroup = document.getElementById('centeredSearchGroup');
-      const isOpen = !sidebar.classList.contains('-translate-x-full');
-      
-      if (isOpen) {
-        // Close sidebar
-        sidebar.classList.add('-translate-x-full');
-        menuToggle.style.transform = 'translateX(0)';
-        // Reposition search group for mobile overlay state
-        adjustSearchGroupPosition();
-      } else {
-        // Open sidebar
-        sidebar.classList.remove('-translate-x-full');
-        const sidebarWidth = sidebar.offsetWidth;
-        menuToggle.style.transform = `translateX(${sidebarWidth}px)`;
-        // Reposition search group for mobile overlay state
-        adjustSearchGroupPosition();
-      }
-    });
-
-    // Sidebar close button functionality
-    document.getElementById('sidebarCloseBtn').addEventListener('click', () => {
-      const sidebar = document.getElementById('historySidebar');
-      const menuToggle = document.getElementById('mobileMenuToggle');
-      
-      sidebar.classList.add('-translate-x-full');
-      menuToggle.style.transform = 'translateX(0)';
-      // Ensure search group recenters when sidebar closes
-      adjustSearchGroupPosition();
-    });
+    const historyToggleBtn = document.getElementById('historyToggleBtn');
+    const hidePill = document.getElementById('sidebarHidePill');
+    if (historyToggleBtn) {
+      historyToggleBtn.addEventListener('click', () => {
+        if (window.innerWidth < 1024 && isSidebarOpen()) {
+          closeSidebar();
+        } else {
+          openSidebar();
+        }
+      });
+    }
+    if (hidePill) {
+      hidePill.addEventListener('click', (e) => {
+        e.preventDefault();
+        closeSidebar();
+      });
+    }
 
     // Close sidebar when clicking outside on mobile
     document.addEventListener('click', (e) => {
+      if (window.innerWidth >= 1024) return;
       const sidebar = document.getElementById('historySidebar');
-      const menuToggle = document.getElementById('mobileMenuToggle');
-      const searchGroup = document.getElementById('centeredSearchGroup');
-      
-      if (window.innerWidth < 1024 && // Only on mobile/tablet
-          !sidebar.contains(e.target) && 
-          !menuToggle.contains(e.target) &&
-          !sidebar.classList.contains('-translate-x-full')) {
-        sidebar.classList.add('-translate-x-full');
-        menuToggle.style.transform = 'translateX(0)';
-        adjustSearchGroupPosition();
+      if (!sidebar) return;
+      if (historyToggleBtn && historyToggleBtn.contains(e.target)) return;
+      if (!sidebar.contains(e.target) && isSidebarOpen()) {
+        closeSidebar();
       }
     });
 
@@ -1325,76 +1394,28 @@
       if (welcomeMessage) welcomeMessage.style.display = 'flex';
       if (centeredSearchGroup) centeredSearchGroup.style.display = 'flex';
 
-      // Typewriter effect for welcome title/subtitle (repeats every 8s)
-      try {
-        const titleEl = document.getElementById('welcomeTitle');
-        const subtitleEl = document.getElementById('welcomeSubtitle');
-        if (titleEl && subtitleEl) {
-          const fullTitle = titleEl.getAttribute('data-full') || titleEl.textContent || '';
-          const fullSub = subtitleEl.getAttribute('data-full') || subtitleEl.textContent || '';
-          titleEl.setAttribute('data-full', fullTitle);
-          subtitleEl.setAttribute('data-full', fullSub);
-
-          const type = (el, text, speed=35) => new Promise((resolve) => {
-            let i = 0;
-            const step = () => {
-              if (i <= text.length) {
-                el.textContent = text.slice(0, i);
-                i += 1;
-                setTimeout(step, speed);
-              } else {
-                resolve();
-              }
-            };
-            step();
-          });
-
-          const runTypewriter = async () => {
-            // reset
-            titleEl.classList.remove('typewriter-caret');
-            subtitleEl.classList.remove('typewriter-caret');
-            titleEl.textContent = '';
-            subtitleEl.textContent = '';
-            // type title then subtitle
-            titleEl.classList.add('typewriter-caret');
-            await type(titleEl, fullTitle, 28);
-            titleEl.classList.remove('typewriter-caret');
-            subtitleEl.classList.add('typewriter-caret');
-            await type(subtitleEl, fullSub, 24);
-            subtitleEl.classList.remove('typewriter-caret');
-          };
-
-          runTypewriter();
-          setInterval(runTypewriter, 24001);
-        }
-      } catch (_) { /* no-op */ }
+      autoHideSidebarOnSmallScreens();
+      syncHistoryPills();
+      adjustSearchGroupPosition();
+      window.addEventListener('resize', () => {
+        autoHideSidebarOnSmallScreens();
+        syncHistoryPills();
+        adjustSearchGroupPosition();
+      });
 
       // Wire help button
       const helpBtn = document.getElementById('helpBtn');
       if (helpBtn) {
-        let helpCover = null;
-        let isHelpOpen = false;
-        
         helpBtn.addEventListener('click', (e) => {
           e.preventDefault();
           e.stopPropagation();
-          
-          if (!isHelpOpen) {
-            openHelpCover();
-            isHelpOpen = true;
-          } else {
-            closeHelpCover();
-            isHelpOpen = false;
-          }
+          openHelpCover();
         });
       }
       
       // Position parameter panel on load and resize
       positionParamPanel();
       window.addEventListener('resize', positionParamPanel);
-      // Adjust search group position on load and resize
-      adjustSearchGroupPosition();
-      window.addEventListener('resize', adjustSearchGroupPosition);
       
       // Position panel when it becomes visible
       const toggleParamsBtn = document.getElementById('toggleParamsBtn');
@@ -1426,33 +1447,6 @@
       }
     });
 
-    // Adjust the bottom search bar to avoid overlapping the sidebar on mobile
-    function adjustSearchGroupPosition() {
-      try {
-        const sidebar = document.getElementById('historySidebar');
-        const searchGroup = document.getElementById('centeredSearchGroup');
-        if (!sidebar || !searchGroup) return;
-
-        // On desktop, rely on lg:left-[25%] class (no inline overrides)
-        if (window.innerWidth >= 1024) {
-          searchGroup.style.left = '';
-          searchGroup.style.right = '';
-          return;
-        }
-
-        // On mobile/tablet, if sidebar is open, offset search bar to the right of it
-        const isSidebarOpen = !sidebar.classList.contains('-translate-x-full');
-        if (isSidebarOpen) {
-          const sidebarWidth = sidebar.offsetWidth || 0;
-          searchGroup.style.left = `${sidebarWidth}px`;
-          searchGroup.style.right = '0px';
-        } else {
-          // Reset to default centered full width
-          searchGroup.style.left = '';
-          searchGroup.style.right = '';
-        }
-      } catch (_) { /* no-op */ }
-    }
   </script>
 </body>
 </html>
