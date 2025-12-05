@@ -361,7 +361,7 @@ class Item:
         self.exact_rerank = exact_rerank
         self.use_diverse = use_diverse
         self.lambda_val = lambda_val
-        # ANN backend (faiss|diskann)
+        # ANN backend (ivfpq|diskann)
         self.backend = backend
         self.diskann_L = diskann_L
         self.diskann_W = diskann_W
@@ -445,8 +445,10 @@ def search():
         else:
             print("Processing a single query at once. ")
             query_input=request.json['query']
-        # Build canonical config for caching key; suppress FAISS-only knobs when method=diskann
-        method = request.json.get('backend') or request.json.get('method') or request.json.get('engine')
+        # Build canonical config for caching key; suppress IVFPQ-only knobs when method=diskann
+        method = request.json.get('backend') or request.json.get('method') or request.json.get('engine') or 'diskann'
+        if method == 'faiss':
+            method = 'ivfpq'
         if method == 'diskann':
             try:
                 print(f"[DiskANN] Params: k={int(request.json.get('n_docs', 1))} L={request.json.get('diskann_L')} W={request.json.get('diskann_W')} threads={request.json.get('diskann_threads')}")
@@ -478,7 +480,7 @@ def search():
             min_words=request.json.get('min_words'),
         )
 
-        # [proxy-exact-diverse] If Exact or Diverse is requested (FAISS path), forward to remote server.
+        # [proxy-exact-diverse] If Exact or Diverse is requested (IVFPQ path), forward to remote server.
         try:
             _method_local = method
             _want_exact = bool(request.json.get('exact_search', False)) if _method_local != 'diskann' else False
