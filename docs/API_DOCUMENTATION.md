@@ -18,6 +18,13 @@ permalink: /API_DOCUMENTATION.html
 - Query history + vote logging for relevance feedback.
 - Fully scriptable REST API.
 
+### Example Queries
+These are some good example queries that yield quality results on moderate setting:
+- "Tell me more about Albert Einstein"
+- "Tell me more about Nikola Tesla"
+- "Explain the basics of quantum physics"
+- "Who is Matei Zaharia at UC Berkeley and founder of Apache Stark" 
+
 ---
 
 ## 📡 Endpoint
