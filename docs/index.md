@@ -110,7 +110,7 @@ details > summary {
   <sup>2</sup>University of Illinois Urbana–Champaign &nbsp;
   <sup>3</sup>University of Washington
 </p>
-<p align="center"><sup>*</sup>Equal contribution.</p>
+<p align="center" style="color:#9ca3af;font-size:13px;margin-top:4px;"><sup>*</sup>Equal contribution.</p>
 
 <!-- **[✨NEW]** DiskANN integration: >2000 index-level QPS and ~200+ end-to-end QPS at 500B-token scale with ~200 GB RAM.
 
