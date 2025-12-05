@@ -114,7 +114,7 @@ details > summary {
 </p>
 <p align="center"><sup>*</sup>Equal contribution.</p>
 
-<p align="center">[<a href="http://api.ds-serve.org:30888/ui">Web Interface</a>] [<a href="{{ 'API_DOCUMENTATION.html' | relative_url }}">API Endpoint</a>] [<a href="{{ 'VOTES_DOCUMENTATION.html' | relative_url }}">Voting System</a>] [<a href="https://github.com/Berkeley-Large-RAG/RAG-DS-Serve">Code</a>] [<a href="{{ 'assets/DS_SERVE_Camera_Ready.pdf' | relative_url }}">Paper</a>]</p>
+<p align="center">[<a href="{{ 'API_DOCUMENTATION.html' | relative_url }}">API Endpoint</a>] [<a href="{{ 'VOTES_DOCUMENTATION.html' | relative_url }}">Voting System</a>] [<a href="https://github.com/Berkeley-Large-RAG/RAG-DS-Serve">Code</a>] [<a href="{{ 'assets/DS_SERVE_Camera_Ready.pdf' | relative_url }}">Paper</a>]</p>
 
 <!-- **[✨NEW]** DiskANN integration: >2000 index-level QPS and ~200+ end-to-end QPS at 500B-token scale with ~200 GB RAM.
 
@@ -128,13 +128,15 @@ details > summary {
 ## Overview
 
 <div class="overview-box">
-  <p>You can turn any large in-house dataset (<1T tokens) into a high-throughput (10,000 QPS), memory-efficient (<200 GB RAM) retrieval system with a web UI and API.</p>
+  <p>You can turn any large in-house dataset (<1T tokens) into a high-throughput (200+ end-to-end QPS), memory-efficient (<200 GB RAM) retrieval system with a web UI and API.</p>
   <p>Our prototype, built on 400B words of high-quality LLM pre-training data, is readily available and provides downstream gains comparable to commercial search engine endpoints.</p>
 </div>
 
-<!-- Placeholder for UI GIF or API snippet -->
-<p align="center" class="small-note"><i>(UI preview / API snippet coming soon.)</i></p>
-
+<p align="center">
+  <img src="{{ 'assets/UI.png' | relative_url }}" alt="UI snippet" style="width: 48%; margin: 5px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);" />
+  <img src="{{ 'assets/panel.png' | relative_url }}" alt="Parameter panel snippet" style="width: 48%; margin: 5px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);" />
+</p>
+<p align="center" class="small-note"><i>UI and parameter panel snippets</i></p>
 ### Why was it previously challenging?
 
 - **Scaling neural retrieval is hard.** Achieving high throughput, low memory use, and strong accuracy on very large datasets is non-trivial—traditional linear scan is simply infeasible.
