@@ -16,7 +16,6 @@ import matplotlib
 # Use a non-interactive backend for headless environments
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402  (matplotlib backend must be set first)
-
 try:  # noqa: SIM105
     import seaborn as sns  # type: ignore
 except Exception:  # pragma: no cover - seaborn is optional
@@ -25,8 +24,7 @@ except Exception:  # pragma: no cover - seaborn is optional
 
 IVFPQ_COLOR = "#4C78A8"
 DISKANN_COLOR = "#F58518"
-REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-DOCS_DIR = os.path.join(REPO_ROOT, "docs")
+DOCS_DIR = "/mnt/data/jinjian/DS-Serve/docs"
 METRIC_ORDER = ["Recall", "F1", "EM"]
 DATASETS = {
     "TriviaQA": {

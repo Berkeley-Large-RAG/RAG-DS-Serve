@@ -16,8 +16,6 @@ test*.py
 passage_order.txt
 export_diskann_results.py
 DiskANN-build/converted/
-DiskANN-build/DiskANN_index/
+DiskANN-build/index_450/
+DiskANN-build/sharded_diskann_index/
 DiskANN-build/cpds_embeddings/
-DiskANN-build/DiskANN/build/
-/mnt/md-256k/jinjian/DS/runtime/*
-/mnt/md-256k/jinjian/DS/scripts/plot_qps.py
