@@ -1,6 +1,6 @@
 ---
 layout: page
 redirect_to:
-  - {{ '/assets/DS_SERVE_Camera_Ready.pdf' | relative_url }}
+  - https://berkeley-large-rag.github.io/RAG-DS-Serve/assets/DS_SERVE_Camera_Ready.pdf
 title: Paper
 ---
