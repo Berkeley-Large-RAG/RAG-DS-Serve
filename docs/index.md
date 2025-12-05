@@ -324,6 +324,7 @@ Key takeaways:
 <p>See Figures 3a–7b above for the visual comparison.</p>
 
 
+<p class="small-note"><i>Table 1: Results evaluated with LLaMa 3.1 8B.</i></p>
 <table style="width:100%; border-collapse:collapse; text-align:center;">
   <thead>
     <tr>
