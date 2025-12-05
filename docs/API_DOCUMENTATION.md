@@ -130,14 +130,6 @@ Content-Type: application/json
   </tbody>
 </table>
 
-### DiskANN Knobs
-- **`diskann_L`**: Increase for higher recall; larger values add latency.
-- **`diskann_W`**: Beam width; higher W reduces iterations but increases per-step work.
-- **`diskann_threads`**: Explicit CPU threads used by DiskANN (`0`/omit = server default).
-- **`min_words`**: Drop oversampled DiskANN hits shorter than the specified length.
-
----
-
 ## 📝 Request Examples (curl)
 
 A few easy single request examples that you can test with curl. 
