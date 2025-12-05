@@ -74,8 +74,6 @@ details > summary {
 /* Center the top navigation and enlarge links on the homepage */
 .site-header .wrapper { justify-content: center; }
 .site-header .site-title { font-size: 18px !important; font-weight: 600 !important; color: #111827 !important; margin-right: 12px !important; }
-/* Hide default nav so we can use custom hero links */
-.site-header .site-nav { display: none !important; }
 /* Stronger header divider and single-line layout */
 .site-header { border-bottom: 3px solid #111827 !important; }
 /* Header logo sizing */
@@ -113,8 +111,6 @@ details > summary {
   <sup>3</sup>University of Washington
 </p>
 <p align="center"><sup>*</sup>Equal contribution.</p>
-
-<p align="center">[<a href="http://api.ds-serve.org:30888/ui">Web Interface</a>] [<a href="{{ 'API_DOCUMENTATION.html' | relative_url }}">API documentation</a>] [<a href="{{ 'VOTES_DOCUMENTATION.html' | relative_url }}">Voting System</a>] [<a href="https://github.com/Berkeley-Large-RAG/RAG-DS-Serve">Code</a>] [<a href="{{ 'assets/DS_SERVE_Camera_Ready.pdf' | relative_url }}">Paper</a>]</p>
 
 <!-- **[✨NEW]** DiskANN integration: >2000 index-level QPS and ~200+ end-to-end QPS at 500B-token scale with ~200 GB RAM.
 

@@ -1,4 +1,10 @@
-# API Documentationhttps://berkeley-large-rag.github.io/RAG-DS-Serve/
+---
+layout: page
+title: API documentation
+permalink: /API_DOCUMENTATION.html
+---
+
+# API Documentation
 
 ## 🚀 Overview
 
@@ -26,24 +32,103 @@ Content-Type: application/json
 ## 🔧 Parameters
 
 ### Required
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `query`   | string | Single query string |
-| `queries` | array  | Batch of queries (use instead of `query`) |
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>query</code></td>
+      <td>string</td>
+      <td>Single query string</td>
+    </tr>
+    <tr>
+      <td><code>queries</code></td>
+      <td>array</td>
+      <td>Batch of queries (use instead of <code>query</code>)</td>
+    </tr>
+  </tbody>
+</table>
 
 ### Optional
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `backend` | string | `"diskann"` | `"diskann"` or `"ivfpq"` |
-| `n_docs`  | integer | 1 | Top‑k passages to return (1‑1000) |
-| `nprobe`  | integer | 32 | IVFPQ clusters to scan (ignored for DiskANN) |
-| `exact_search` | boolean | false | Brute-force rerank after ANN |
-| `diverse_search` | boolean | false | Penalize near-duplicate passages |
-| `lambda` | float | 0.5 | Diversity tradeoff used with `diverse_search` |
-| `diskann_L` | integer | 300 | DiskANN candidate list size (≥ `n_docs`) |
-| `diskann_W` | integer | 4 | DiskANN beam width / I/O fan-out |
-| `diskann_threads` | integer | server default | Override worker thread count |
-| `min_words` | integer | 0 | Minimum passage length filter |
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>backend</code></td>
+      <td>string</td>
+      <td>"diskann"</td>
+      <td>"diskann" or "ivfpq"</td>
+    </tr>
+    <tr>
+      <td><code>n_docs</code></td>
+      <td>integer</td>
+      <td>1</td>
+      <td>Top‑k passages to return (1‑1000)</td>
+    </tr>
+    <tr>
+      <td><code>nprobe</code></td>
+      <td>integer</td>
+      <td>32</td>
+      <td>IVFPQ clusters to scan (ignored for DiskANN)</td>
+    </tr>
+    <tr>
+      <td><code>exact_search</code></td>
+      <td>boolean</td>
+      <td>false</td>
+      <td>Brute-force rerank after ANN</td>
+    </tr>
+    <tr>
+      <td><code>diverse_search</code></td>
+      <td>boolean</td>
+      <td>false</td>
+      <td>Penalize near-duplicate passages</td>
+    </tr>
+    <tr>
+      <td><code>lambda</code></td>
+      <td>float</td>
+      <td>0.5</td>
+      <td>Diversity tradeoff used with <code>diverse_search</code></td>
+    </tr>
+    <tr>
+      <td><code>diskann_L</code></td>
+      <td>integer</td>
+      <td>300</td>
+      <td>DiskANN candidate list size (≥ <code>n_docs</code>)</td>
+    </tr>
+    <tr>
+      <td><code>diskann_W</code></td>
+      <td>integer</td>
+      <td>4</td>
+      <td>DiskANN beam width / I/O fan-out</td>
+    </tr>
+    <tr>
+      <td><code>diskann_threads</code></td>
+      <td>integer</td>
+      <td>server default</td>
+      <td>Override worker thread count</td>
+    </tr>
+    <tr>
+      <td><code>min_words</code></td>
+      <td>integer</td>
+      <td>0</td>
+      <td>Minimum passage length filter</td>
+    </tr>
+  </tbody>
+</table>
 
 ### DiskANN Knobs
 - **`diskann_L`**: Increase for higher recall; larger values add latency.
