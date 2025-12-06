@@ -76,11 +76,33 @@ details > summary {
   margin: 14px 0;
 }
 .overview-gallery img {
-  width: 36%;
-  max-width: 36%;
-  min-width: 220px;
+  flex: 1 1 clamp(260px, 32vw, 360px);
+  width: clamp(260px, 32vw, 360px);
+  max-width: 360px;
   border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+.overview-gallery img + img {
+  object-position: top center;
+}
+.affiliations {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 14px;
+  font-size: 15px;
+  line-height: 1.4;
+  margin: 0 auto 4px;
+  max-width: 520px;
+  text-align: center;
+}
+.affiliations span {
+  white-space: normal;
+}
+.affiliations sup {
+  margin-right: 2px;
 }
 .sr-only {
   position: absolute;
@@ -111,6 +133,18 @@ details > summary {
   object-fit: contain;
   margin-right: 8px;
   vertical-align: middle;
+}
+@media (max-width: 768px) {
+  .overview-gallery img {
+    width: 90%;
+    max-width: 420px;
+    aspect-ratio: auto;
+    object-fit: contain;
+  }
+  .affiliations {
+    max-width: 100%;
+    padding: 0 12px;
+  }
 }
 @media (max-width: 640px) {
   .site-header .site-title {
@@ -160,10 +194,10 @@ details > summary {
   <a href="https://people.eecs.berkeley.edu/~matei/" target="_blank">Matei Zaharia</a><sup>1</sup>, 
   <a href="https://www.sewonmin.com/" target="_blank">Sewon Min</a><sup>1</sup>
 </p>
-<p align="center">
-  <sup>1</sup>University of California, Berkeley &nbsp;
-  <sup>2</sup>University of Illinois Urbana–Champaign &nbsp;
-  <sup>3</sup>University of Washington
+<p class="affiliations">
+  <span><sup>1</sup>University of California, Berkeley</span>
+  <span><sup>2</sup>University of Illinois Urbana–Champaign</span>
+  <span><sup>3</sup>University of Washington</span>
 </p>
 <p align="center" style="color:#9ca3af;font-size:13px;margin-top:4px;"><sup>*</sup>Equal contribution.</p>
 
