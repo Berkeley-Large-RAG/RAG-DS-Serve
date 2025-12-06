@@ -76,9 +76,9 @@ details > summary {
   margin: 14px 0;
 }
 .overview-gallery img {
-  width: 280px;
-  max-width: 40%;
-  min-width: 200px;
+  width: 36%;
+  max-width: 36%;
+  min-width: 220px;
   border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.15);
 }
@@ -111,6 +111,33 @@ details > summary {
   object-fit: contain;
   margin-right: 8px;
   vertical-align: middle;
+}
+@media (max-width: 640px) {
+  .site-header .site-title {
+    display: none !important;
+  }
+  .site-header .wrapper {
+    justify-content: flex-end;
+  }
+  .site-header .site-nav .trigger {
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px 16px;
+    margin-top: 10px;
+    background: #ffffff;
+    border: 1px solid rgba(15,23,42,0.1);
+    border-radius: 12px;
+    box-shadow: 0 12px 25px rgba(15,23,42,0.12);
+    text-align: left;
+  }
+  .site-header .site-nav input.nav-trigger:checked ~ .trigger {
+    display: flex;
+  }
+  .site-header .site-nav .page-link {
+    font-size: 16px;
+    margin: 4px 0;
+  }
 }
 /* Performance table */
 .perf-table { overflow-x: auto; margin: 8px 0 12px; }
