@@ -67,26 +67,7 @@ details > summary {
   margin: 6px 0;
   cursor: pointer;
 }
-/* Responsive gallery + accessibility helpers */
-.overview-gallery {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 16px;
-  margin: 14px 0;
-}
-.overview-gallery img {
-  flex: 1 1 clamp(260px, 32vw, 360px);
-  width: clamp(260px, 32vw, 360px);
-  max-width: 360px;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-  aspect-ratio: 16 / 9;
-  object-fit: cover;
-}
-.overview-gallery img + img {
-  object-position: top center;
-}
+/* Responsive helpers */
 .affiliations {
   display: flex;
   flex-wrap: wrap;
@@ -135,12 +116,6 @@ details > summary {
   vertical-align: middle;
 }
 @media (max-width: 768px) {
-  .overview-gallery img {
-    width: 90%;
-    max-width: 420px;
-    aspect-ratio: auto;
-    object-fit: contain;
-  }
   .affiliations {
     max-width: 100%;
     padding: 0 12px;
@@ -217,11 +192,11 @@ details > summary {
   <p>Our prototype, built on 400B words of high-quality LLM pre-training data, is readily available and provides downstream gains comparable to commercial search engine endpoints.</p>
 </div>
 
-<div class="overview-gallery">
-  <img src="{{ 'assets/UI.png' | relative_url }}" alt="UI snippet" />
-  <img src="{{ 'assets/panel.png' | relative_url }}" alt="Parameter panel snippet" />
-</div>
-<p class="small-note" style="text-align:center;"><i>UI and parameter panel snippets</i></p>
+<p align="center">
+  <img src="{{ 'assets/UI.png' | relative_url }}" alt="UI snippet" style="width: 36%; margin: 5px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);" />
+  <img src="{{ 'assets/panel.png' | relative_url }}" alt="Parameter panel snippet" style="width: 24%; margin: 5px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);" />
+</p>
+<p align="center" class="small-note"><i>UI and parameter panel snippets</i></p>
 ### Why was it previously challenging?
 
 - **Scaling neural retrieval is hard.** Achieving high throughput, low memory use, and strong accuracy on very large datasets is non-trivial—traditional linear scan is simply infeasible.
