@@ -783,8 +783,9 @@
       // Add query and parameter display at the top (fixed position)
       if (query) {
         const backendSelect = document.getElementById('backend');
-        const backend = searchParams?.method || (backendSelect && backendSelect.value ? backendSelect.value : 'diskann');
-        const nprobe = searchParams?.nprobe || document.getElementById('nprobe').value;
+        const backend = searchParams?.backend || searchParams?.method || (backendSelect && backendSelect.value ? backendSelect.value : 'diskann');
+        const nprobe = (searchParams?.nprobe ?? document.getElementById('nprobe')?.value ?? '').toString().trim();
+        const effectiveNprobe = nprobe !== '' ? nprobe : (document.getElementById('nprobe')?.value || '');
         const k = searchParams?.k || document.getElementById('k').value;
         const minWordsChip = searchParams?.minWords ?? (document.getElementById('minWords')?.value || '').trim();
         const useRerank = searchParams?.useRerank !== undefined ? searchParams.useRerank : document.getElementById('rerankToggle').classList.contains('enabled');
@@ -834,7 +835,7 @@
               ? `<span class="bg-gray-200 text-gray-700 text-sm px-2 py-1 rounded-full">L: ${diskannL}</span>
                  <span class=\"bg-gray-200 text-gray-700 text-sm px-2 py-1 rounded-full\">W: ${diskannW}</span>
                  <span class=\"bg-gray-200 text-gray-700 text-sm px-2 py-1 rounded-full\">threads: ${diskannThreads}</span>`
-              : `<span class=\"bg-gray-200 text-gray-700 text-sm px-2 py-1 rounded-full\">nprobe: ${nprobe}</span>`}
+              : `<span class=\"bg-gray-200 text-gray-700 text-sm px-2 py-1 rounded-full\">nprobe: ${effectiveNprobe}</span>`}
             <span class="bg-gray-200 text-gray-700 text-sm px-2 py-1 rounded-full">k: ${k}</span>
             ${minWordsChip !== '' ? `<span class="bg-gray-200 text-gray-700 text-sm px-2 py-1 rounded-full">Min Words: ${minWordsChip}</span>` : ''}
             ${useRerank ? '<span class="bg-teal-100 text-teal-700 text-sm px-2 py-1 rounded-full">Exact Search</span>' : ''}
@@ -912,7 +913,7 @@
         // Attach event listeners for Show More/Less functionality
         attachShowMoreListeners();
         // [disk-vote] attach vote listeners tied to current query
-        attachVoteListeners(query);
+        attachVoteListeners(query, searchParams);
       } else {
         const noResultsDiv = document.createElement('div');
         noResultsDiv.className = 'bg-red-50 border border-red-300 text-red-700 p-6 rounded-2xl shadow-md text-center max-w-2xl mx-auto mt-10';
@@ -1109,11 +1110,11 @@
         container.innerHTML = '';
         
          if (addToHist) {
-           const searchParams = { method, nprobe, diskannL, diskannW, diskannThreads, k, useRerank, useDiverse, lambdaVal, minWords: (minWords !== null && Number.isFinite(minWords)) ? minWords : '' };
+           const searchParams = { backend: method, method, nprobe, diskannL, diskannW, diskannThreads, k, useRerank, useDiverse, lambdaVal, minWords: (minWords !== null && Number.isFinite(minWords)) ? minWords : '' };
            addToHistory(query, data, searchParams, latency);
          }
          
-         displayResults(data, query, { method, nprobe, diskannL, diskannW, diskannThreads, k, useRerank, useDiverse, lambdaVal, minWords: (minWords !== null && Number.isFinite(minWords)) ? minWords : '' }, latency);
+         displayResults(data, query, { backend: method, method, nprobe, diskannL, diskannW, diskannThreads, k, useRerank, useDiverse, lambdaVal, minWords: (minWords !== null && Number.isFinite(minWords)) ? minWords : '' }, latency);
         
       } catch (err) {
         container.innerHTML = '<div class="text-red-500 text-sm">Error fetching result.</div>';
@@ -1208,7 +1209,12 @@
     }
 
     // ============================ [disk-vote] BEGIN additions ============================
-    function attachVoteListeners(queryForVote) {
+    function attachVoteListeners(queryForVote, latestParams = {}) {
+      const toInt = (val) => {
+        if (val === null || val === undefined || val === '') return undefined;
+        const num = parseInt(val, 10);
+        return Number.isNaN(num) ? undefined : num;
+      };
       try {
         document.querySelectorAll('[data-vote-box]').forEach(box => {
           box.querySelectorAll('[data-vote]').forEach(btn => {
@@ -1218,10 +1224,34 @@
               const relevant = vote === 'yes';
               const parent = e.currentTarget.parentElement;
               // [disk-vote] include current search parameters for analysis
-              const nprobe = document.getElementById('nprobe')?.value;
-              const useRerank = document.getElementById('rerankToggle')?.classList.contains('enabled');
-              const useDiverse = document.getElementById('diverseToggle')?.classList.contains('enabled');
-              const lambdaVal = parseFloat(document.getElementById('lambda')?.value || '50') / 100;
+              const backendSelect = document.getElementById('backend');
+              const backend = latestParams?.method || latestParams?.backend || (backendSelect && backendSelect.value ? backendSelect.value : 'diskann');
+              const nprobeCandidate = latestParams?.nprobe ?? document.getElementById('nprobe')?.value;
+              const defaultUseRerank = document.getElementById('rerankToggle')?.classList.contains('enabled');
+              const defaultUseDiverse = document.getElementById('diverseToggle')?.classList.contains('enabled');
+              const useRerank = latestParams?.useRerank !== undefined ? !!latestParams.useRerank : !!defaultUseRerank;
+              const useDiverse = latestParams?.useDiverse !== undefined ? !!latestParams.useDiverse : !!defaultUseDiverse;
+              const lambdaInputVal = parseFloat(document.getElementById('lambda')?.value || '50') / 100;
+              const lambdaVal = typeof latestParams?.lambdaVal === 'number' ? latestParams.lambdaVal : lambdaInputVal;
+              const kCandidate = latestParams?.k ?? document.getElementById('k')?.value;
+              const minWordsCandidate = (latestParams && latestParams.minWords !== undefined)
+                ? latestParams.minWords
+                : document.getElementById('minWords')?.value;
+              const diskannLCandidate = latestParams?.diskannL ?? document.getElementById('diskannL')?.value;
+              const diskannWCandidate = latestParams?.diskannW ?? document.getElementById('diskannW')?.value;
+              const diskannThreadsCandidate = latestParams?.diskannThreads ?? document.getElementById('diskannThreads')?.value;
+              const configPayload = {
+                backend,
+                k: typeof kCandidate === 'number' ? kCandidate : toInt(kCandidate),
+                min_words: typeof minWordsCandidate === 'number' ? minWordsCandidate : toInt(minWordsCandidate),
+                nprobe: backend === 'diskann' ? undefined : toInt(nprobeCandidate),
+                exact_search: backend === 'diskann' ? false : useRerank,
+                diverse_search: backend === 'diskann' ? false : useDiverse,
+                lambda: backend === 'diskann' ? 0 : (useDiverse ? lambdaVal : 0),
+                diskann_L: backend === 'diskann' ? (typeof diskannLCandidate === 'number' ? diskannLCandidate : toInt(diskannLCandidate)) : undefined,
+                diskann_W: backend === 'diskann' ? (typeof diskannWCandidate === 'number' ? diskannWCandidate : toInt(diskannWCandidate)) : undefined,
+                diskann_threads: backend === 'diskann' ? (typeof diskannThreadsCandidate === 'number' ? diskannThreadsCandidate : toInt(diskannThreadsCandidate)) : undefined,
+              };
               try {
                 await fetch(`${API_BASE}/vote`, {
                   method: 'POST',
@@ -1230,12 +1260,8 @@
                     query: queryForVote || document.getElementById('queryInput')?.value || '',
                     passage_id: passageId,
                     relevant: relevant,
-                    config: {
-                      nprobe: nprobe ? parseInt(nprobe) : undefined,
-                      exact_search: !!useRerank,
-                      diverse_search: !!useDiverse,
-                      lambda: lambdaVal
-                    }
+                    backend: backend,
+                    config: configPayload
                   })
                 });
                 parent.innerHTML = relevant
