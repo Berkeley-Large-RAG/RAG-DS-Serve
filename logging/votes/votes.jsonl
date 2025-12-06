@@ -1,0 +1,2 @@
+{"time stamp": "2025-12-05 20:59:48 PDT", "query": "Tell me more about Nikola Tesla", "passage_id": "860516", "vote": "yes", "relevant": true, "parameters": {"nprobe": 32, "exact_search": false, "diverse_search": false, "k": 10, "min_words": 10}, "backend": "ivfpq"}
+{"time stamp": "2025-12-05 21:04:33 PDT", "query": "Explain how to make coffee", "passage_id": "749481", "vote": "yes", "relevant": true, "parameters": {"exact_search": false, "diverse_search": false, "k": 10, "min_words": 10, "diskann_L": 500, "diskann_W": 8, "diskann_threads": 64}, "backend": "diskann"}

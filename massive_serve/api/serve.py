@@ -3,7 +3,7 @@ import json
 import hashlib  # [disk-vote] query hashing for compact storage
 import sqlite3  # [disk-vote-sqlite] efficient lookup index
 import traceback
-import datetime
+from datetime import datetime, timedelta, timezone
 import socket
 import getpass
 from flask import Flask, jsonify, request
@@ -36,6 +36,49 @@ import torch
 import numpy as np
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 from sentence_transformers import SentenceTransformer
+
+
+PDT_TZ = timezone(timedelta(hours=-7), name="PDT")
+LOGGING_BASE = os.environ.get('DS_SERVE_LOG_DIR', '/mnt/data/jinjian/DS-Serve/logging')
+try:
+    os.makedirs(LOGGING_BASE, exist_ok=True)
+except Exception:
+    pass
+
+
+def current_pdt_timestamp() -> str:
+    return datetime.now(PDT_TZ).strftime("%Y-%m-%d %H:%M:%S %Z")
+
+
+def clean_params(params: dict | None) -> dict:
+    if not isinstance(params, dict):
+        return {}
+    return {k: v for k, v in params.items() if v is not None}
+
+
+def clean_passage_ids(passage_ids):
+    if not passage_ids:
+        return []
+    cleaned = []
+    for pid in passage_ids:
+        if pid is None:
+            continue
+        cleaned.append(str(pid))
+    return cleaned
+
+
+def coerce_int(value):
+    if value is None:
+        return None
+    try:
+        if isinstance(value, str) and not value.strip():
+            return None
+        return int(value)
+    except Exception:
+        try:
+            return int(float(value))
+        except Exception:
+            return None
 
 
 startup_start = time.time()
@@ -137,11 +180,16 @@ class DiskVoteStore:
         if not isinstance(ctx, dict):
             return {}
         out = {}
-        if "nprobe" in ctx and ctx["nprobe"] is not None:
+        backend = ctx.get("backend")
+        if backend:
             try:
-                out["nprobe"] = int(ctx["nprobe"])  # ensure int
+                out["backend"] = str(backend).strip().lower()
             except Exception:
-                pass
+                out["backend"] = str(backend)
+        nprobe_val = ctx.get("nprobe")
+        coerced_nprobe = coerce_int(nprobe_val)
+        if coerced_nprobe is not None:
+            out["nprobe"] = coerced_nprobe  # ensure int
         if "exact_search" in ctx:
             out["exact_search"] = bool(ctx["exact_search"])  # required boolean
         if "diverse_search" in ctx:
@@ -152,6 +200,21 @@ class DiskVoteStore:
                 out["lambda"] = round(float(ctx["lambda"]), 2)  # 2dp
             except Exception:
                 pass
+        k_val = coerce_int(ctx.get("k"))
+        if k_val is not None:
+            out["k"] = k_val
+        min_words_val = coerce_int(ctx.get("min_words"))
+        if min_words_val is not None:
+            out["min_words"] = min_words_val
+        diskann_l_val = coerce_int(ctx.get("diskann_L"))
+        if diskann_l_val is not None:
+            out["diskann_L"] = diskann_l_val
+        diskann_w_val = coerce_int(ctx.get("diskann_W"))
+        if diskann_w_val is not None:
+            out["diskann_W"] = diskann_w_val
+        diskann_threads_val = coerce_int(ctx.get("diskann_threads"))
+        if diskann_threads_val is not None:
+            out["diskann_threads"] = diskann_threads_val
         return out
 
     @classmethod
@@ -197,18 +260,21 @@ class DiskVoteStore:
         self._db.commit()
 
     def record_vote(self, query: str, passage_id: str, relevant: bool, ctx: dict | None = None) -> None:
-        payload = {
-            # [disk-vote] compact: integer seconds
-            "ts": int(time.time()),
-            "query_hash": self._hash_query(query),
-            "query_norm": self._normalize_query(query),
-            "passage_id": str(passage_id),
-            "relevant": bool(relevant),
-        }
-        # [disk-vote] optional compact search config (nprobe, exact_search, diverse_search, lambda)
+        ts_epoch = int(time.time())
+        normalized_query = self._normalize_query(query)
         compact_ctx = self._canonicalize_ctx(ctx)
-        if compact_ctx:
-            payload["config"] = compact_ctx
+        backend_label = compact_ctx.get("backend")
+        params_for_payload = {k: v for k, v in compact_ctx.items() if k != "backend"}
+        payload = {
+            "time stamp": current_pdt_timestamp(),
+            "query": query,
+            "passage_id": str(passage_id),
+            "vote": "yes" if bool(relevant) else "no",
+            "relevant": bool(relevant),
+            "parameters": clean_params(params_for_payload),
+        }
+        if backend_label:
+            payload["backend"] = backend_label
         line = json.dumps(payload, ensure_ascii=False)
         with self._lock:
             with open(self.file_path, "a", encoding="utf-8") as f:
@@ -216,10 +282,9 @@ class DiskVoteStore:
                 f.flush()
                 os.fsync(f.fileno())
             # [disk-vote-sqlite] upsert normalized rows for efficient lookup
-            qh = payload["query_hash"]
-            cn = payload["query_norm"]
+            qh = self._hash_query(query)
+            cn = normalized_query
             ch = self._hash_ctx(compact_ctx)
-            ts = payload["ts"]
             rel = 1 if bool(payload["relevant"]) else 0
             pid = payload["passage_id"]
             # queries map
@@ -248,13 +313,14 @@ class DiskVoteStore:
             # votes upsert
             self._db.execute(
                 "INSERT OR REPLACE INTO votes(query_hash, ctx_hash, passage_id, relevant, ts) VALUES (?, ?, ?, ?, ?)",
-                (qh, ch, pid, rel, ts),
+                (qh, ch, pid, rel, ts_epoch),
             )
             self._db.commit()
 
     def get_vote(self, query: str, passage_id: str):
         """Return latest vote True/False for (query, passage_id) or None if unseen."""
         qh = self._hash_query(query)
+        qn = self._normalize_query(query)
         pid = str(passage_id)
         try:
             if not os.path.exists(self.file_path):
@@ -281,7 +347,14 @@ class DiskVoteStore:
                             continue
                         try:
                             rec = json.loads(line.decode("utf-8"))
-                            if rec.get("query_hash") == qh and str(rec.get("passage_id")) == pid:
+                            rec_qh = rec.get("query_hash")
+                            rec_norm = rec.get("normalized_query") or rec.get("query_norm")
+                            matches_query = False
+                            if rec_qh and rec_qh == qh:
+                                matches_query = True
+                            elif isinstance(rec_norm, str) and rec_norm == qn:
+                                matches_query = True
+                            if matches_query and str(rec.get("passage_id")) == pid:
                                 return bool(rec.get("relevant"))
                         except Exception:
                             pass
@@ -290,7 +363,14 @@ class DiskVoteStore:
                 if buffer:
                     try:
                         rec = json.loads(buffer.decode("utf-8"))
-                        if rec.get("query_hash") == qh and str(rec.get("passage_id")) == pid:
+                        rec_qh = rec.get("query_hash")
+                        rec_norm = rec.get("normalized_query") or rec.get("query_norm")
+                        matches_query = False
+                        if rec_qh and rec_qh == qh:
+                            matches_query = True
+                        elif isinstance(rec_norm, str) and rec_norm == qn:
+                            matches_query = True
+                        if matches_query and str(rec.get("passage_id")) == pid:
                             return bool(rec.get("relevant"))
                     except Exception:
                         pass
@@ -300,11 +380,10 @@ class DiskVoteStore:
 
 
 # Instantiate vote store under VM root folder (override with VOTES_DIR if set)
-_votes_dir = os.environ.get('VOTES_DIR', '/home/ubuntu/votes')
+_votes_dir = os.path.join(LOGGING_BASE, 'votes')
 vote_store = DiskVoteStore(_votes_dir)
 # ============================ [disk-vote] END additions ============================
 
-# ============================ [query-log] BEGIN additions ============================
 class QueryLogger:
     """Thread-safe JSONL logger for every query with canonicalized config."""
 
@@ -314,22 +393,17 @@ class QueryLogger:
         self.file_path = os.path.join(self.base_dir, file_name)
         self._lock = threading.Lock()
 
-    def log(self, query: str, canon_cfg: dict, n_docs: int, latency_s: float, expand_index_id=None, expand_offset=1, big_k=None) -> None:
+    def log(self, query: str, backend: str, params: dict, n_docs: int, latency_s: float, passage_ids: list | None = None) -> None:
+        latency_ms = int(round(float(latency_s) * 1000))
         rec = {
-            "ts": int(time.time()),
-            "query_hash": DiskVoteStore._hash_query(query),
-            "query_norm": DiskVoteStore._normalize_query(query),
-            "config": canon_cfg,
+            "time stamp": current_pdt_timestamp(),
+            "query": query,
+            "backend": backend,
+            "parameters": clean_params(params),
             "n_docs": int(n_docs),
-            "latency": float(latency_s),
-            "expand_index_id": expand_index_id,
-            "expand_offset": expand_offset,
+            "latencys (ms)": latency_ms,
+            "passage_ids": clean_passage_ids(passage_ids),
         }
-        if big_k is not None:
-            try:
-                rec["K"] = int(big_k)
-            except Exception:
-                pass
         line = json.dumps(rec, ensure_ascii=False)
         with self._lock:
             with open(self.file_path, 'a', encoding='utf-8') as f:
@@ -338,7 +412,7 @@ class QueryLogger:
                 os.fsync(f.fileno())
 
 
-_query_log_dir = os.environ.get('QUERY_LOG_DIR', '/home/ubuntu/query_logs')
+_query_log_dir = os.path.join(LOGGING_BASE, 'queries')
 QUERY_LOGGER = QueryLogger(_query_log_dir)
 try:
     if _ivf and hasattr(_ivf, 'set_query_logger'):
@@ -540,7 +614,53 @@ def search():
                     return obj
 
             results = convert_ndarrays(results)
-            # Query logging moved into ivf_pq.search
+            # Log DiskANN queries here (IVFPQ logging handled inside ivf_pq.search)
+            try:
+                if (
+                    method == 'diskann'
+                    and QUERY_LOGGER is not None
+                    and not request.json.get('expand_index_id')
+                ):
+                    latency = round(time.time() - start_time, 4)
+                    def _as_int(val):
+                        try:
+                            return int(val)
+                        except Exception:
+                            return None
+                    backend_params = {
+                        'backend': 'diskann',
+                        'L': _as_int(request.json.get('diskann_L')),
+                        'W': _as_int(request.json.get('diskann_W')),
+                        'threads': _as_int(request.json.get('diskann_threads')),
+                        'min_words': _as_int(request.json.get('min_words')),
+                        'k': int(item.n_docs),
+                        'nprobe': None,
+                        'exact_search': False,
+                        'diverse_search': False,
+                        'lambda': None,
+                    }
+                    passages = []
+                    if isinstance(results, dict):
+                        passages = results.get('passages') or []
+                    queries_to_log = query_input if isinstance(query_input, list) else [query_input]
+                    backend_params['min_words'] = _as_int(request.json.get('min_words'))
+                    for idx, q_text in enumerate(queries_to_log):
+                        passage_ids = []
+                        if idx < len(passages):
+                            for rec in passages[idx] or []:
+                                pid = rec.get('passage_id') or rec.get('index_id') or rec.get('docid') or rec.get('id')
+                                if pid is not None:
+                                    passage_ids.append(str(pid))
+                        QUERY_LOGGER.log(
+                            q_text,
+                            backend='diskann',
+                            params=backend_params,
+                            n_docs=item.n_docs,
+                            latency_s=latency,
+                            passage_ids=passage_ids,
+                        )
+            except Exception:
+                pass
 
             return jsonify({
                 "message": f"Search completed for '{item.query}' from {item.domains}",
@@ -575,10 +695,15 @@ def vote():
         query = data.get('query')
         passage_id = data.get('passage_id')
         relevant = data.get('relevant')
-        ctx = data.get('config') 
+        ctx = data.get('config')
+        backend_override = data.get('backend')
+        if not isinstance(ctx, dict):
+            ctx = {}
+        if backend_override and 'backend' not in ctx:
+            ctx['backend'] = backend_override
         if not query or passage_id is None or relevant is None:
             return jsonify({"status": "error", "message": "Missing query, passage_id, or relevant"}), 400
-        vote_store.record_vote(query, str(passage_id), bool(relevant), ctx=ctx if isinstance(ctx, dict) else None)
+        vote_store.record_vote(query, str(passage_id), bool(relevant), ctx=ctx or None)
         return jsonify({"status": "ok"}), 200
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
