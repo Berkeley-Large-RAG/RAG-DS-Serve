@@ -108,65 +108,16 @@ curl -X POST http://compactds.duckdns.org:30888/search \
   -d '{"queries": ["quantum computing", "Who is Nikola Tesla", "AI ethics"], "n_docs": 2}'
 ```
 
-## Benchmark & plotting scripts
-
-Helper scripts in `scripts/` reproduce the QPS/latency sweeps used in the docs. Run them from the repo root and override parameters via environment variables.
-
-### DiskANN batched benchmark
-Continuous POST with shared payload (Figures 4a–4b).
-```bash
-L_LIST="100 500 1000 1500 2000" \
-COUNT=2000 \
-HOST=http://api.ds-serve.org:30888 \
-scripts/diskann_qps_batch.sh
-```
-Knobs: `HOST`, `QUERIES`, `COUNT`, `CONCURRENCY`, `K`, `W`, `THREADS`, `L_LIST`.
-
-### DiskANN single-request benchmark
-One POST per query (Figure 6).
-```bash
-COUNT=1000 \
-WARMUP_SKIP=100 \
-L_LIST="100 500 1000 1500 2000" \
-scripts/diskann_qps_single.sh
-```
-Supports the same overrides as the batched script plus `WARMUP_SKIP` to drop warmup queries.
-
-### FAISS / IVFPQ batched benchmark
-```bash
-COUNT=100 \
-NPROBE_LIST="64 128 256 512" \
-scripts/ivfpq_qps_batch.sh
-```
-Set `K`, `NPROBE`, `EXACT`, `DIVERSE`, `LAMBDA`, `HOST`, and `QUERIES` as needed. When `NPROBE_LIST` is provided the script sweeps through each value using the same shuffled sample.
-
-### FAISS / IVFPQ single-request benchmark
-```bash
-COUNT=100 \
-CONCURRENCY=64 \
-NPROBE_LIST="64 128 256 512" \
-scripts/ivfpq_qps_single.sh
-```
-Each query is sent independently; `CONCURRENCY` controls the `xargs -P` fan-out.
-
-### Regenerating plots
-After collecting new measurements, run:
-```bash
-python scripts/plot_diskann_single_request_qps.py
-python scripts/plot_diskann_single_request_latency.py
-python scripts/plot_faiss_batch_vs_single.py
-```
-These write to `docs/plots/` and keep the figures used in `docs/index.md` in sync.
 
 
 ##  DiskANN build 
 NOTE: THIS IS ONLY FOR INTERNAL TESTING CURRENTLY \
-For convenienve, please just use the absolute paths of large index files and mapping stored in my personal dir when testing internally:
-- /mnt/md-256k/jinjian/DS/position_array.npy
-- /mnt/md-256k/jinjian/DS/filename_index_array.npy
-- /mnt/md-256k/jinjian/DS/filename_list.npy
-- /mnt/md-256k/jinjian/DS/data/passages/
-- /mnt/md-256k/jinjian/DS/DiskANN-build/DiskANN_index/
+For convenience when testing from this repo root, you can point to the local copies under `./`:
+- ./position_array.npy
+- ./filename_index_array.npy
+- ./filename_list.npy
+- ./data/passages/
+- ./DiskANN-build/DiskANN_index/
 
 ## DiskANN serving (setup and launch)
 
@@ -186,9 +137,9 @@ uv pip install --no-deps diskannpy==0.7.0
 
 ### 2) Launch the server (DiskANN)
 
-From the repo root (absolute paths):
+From the repo root:
 ```bash
-DATASTORE_PATH=/mnt/md-256k/jinjian/DS
+DATASTORE_PATH=$(pwd)
 
 mkdir -p "$DATASTORE_PATH/runtime/votes" "$DATASTORE_PATH/runtime/query_logs"
 
