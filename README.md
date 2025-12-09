@@ -1,8 +1,21 @@
+<div align="center">
+  <img src="massive_serve/api/styles/logo_main.png" width="200" alt="DS Serve Logo"/>
+  <h1>🚀 DS Serve</h1>
+  <h3>A Framework for Efficient and Scalable Neural Retrieval</h3>
+  <p>
+    <a href="http://api.ds-serve.org:30888/ui"><b>Web Interface</b></a> •
+    <a href="https://berkeley-large-rag.github.io/RAG-DS-Serve/"><b>Blog</b></a> •
+    <a href="https://berkeley-large-rag.github.io/RAG-DS-Serve/API_DOCUMENTATION.html"><b>Documentation</b></a>
+  </p>
+</div>
+<br/>
+
+
 ## Introduction
 
 This repository contains the Compact‑DS Dive Public API and server code. It exposes a production‑ready Flask service for retrieval‑augmented generation (RAG) backed by a billion‑scale FAISS IVFPQ index. The server provides adjustable settings and search modes at low-latency. A small CLI helps download/prepare indices and start the server, and an example domain (`index_dev/`) shows the expected data layout. Please refer to the Quickstart below to set up.
 
-[**Web Interface**](http://api.ds-serve.org:30888/ui) | [**Blog / Documentation**](https://berkeley-large-rag.github.io/RAG-DS-Serve/)
+
 
 ### Expected data layout (under DATASTORE_PATH)
 

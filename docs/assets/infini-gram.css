@@ -39,11 +39,23 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 }
 .back-btn:hover { background: #f3f4f6; text-decoration: none; }
 
-/* Author/affiliation sizing to keep on one line */
-.authors + p { font-size: 16px; line-height: 1.4; white-space: nowrap; }
+/* Author/affiliation sizing */
+.authors {
+  font-size: 20px;
+  margin-bottom: 4px;
+}
+.authors a {
+  font-weight: 600;
+  color: #111827; /* Dark gray for names */
+}
+.affiliations {
+  font-size: 16px;
+  line-height: 1.4;
+  color: #374151; /* Gray-700 */
+}
 
 /* Subtle equal contribution note */
-.equal-note { font-size: 14px; color: #374151; }
+.equal-note { font-size: 14px; color: #4b5563; font-style: italic; margin-top: 4px; }
 
 /* Reduce gap between site title and first nav item */
 .site-header .site-nav { margin-left: 0; }
