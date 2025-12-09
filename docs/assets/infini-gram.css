@@ -43,7 +43,7 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 .authors + p { font-size: 16px; line-height: 1.4; white-space: nowrap; }
 
 /* Subtle equal contribution note */
-.equal-note { font-size: 14px; color: #6b7280; }
+.equal-note { font-size: 14px; color: #374151; }
 
 /* Reduce gap between site title and first nav item */
 .site-header .site-nav { margin-left: 0; }
