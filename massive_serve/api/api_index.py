@@ -1,6 +1,7 @@
 import os
 import time
 import json
+import logging
 from massive_serve.contriever import Contriever, load_retriever
 from transformers import AutoModel
 import torch
@@ -8,6 +9,7 @@ import torch
 from massive_serve.src.search import embed_queries
 from massive_serve.src.indicies.base import Indexer
 from massive_serve.src.indicies.diskann_backend import DiskANNBackend
+from rerank.diverse_rerank import diverse_rerank_topk, diverse_rerank_precomputed
 
 import psutil
 
@@ -74,6 +76,25 @@ class DatastoreAPI():
                 searched_scores, searched_passages, backend_timings = ret
             else:
                 searched_scores, searched_passages = ret
+            if use_diverse:
+                try:
+                    reranked_passages = []
+                    if isinstance(searched_passages, list):
+                        for raw_passages in searched_passages:
+                            if not raw_passages:
+                                reranked_passages.append(raw_passages)
+                                continue
+                            reranked_passages.append(
+                                diverse_rerank_precomputed(
+                                    raw_passages,
+                                    query_embedding=query_embedding,
+                                    query_encoder=self.query_encoder,
+                                    lambda_val=lambda_val,
+                                )
+                            )
+                        searched_passages = reranked_passages
+                except Exception as exc:
+                    logging.warning(f"[DiskANN] Diverse rerank failed: {exc}")
         else:
             t2 = time.time()
             searched_scores, searched_passages  = self.index.search(
