@@ -1,6 +1,6 @@
 ---
 layout: page
 redirect_to:
-  - https://arxiv.org/pdf/2401.17377
+  - https://berkeley-large-rag.github.io/RAG-DS-Serve/assets/DS_SERVE_Camera_Ready.pdf
 title: Paper
 ---
