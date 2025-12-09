@@ -169,12 +169,12 @@ details > summary {
   <a href="https://people.eecs.berkeley.edu/~matei/" target="_blank">Matei Zaharia</a><sup>1</sup>, 
   <a href="https://www.sewonmin.com/" target="_blank">Sewon Min</a><sup>1</sup>
 </p>
-<p align="center" class="affiliations">
-  <sup>1</sup>University of California, Berkeley &nbsp; <sup>2</sup>University of Illinois Urbana–Champaign &nbsp; <sup>3</sup>University of Washington
+<p align="center">
+  <sup>1</sup>University of California, Berkeley &nbsp;
+  <sup>2</sup>University of Illinois Urbana–Champaign &nbsp;
+  <sup>3</sup>University of Washington
 </p>
-<p align="center" class="equal-note">
-  <sup>*</sup>Equal contribution.
-</p>
+<p align="center"><sup>*</sup>Equal contribution.</p>
 <p align="center">[<a href="http://api.ds-serve.org:30888/ui">Web Interface</a>] [<a href="{{ 'API_DOCUMENTATION.html' | relative_url }}">API Endpoint</a>] [<a href="{{ 'VOTES_DOCUMENTATION.html' | relative_url }}">Voting System</a>] [<a href="https://github.com/Berkeley-Large-RAG/RAG-DS-Serve">Code</a>] [<a href="{{ 'assets/DS_SERVE_Camera_Ready.pdf' | relative_url }}">Paper</a>]</p>
 
 <!-- **[✨NEW]** DiskANN integration: >2000 index-level QPS and ~200+ end-to-end QPS at 500B-token scale with ~200 GB RAM.
@@ -189,8 +189,10 @@ details > summary {
 ## Overview
 
 <div class="overview-box">
-  <p>You can turn any large in-house dataset (<1T tokens) into a high-throughput (200+ end-to-end QPS), memory-efficient (<200 GB RAM) retrieval system with a web UI and API.</p>
-  <p>Our prototype, built on 400B words of high-quality LLM pre-training data, is readily available and provides downstream gains comparable to commercial search engine endpoints.</p>
+  <ol style="margin: 0; padding-left: 20px;">
+    <li style="margin-bottom: 8px;">You can turn any large in-house dataset (<1T tokens) into a high-throughput (200+ end-to-end QPS), memory-efficient (<200 GB RAM) retrieval system with a web UI and API.</li>
+    <li>Our prototype, built on 400B words of high-quality LLM pre-training data, is readily available and provides downstream gains comparable to commercial search engine endpoints.</li>
+  </ol>
 </div>
 
 <p align="center">
