@@ -399,13 +399,29 @@
   <div id="contentArea" class="flex-1 flex flex-col items-stretch ml-0 lg:ml-[25%]">
     <!-- Rounded Header -->
     <header id="mainHeader" class="fixed top-0 left-0 right-0 z-20 bg-gradient-to-b from-white to-gray-50 border-b border-gray-200 shadow-sm">
-      <div id="headerContent" class="w-full px-4 py-3 flex items-center justify-center">
-        <h1 id="headerTitle" class="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">DS Serve</h1>
+      <div id="headerContent" class="w-full px-4 py-3 flex items-center justify-between gap-3">
+        <div class="flex-1"></div>
+        <h1 id="headerTitle" class="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight text-center flex-1">DS Serve</h1>
+        <div class="flex-1 flex justify-end">
+          <button id="homeBtn" class="text-sm sm:text-base bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold px-3 py-2 rounded-lg border border-gray-200 shadow-sm transition-colors flex items-center gap-2" aria-label="Return to home">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 11l9-8 9 8M5 12v7a1 1 0 001 1h4m4 0h4a1 1 0 001-1v-7"/>
+            </svg>
+            <span class="hidden sm:inline">Home</span>
+          </button>
+        </div>
       </div>
     </header>
     
     <!-- Main results container that scrolls till the top edge -->
     <main class="pt-20 sm:pt-20 lg:pt-24 px-2 sm:px-4 lg:px-6 mb-24 sm:mb-36 overflow-y-auto max-h-[calc(100vh-160px)] sm:max-h-[calc(100vh-112px)]" id="results"></main>
+    <!-- Floating Home button (hidden until results are shown) -->
+    <button id="homeFab" class="hidden fixed bottom-6 right-6 z-30 bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold px-3 py-2 rounded-full border border-gray-200 shadow-lg transition-colors flex items-center gap-2" aria-label="Return to home">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 11l9-8 9 8M5 12v7a1 1 0 001 1h4m4 0h4a1 1 0 001-1v-7"/>
+      </svg>
+      <span class="hidden sm:inline">Home</span>
+    </button>
 
 
 
@@ -680,7 +696,8 @@
           const item = queryHistory.find(h => h.id === id);
           if (item) {
             document.getElementById('queryInput').value = item.query;
-            displayResults(item.results, item.query, item.searchParams, item.latency);
+        displayResults(item.results, item.query, item.searchParams, item.latency);
+        showHomeFab(true);
           }
         });
       });
@@ -725,6 +742,32 @@
       });
 
 
+
+    }
+
+    function showHomeFab(show) {
+      const homeFab = document.getElementById('homeFab');
+      if (!homeFab) return;
+      homeFab.classList.toggle('hidden', !show);
+    }
+
+    function resetToHome() {
+      const qi = document.getElementById('queryInput');
+      const resultsEl = document.getElementById('results');
+      const welcomeMessage = document.getElementById('welcomeMessage');
+      const centeredSearchGroup = document.getElementById('centeredSearchGroup');
+      const paramPanel = document.getElementById('paramPanel');
+      if (qi) qi.value = '';
+      if (resultsEl) resultsEl.innerHTML = '';
+      if (welcomeMessage) welcomeMessage.style.display = 'flex';
+      if (centeredSearchGroup) centeredSearchGroup.style.display = 'flex';
+      if (paramPanel) paramPanel.classList.add('hidden');
+      // Reset expansion state if present
+      if (typeof expandedPassages !== 'undefined' && expandedPassages?.clear) expandedPassages.clear();
+      if (typeof expandedPassagesData !== 'undefined' && expandedPassagesData?.clear) expandedPassagesData.clear();
+      // Scroll to top
+      if (resultsEl?.scrollTo) resultsEl.scrollTo({ top: 0, behavior: 'smooth' });
+      showHomeFab(false);
     }
 
     let isSearching = false;
@@ -1022,6 +1065,8 @@
     document.getElementById('sendButton').addEventListener('click', function () {
       submitQuery(true);
     });
+    document.getElementById('homeBtn')?.addEventListener('click', resetToHome);
+    document.getElementById('homeFab')?.addEventListener('click', resetToHome);
 
     function toggleLambdaState() {
       const lambda = document.getElementById('lambda');
@@ -1126,10 +1171,11 @@
         
          if (addToHist) {
            const searchParams = { backend: method, method, nprobe, diskannL, diskannW, diskannThreads, k, useRerank, useDiverse, lambdaVal, minWords: (minWords !== null && Number.isFinite(minWords)) ? minWords : '' };
-           addToHistory(query, data, searchParams, latency);
+        addToHistory(query, data, searchParams, latency);
          }
          
          displayResults(data, query, { backend: method, method, nprobe, diskannL, diskannW, diskannThreads, k, useRerank, useDiverse, lambdaVal, minWords: (minWords !== null && Number.isFinite(minWords)) ? minWords : '' }, latency);
+       showHomeFab(true);
         
       } catch (err) {
         container.innerHTML = '<div class="text-red-500 text-sm">Error fetching result.</div>';
