@@ -64,6 +64,20 @@ def print_mem_use(label=""):
     print(f"[{label}] Memory usage: {mem_mb:.2f} MB")
 
 
+def _coerce_int(value):
+    if value is None:
+        return None
+    if isinstance(value, str) and not value.strip():
+        return None
+    try:
+        return int(value)
+    except Exception:
+        try:
+            return int(float(value))
+        except Exception:
+            return None
+
+
 
 def _resolve_k_fetch(requested_k: int, min_words, env_key: str, hard_cap: int = 256) -> int:
     base = max(1, int(requested_k))
@@ -675,26 +689,43 @@ class IVFPQIndexer(object):
 
         t1 = time.time()
 
-        # Log queries (moved from serve.py)
+        # Log queries (moved from serve.py) — skip expansion fetches
         try:
-            if QUERY_LOGGER is not None:
+            if QUERY_LOGGER is not None and expand_index_id is None:
                 latency = round(t1 - t0, 4)
-                cfg = {
-                    'nprobe': nprobe,
+                effective_nprobe = nprobe
+                if effective_nprobe in (None, ''):
+                    try:
+                        effective_nprobe = int(getattr(self.index, "nprobe", None) or getattr(self, "probe", None) or 0)
+                    except Exception:
+                        effective_nprobe = 0
+                base_params = {
+                    'backend': 'ivfpq',
+                    'nprobe': _coerce_int(effective_nprobe),
                     'exact_search': bool(exact_rerank),
                     'diverse_search': bool(diverse_rerank),
+                    'lambda': round(float(lambda_val), 2) if bool(diverse_rerank) and (lambda_val is not None) else None,
+                    'min_words': _coerce_int(min_words),
+                    'k': int(k),
+                    'diskann_L': None,
+                    'diskann_W': None,
+                    'diskann_threads': None,
                 }
-                if bool(diverse_rerank) and (lambda_val is not None):
-                    try:
-                        cfg['lambda'] = round(float(lambda_val), 2)
-                    except Exception:
-                        pass
-                # raw_query may be str or list
-                if isinstance(raw_query, list):
-                    for q in raw_query:
-                        QUERY_LOGGER.log(q, cfg, k, latency, expand_index_id, expand_offset, big_k=used_big_k)
-                else:
-                    QUERY_LOGGER.log(raw_query, cfg, k, latency, expand_index_id, expand_offset, big_k=used_big_k)
+                for idx, q_text in enumerate(raw_queries):
+                    passages_for_q = all_final_passages[idx] if idx < len(all_final_passages) else []
+                    passage_ids = []
+                    for rec in passages_for_q or []:
+                        pid = rec.get("passage_id") or rec.get("index_id") or rec.get("docid") or rec.get("id")
+                        if pid is not None:
+                            passage_ids.append(str(pid))
+                    QUERY_LOGGER.log(
+                        q_text,
+                        backend='ivfpq',
+                        params=base_params,
+                        n_docs=k,
+                        latency_s=latency,
+                        passage_ids=passage_ids,
+                    )
         except Exception:
             pass
         print(f"[SEARCH] Completed batch of {len(raw_queries)} in {t1 - t0:.2f}s")

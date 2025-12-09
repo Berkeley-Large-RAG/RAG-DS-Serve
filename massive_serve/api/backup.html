@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>DS Serve</title>
-  <link rel="icon" type="image/png" href="./styles/tab-cropped.png">
+  <link rel="icon" type="image/png" href="./styles/logo_small.png">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
@@ -25,6 +25,17 @@
     }
     body.sidebar-open #historySidebar {
       transform: translateX(0);
+    }
+.sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
     }
     body.sidebar-hidden #historySidebar {
       transform: translateX(-105%);
@@ -54,6 +65,54 @@
       border-radius: 0.5rem;
       padding: 0 0.3em;
     }
+    .try-queries-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      justify-content: center;
+      padding: 0.5rem 1rem;
+      border-radius: 999px;
+      border: none;
+      background: #f5fbff;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #0f2854;
+      box-shadow: 0 4px 14px rgba(15, 40, 84, 0.18);
+      min-width: 118px;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+    }
+    .try-queries-btn:hover {
+      box-shadow: 0 10px 24px rgba(15, 118, 110, 0.25);
+      transform: translateY(-1px);
+    }
+    .examples-panel {
+      width: min(90vw, 420px);
+      background: white;
+      border-radius: 1rem;
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.15);
+      padding: 0.5rem 0.7rem;
+    }
+    .examples-panel button {
+      width: 100%;
+      text-align: left;
+      padding: 0.65rem 0.9rem;
+      border-radius: 0.75rem;
+      border: 1px solid transparent;
+      background: rgba(15, 118, 110, 0.03);
+      font-weight: 600;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+    }
+.examples-panel button:hover {
+  border-color: rgba(15, 118, 110, 0.6);
+  background: rgba(15, 118, 110, 0.1);
+  transform: translateY(-1px);
+}
     .toggle-switch {
       width: 40px;
       height: 20px;
@@ -175,19 +234,40 @@
 
   <div id="welcomeMessage" class="absolute inset-0 flex flex-col items-center justify-center text-center px-2 sm:px-4 lg:px-6 text-gray-700 pointer-events-none transition-all duration-300">
     <div class="relative w-[63rem] h-[18rem] sm:w-[67rem] sm:h-[19rem] lg:w-[71rem] lg:h-[20rem] xl:w-[75rem] xl:h-[21rem] mb-6">
-      <img src="./styles/try.png" alt="DS Serve icon" class="absolute inset-0 w-full h-full object-contain" />
+      <img src="./styles/logo_main.png" alt="DS Serve icon" class="absolute inset-0 w-full h-full object-contain" />
     </div>
     <h2 id="welcomeTitle" class="text-lg sm:text-2xl lg:text-3xl xl:text-4xl font-bold mb-1 sm:mb-2">Search with DS Serve</h2>
     <p id="welcomeSubtitle" class="text-sm sm:text-base text-gray-500">Query and cast your valuable vote for relevance.</p>
-    <div class="mt-4 flex flex-wrap gap-3 pointer-events-auto">
+    <div class="mt-4 flex flex-wrap gap-3 pointer-events-auto items-center justify-center">
       <a href="https://github.com/Berkeley-Large-RAG/RAG-DS-Serve" target="_blank" class="bg-slate-900 text-white text-sm sm:text-base font-semibold py-2 px-4 rounded-full flex items-center gap-2 hover:bg-black transition-colors">
         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 0C4.477 0 0 4.484 0 10.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.007-.866-.013-1.703-2.782.603-3.37-1.34-3.37-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.618.069-.606.069-.606 1.003.07 1.531 1.032 1.531 1.032.892 1.529 2.341 1.089 2.91.833.091-.647.35-1.088.636-1.338-2.22-.253-4.555-1.119-4.555-4.976 0-1.101.392-1.997 1.03-2.696-.103-.253-.448-1.274.097-2.659 0 0 .84-.27 2.75 1.025A9.564 9.564 0 0110 4.875c.85.004 1.7.113 2.5.322 1.909-1.295 2.747-1.025 2.747-1.025.546 1.385.202 2.406.099 2.659.649.699 1.03 1.595 1.03 2.696 0 3.86-2.339 4.721-4.569 4.967.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482C17.146 18.183 20 14.425 20 10.017 20 4.484 15.522 0 10 0z" clip-rule="evenodd"></path></svg>
-        GitHub
+        Code
       </a>
       <a href="https://berkeley-large-rag.github.io/RAG-DS-Serve/" target="_blank" class="bg-teal-500 text-white text-sm sm:text-base font-semibold py-2 px-4 rounded-full flex items-center gap-2 hover:bg-teal-600 transition-colors">
         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/></svg>
         Blog
       </a>
+      <div class="relative">
+        <button id="tryQueriesToggle" class="try-queries-btn" aria-expanded="false">
+          Examples
+        </button>
+        <div id="tryQueriesPanel" class="examples-panel hidden absolute left-1/2 -translate-x-1/2 mt-3 z-40">
+          <div class="grid grid-cols-1 gap-2">
+            <button type="button" data-example-query="Tell me more about Nikola Tesla">
+              <span>Tell me more about Nikola Tesla</span>
+            </button>
+            <button type="button" data-example-query="Explain how to make coffee">
+              <span>Explain how to make coffee</span>
+            </button>
+            <button type="button" data-example-query="I want to know more about the history of Hollywood">
+              <span>I want to know more about the history of Hollywood</span>
+            </button>
+            <button type="button" data-example-query="Who is the founder of Google">
+              <span>Who is the founder of Google</span>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -245,7 +325,7 @@
             </div>
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
               <label class="text-sm font-medium text-gray-700">Min words</label>
-              <input type="number" id="minWords" min="0" placeholder="Min words" class="border rounded-md p-1 text-sm w-24 text-center">
+              <input type="number" id="minWords" min="0" value="10" placeholder="Min words" class="border rounded-md p-1 text-sm w-24 text-center">
             </div>
             
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
@@ -297,11 +377,10 @@
   <div id="historySidebar" class="fixed left-0 top-0 h-full w-1/4 min-w-[200px] max-w-[300px] bg-gray-50 shadow-[4px_0_16px_rgba(15,23,42,0.08)] flex flex-col z-30 transform -translate-x-full lg:translate-x-0 transition-transform duration-300">
     <div class="p-3 sm:p-4 border-b border-gray-200 flex items-center justify-between">
       <h1 class="text-sm sm:text-lg font-semibold text-gray-700">Search History</h1>
-      <button id="sidebarHidePill" class="bg-white text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-3 py-1 rounded-full shadow-sm text-xs font-semibold flex items-center gap-1 transition-colors">
+      <button id="sidebarHidePill" class="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 text-gray-600 bg-white/90 hover:bg-white shadow-sm transition-colors" aria-label="Hide history">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
         </svg>
-        Hide
       </button>
     </div>
     <div id="queryHistory" class="flex-1 overflow-y-auto">
@@ -309,11 +388,11 @@
     </div>
   </div>
 
-  <button id="historyToggleBtn" class="hidden fixed top-5 left-4 z-40 bg-white/90 border border-gray-200 px-3 py-2 rounded-full shadow-lg flex items-center gap-2 text-sm font-medium text-gray-700 hover:bg-white transition-all duration-300">
-    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h10M4 18h16"/>
+  <button id="historyToggleBtn" class="hidden fixed top-24 left-2 z-40 w-8 h-8 rounded-full border border-gray-300 bg-white/90 flex items-center justify-center shadow-lg transition-all duration-300" aria-label="Show history">
+    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
     </svg>
-    <span id="historyToggleLabel">Show history</span>
+    <span id="historyToggleLabel" class="sr-only">Show history</span>
   </button>
 
   <!-- Main Content Area (adjusted for sidebar) -->
@@ -405,6 +484,7 @@
       const welcomeMessage = document.getElementById('welcomeMessage');
       const sidebar = document.getElementById('historySidebar');
       const headerContent = document.getElementById('headerContent');
+      const queryHeader = document.querySelector('[data-query-header]');
       if (!searchGroup || !welcomeMessage || !sidebar || !headerContent) return;
 
       const isDesktop = window.innerWidth >= 1024;
@@ -418,6 +498,10 @@
         headerContent.style.marginLeft = `${sidebarWidth}px`;
         headerContent.style.marginRight = '0px';
         headerContent.style.width = `calc(100% - ${sidebarWidth}px)`;
+        if (queryHeader) {
+          queryHeader.style.left = `${sidebarWidth}px`;
+          queryHeader.style.right = '0px';
+        }
       } else {
         searchGroup.style.left = '0px';
         searchGroup.style.right = '0px';
@@ -426,6 +510,10 @@
         headerContent.style.marginLeft = '0px';
         headerContent.style.marginRight = '0px';
         headerContent.style.width = '100%';
+        if (queryHeader) {
+          queryHeader.style.left = '0px';
+          queryHeader.style.right = '0px';
+        }
       }
     }
 
@@ -639,8 +727,11 @@
 
     }
 
+    let isSearching = false;
+
     // Loading state management
     function setLoading(loading) {
+      isSearching = loading;
       const sendButton = document.getElementById('sendButton');
       const loadingSpinner = document.getElementById('loadingSpinner');
       
@@ -651,6 +742,42 @@
         sendButton.classList.remove('hidden');
         loadingSpinner.classList.add('hidden');
       }
+    }
+
+    function setupExampleQueries() {
+      const toggleBtn = document.getElementById('tryQueriesToggle');
+      const panel = document.getElementById('tryQueriesPanel');
+      const input = document.getElementById('queryInput');
+      if (!toggleBtn || !panel || !input) return;
+
+      const closePanel = () => {
+        panel.classList.add('hidden');
+        toggleBtn.setAttribute('aria-expanded', 'false');
+        toggleBtn.querySelector('svg')?.setAttribute('style', 'transform: none;');
+      };
+
+      toggleBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const willShow = panel.classList.contains('hidden');
+        panel.classList.toggle('hidden', !willShow);
+        toggleBtn.setAttribute('aria-expanded', String(willShow));
+        toggleBtn.querySelector('svg')?.setAttribute('style', willShow ? 'transform: rotate(180deg); transition: transform 0.2s ease;' : 'transform: none; transition: transform 0.2s ease;');
+      });
+
+      panel.querySelectorAll('[data-example-query]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const text = btn.getAttribute('data-example-query') || btn.textContent.trim();
+          input.value = text;
+          input.focus();
+          closePanel();
+        });
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!panel.contains(e.target) && !toggleBtn.contains(e.target)) {
+          closePanel();
+        }
+      });
     }
 
           // Display results (existing function, enhanced)
@@ -668,8 +795,9 @@
       // Add query and parameter display at the top (fixed position)
       if (query) {
         const backendSelect = document.getElementById('backend');
-        const backend = searchParams?.method || (backendSelect && backendSelect.value ? backendSelect.value : 'diskann');
-        const nprobe = searchParams?.nprobe || document.getElementById('nprobe').value;
+        const backend = searchParams?.backend || searchParams?.method || (backendSelect && backendSelect.value ? backendSelect.value : 'diskann');
+        const nprobe = (searchParams?.nprobe ?? document.getElementById('nprobe')?.value ?? '').toString().trim();
+        const effectiveNprobe = nprobe !== '' ? nprobe : (document.getElementById('nprobe')?.value || '');
         const k = searchParams?.k || document.getElementById('k').value;
         const minWordsChip = searchParams?.minWords ?? (document.getElementById('minWords')?.value || '').trim();
         const useRerank = searchParams?.useRerank !== undefined ? searchParams.useRerank : document.getElementById('rerankToggle').classList.contains('enabled');
@@ -695,7 +823,8 @@
         const previewAttr = (previewEscaped || '').replace(/'/g, "&#39;");
 
         const queryDisplay = document.createElement('div');
-        queryDisplay.className = "text-gray-700 text-lg font-medium mb-4 bg-[#f7f9fc] py-3 px-4 shadow-sm rounded-lg fixed top-0 left-0 md:left-80 right-2 md:right-6 z-20";
+        queryDisplay.className = "text-gray-700 text-lg font-medium mb-4 bg-[#f7f9fc] py-3 px-4 shadow-sm rounded-lg fixed top-0 left-0 right-2 z-20";
+        queryDisplay.setAttribute('data-query-header', '1');
         // append first for measuring available width
         container.appendChild(queryDisplay);
 
@@ -719,7 +848,7 @@
               ? `<span class="bg-gray-200 text-gray-700 text-sm px-2 py-1 rounded-full">L: ${diskannL}</span>
                  <span class=\"bg-gray-200 text-gray-700 text-sm px-2 py-1 rounded-full\">W: ${diskannW}</span>
                  <span class=\"bg-gray-200 text-gray-700 text-sm px-2 py-1 rounded-full\">threads: ${diskannThreads}</span>`
-              : `<span class=\"bg-gray-200 text-gray-700 text-sm px-2 py-1 rounded-full\">nprobe: ${nprobe}</span>`}
+              : `<span class=\"bg-gray-200 text-gray-700 text-sm px-2 py-1 rounded-full\">nprobe: ${effectiveNprobe}</span>`}
             <span class="bg-gray-200 text-gray-700 text-sm px-2 py-1 rounded-full">k: ${k}</span>
             ${minWordsChip !== '' ? `<span class="bg-gray-200 text-gray-700 text-sm px-2 py-1 rounded-full">Min Words: ${minWordsChip}</span>` : ''}
             ${useRerank ? '<span class="bg-teal-100 text-teal-700 text-sm px-2 py-1 rounded-full">Exact Search</span>' : ''}
@@ -734,6 +863,7 @@
         initQueryCollapsible(queryDisplay);
         // On resize, recompute collapse based on available width
         setupResponsiveHeader(queryDisplay);
+        adjustSearchGroupPosition();
       }
       
       const passages = data?.results?.passages?.[0] || [];
@@ -797,7 +927,7 @@
         // Attach event listeners for Show More/Less functionality
         attachShowMoreListeners();
         // [disk-vote] attach vote listeners tied to current query
-        attachVoteListeners(query);
+        attachVoteListeners(query, searchParams);
       } else {
         const noResultsDiv = document.createElement('div');
         noResultsDiv.className = 'bg-red-50 border border-red-300 text-red-700 p-6 rounded-2xl shadow-md text-center max-w-2xl mx-auto mt-10';
@@ -873,8 +1003,6 @@
       // Gray out IVFPQ params when DiskANN
       setRowDisabled(nprobeRow, isDiskANN);
       setRowDisabled(rerankBtn.parentElement, isDiskANN);
-      setRowDisabled(diverseBtn.parentElement, isDiskANN);
-      setRowDisabled(lambdaRow, isDiskANN);
 
       // Gray out DiskANN params when IVFPQ
       setRowDisabled(diskannLRow, !isDiskANN);
@@ -919,6 +1047,9 @@
     async function submitQuery(addToHist) {
       // Hide parameter panel when submitting query
       document.getElementById('paramPanel').classList.add('hidden');
+      if (isSearching) {
+        return;
+      }
       
       const qi = document.getElementById('queryInput');
       const displayVal = qi.value;
@@ -977,8 +1108,8 @@
             nprobe: method === 'diskann' ? undefined : parseInt(nprobe),
             n_docs: parseInt(k),
             exact_search: method === 'diskann' ? false : useRerank,
-            diverse_search: method === 'diskann' ? false : useDiverse,
-            lambda: method === 'diskann' ? undefined : lambdaVal,
+            diverse_search: useDiverse,
+            lambda: useDiverse ? lambdaVal : undefined,
             
             diskann_L: method === 'diskann' ? parseInt(diskannL) : undefined,
             diskann_W: method === 'diskann' ? parseInt(diskannW) : undefined,
@@ -994,11 +1125,11 @@
         container.innerHTML = '';
         
          if (addToHist) {
-           const searchParams = { method, nprobe, diskannL, diskannW, diskannThreads, k, useRerank, useDiverse, lambdaVal, minWords: (minWords !== null && Number.isFinite(minWords)) ? minWords : '' };
+           const searchParams = { backend: method, method, nprobe, diskannL, diskannW, diskannThreads, k, useRerank, useDiverse, lambdaVal, minWords: (minWords !== null && Number.isFinite(minWords)) ? minWords : '' };
            addToHistory(query, data, searchParams, latency);
          }
          
-         displayResults(data, query, { method, nprobe, diskannL, diskannW, diskannThreads, k, useRerank, useDiverse, lambdaVal, minWords: (minWords !== null && Number.isFinite(minWords)) ? minWords : '' }, latency);
+         displayResults(data, query, { backend: method, method, nprobe, diskannL, diskannW, diskannThreads, k, useRerank, useDiverse, lambdaVal, minWords: (minWords !== null && Number.isFinite(minWords)) ? minWords : '' }, latency);
         
       } catch (err) {
         container.innerHTML = '<div class="text-red-500 text-sm">Error fetching result.</div>';
@@ -1093,7 +1224,12 @@
     }
 
     // ============================ [disk-vote] BEGIN additions ============================
-    function attachVoteListeners(queryForVote) {
+    function attachVoteListeners(queryForVote, latestParams = {}) {
+      const toInt = (val) => {
+        if (val === null || val === undefined || val === '') return undefined;
+        const num = parseInt(val, 10);
+        return Number.isNaN(num) ? undefined : num;
+      };
       try {
         document.querySelectorAll('[data-vote-box]').forEach(box => {
           box.querySelectorAll('[data-vote]').forEach(btn => {
@@ -1103,10 +1239,34 @@
               const relevant = vote === 'yes';
               const parent = e.currentTarget.parentElement;
               // [disk-vote] include current search parameters for analysis
-              const nprobe = document.getElementById('nprobe')?.value;
-              const useRerank = document.getElementById('rerankToggle')?.classList.contains('enabled');
-              const useDiverse = document.getElementById('diverseToggle')?.classList.contains('enabled');
-              const lambdaVal = parseFloat(document.getElementById('lambda')?.value || '50') / 100;
+              const backendSelect = document.getElementById('backend');
+              const backend = latestParams?.method || latestParams?.backend || (backendSelect && backendSelect.value ? backendSelect.value : 'diskann');
+              const nprobeCandidate = latestParams?.nprobe ?? document.getElementById('nprobe')?.value;
+              const defaultUseRerank = document.getElementById('rerankToggle')?.classList.contains('enabled');
+              const defaultUseDiverse = document.getElementById('diverseToggle')?.classList.contains('enabled');
+              const useRerank = latestParams?.useRerank !== undefined ? !!latestParams.useRerank : !!defaultUseRerank;
+              const useDiverse = latestParams?.useDiverse !== undefined ? !!latestParams.useDiverse : !!defaultUseDiverse;
+              const lambdaInputVal = parseFloat(document.getElementById('lambda')?.value || '50') / 100;
+              const lambdaVal = typeof latestParams?.lambdaVal === 'number' ? latestParams.lambdaVal : lambdaInputVal;
+              const kCandidate = latestParams?.k ?? document.getElementById('k')?.value;
+              const minWordsCandidate = (latestParams && latestParams.minWords !== undefined)
+                ? latestParams.minWords
+                : document.getElementById('minWords')?.value;
+              const diskannLCandidate = latestParams?.diskannL ?? document.getElementById('diskannL')?.value;
+              const diskannWCandidate = latestParams?.diskannW ?? document.getElementById('diskannW')?.value;
+              const diskannThreadsCandidate = latestParams?.diskannThreads ?? document.getElementById('diskannThreads')?.value;
+              const configPayload = {
+                backend,
+                k: typeof kCandidate === 'number' ? kCandidate : toInt(kCandidate),
+                min_words: typeof minWordsCandidate === 'number' ? minWordsCandidate : toInt(minWordsCandidate),
+                nprobe: backend === 'diskann' ? undefined : toInt(nprobeCandidate),
+                exact_search: backend === 'diskann' ? false : useRerank,
+                diverse_search: useDiverse,
+                lambda: useDiverse ? lambdaVal : 0,
+                diskann_L: backend === 'diskann' ? (typeof diskannLCandidate === 'number' ? diskannLCandidate : toInt(diskannLCandidate)) : undefined,
+                diskann_W: backend === 'diskann' ? (typeof diskannWCandidate === 'number' ? diskannWCandidate : toInt(diskannWCandidate)) : undefined,
+                diskann_threads: backend === 'diskann' ? (typeof diskannThreadsCandidate === 'number' ? diskannThreadsCandidate : toInt(diskannThreadsCandidate)) : undefined,
+              };
               try {
                 await fetch(`${API_BASE}/vote`, {
                   method: 'POST',
@@ -1115,12 +1275,8 @@
                     query: queryForVote || document.getElementById('queryInput')?.value || '',
                     passage_id: passageId,
                     relevant: relevant,
-                    config: {
-                      nprobe: nprobe ? parseInt(nprobe) : undefined,
-                      exact_search: !!useRerank,
-                      diverse_search: !!useDiverse,
-                      lambda: lambdaVal
-                    }
+                    backend: backend,
+                    config: configPayload
                   })
                 });
                 parent.innerHTML = relevant
@@ -1424,6 +1580,8 @@
           setTimeout(positionParamPanel, 10); // Small delay to ensure panel is visible
         });
       }
+
+      setupExampleQueries();
 
       // Paste handling for query input to preserve internal newlines while keeping box single-line
       const qi = document.getElementById('queryInput');

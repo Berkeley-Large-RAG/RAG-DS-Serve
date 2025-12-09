@@ -1,6 +1,6 @@
 ---
 layout: page
 redirect_to:
-  - https://huggingface.co/spaces/liujch1998/infini-gram
+  - http://api.ds-serve.org:30888/ui
 title: Web Interface
 ---
