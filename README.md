@@ -2,6 +2,7 @@
   <img src="massive_serve/api/styles/logo_main.png" width="200" alt="DS Serve Logo"/>
   <h1>🚀 DS Serve</h1>
   <h3>A Framework for Efficient and Scalable Neural Retrieval</h3>
+  <p>We deploy the largest open vector store over high quality pretraining data.</p>
   <p>
     <a href="http://api.ds-serve.org:30888/ui"><b>Web Interface</b></a> •
     <a href="https://berkeley-large-rag.github.io/RAG-DS-Serve/"><b>Blog</b></a> •
