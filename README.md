@@ -2,6 +2,8 @@
 
 This repository contains the Compact‑DS Dive Public API and server code. It exposes a production‑ready Flask service for retrieval‑augmented generation (RAG) backed by a billion‑scale FAISS IVFPQ index. The server provides adjustable settings and search modes at low-latency. A small CLI helps download/prepare indices and start the server, and an example domain (`index_dev/`) shows the expected data layout. Please refer to the Quickstart below to set up.
 
+[**Web Interface**](http://api.ds-serve.org:30888/ui) | [**Blog / Documentation**](https://berkeley-large-rag.github.io/RAG-DS-Serve/)
+
 ### Expected data layout (under DATASTORE_PATH)
 
 ```
