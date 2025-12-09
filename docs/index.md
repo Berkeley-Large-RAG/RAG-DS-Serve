@@ -315,7 +315,7 @@ The approximate nature of the ANN backend inevitably sacrifices accuracy, thus w
 </p>
 <p>Single-request search is typically only used on the UI where the users search one query at a time light and easy. However, as tested batched search is always faster thanks to less overhead per request on average, so using a bigger batch is recommended for more intense retrieval with the API.</p>
 
-<p align="left"><i>Figures 7a–7b: TriviaQA and NaturalQS accuracy on the metrics: Recall, F1, Exact Match. DiskANN outperforms IVFPQ across both datasets. L=5000 for DiskANN and nprobe=256 for IVFPQ</i></p>
+<p align="left"><i>Figures 7a–7b: TriviaQA and NaturalQS accuracy on Recall (fraction of queries with at least one correct hit), Exact Match (strict string match on the answer), and F1 (token‑level overlap). DiskANN outperforms IVFPQ across both datasets. L=5000 for DiskANN and nprobe=256 for IVFPQ.</i></p>
 <p align="center">
   <img src="{{ 'accuracy_ivfpq_vs_diskann_triviaqa.png' | relative_url }}" style="width: 45%; margin: 5px;" />
   <img src="{{ 'accuracy_ivfpq_vs_diskann_naturalqs.png' | relative_url }}" style="width: 45%; margin: 5px;" />
@@ -402,7 +402,6 @@ Key takeaways:
 <p>See Figures 3a–7b above for the visual comparison.</p>
 
 
-<p class="small-note"><i>Table 1: Results evaluated with LLaMa 3.1 8B.</i></p>
 <table style="width:100%; border-collapse:collapse; text-align:center;">
   <thead>
     <tr>

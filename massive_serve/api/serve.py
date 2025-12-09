@@ -1,6 +1,5 @@
 import os
 import json
-import hashlib  # [disk-vote] query hashing for compact storage
 import sqlite3  # [disk-vote-sqlite] efficient lookup index
 import traceback
 from datetime import datetime, timedelta, timezone
@@ -140,16 +139,8 @@ CORS(app)
 PROXY_EXACT_DIVERSE_BASE = 'http://api.ds-serve.org:30888'
 
 
-# ============================ [disk-vote] BEGIN additions ============================
-# Persist passage relevance votes to disk for later analysis and across restarts.
-# One JSON line per vote: { ts, query_hash, query_norm, passage_id, relevant, raw_query }
-
 class DiskVoteStore:
-    """Append-only JSONL vote store with bounded tail scans for lookup.
-
-    - Writes are serialized via a process-level lock
-    - get_vote scans from file end up to a fixed number of lines to find latest
-    """
+    """Append-only JSONL vote store with a SQLite sidecar for fast lookups."""
 
     def __init__(self, base_dir: str, file_name: str = "votes.jsonl", tail_scan_limit: int = 20000) -> None:
         self.base_dir = base_dir
@@ -157,24 +148,13 @@ class DiskVoteStore:
         self.file_path = os.path.join(self.base_dir, file_name)
         self.tail_scan_limit = int(tail_scan_limit)
         self._lock = threading.Lock()
-        # [disk-vote-sqlite] initialize sqlite sidecar for fast lookups
         self.db_path = os.path.join(self.base_dir, "votes.sqlite3")
         self._db = sqlite3.connect(self.db_path, check_same_thread=False)
         self._db.execute("PRAGMA journal_mode=WAL;")
         self._db.execute("PRAGMA synchronous=NORMAL;")
-        self._create_tables()
+        self._ensure_vote_table()
 
     @staticmethod
-    def _normalize_query(query: str) -> str:
-        if not isinstance(query, str):
-            return ""
-        return " ".join(query.strip().lower().split())
-
-    @classmethod
-    def _hash_query(cls, query: str) -> str:
-        norm = cls._normalize_query(query)
-        return hashlib.sha1(norm.encode("utf-8")).hexdigest()
-
     @staticmethod
     def _canonicalize_ctx(ctx: dict | None) -> dict:
         if not isinstance(ctx, dict):
@@ -217,166 +197,159 @@ class DiskVoteStore:
             out["diskann_threads"] = diskann_threads_val
         return out
 
-    @classmethod
-    def _hash_ctx(cls, ctx: dict | None) -> str:
-        canon = cls._canonicalize_ctx(ctx)
-        # stable JSON string for hashing
-        canon_str = json.dumps(canon, sort_keys=True, separators=(",", ":"))
-        return hashlib.sha1(canon_str.encode("utf-8")).hexdigest()
+    def _ensure_vote_table(self) -> None:
+        cur = self._db.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='votes'"
+        ).fetchone()
+        if not cur:
+            self._create_vote_table()
+            return
+        columns = {row[1] for row in self._db.execute("PRAGMA table_info(votes)").fetchall()}
+        required = {"time_stamp", "query", "passage_id", "vote", "relevant", "backend", "parameters"}
+        if not required.issubset(columns):
+            self._migrate_vote_table()
 
-    def _create_tables(self) -> None:
-        # Minimal normalized schema
-        self._db.execute(
-            """
-            CREATE TABLE IF NOT EXISTS queries (
-              query_hash TEXT PRIMARY KEY,
-              query_norm TEXT
-            )
-            """
-        )
-        self._db.execute(
-            """
-            CREATE TABLE IF NOT EXISTS contexts (
-              ctx_hash TEXT PRIMARY KEY,
-              nprobe INTEGER,
-              exact_search INTEGER,
-              diverse_search INTEGER,
-              lambda REAL
-            )
-            """
-        )
+    def _create_vote_table(self) -> None:
         self._db.execute(
             """
             CREATE TABLE IF NOT EXISTS votes (
-              query_hash TEXT NOT NULL,
-              ctx_hash TEXT NOT NULL,
+              time_stamp TEXT NOT NULL,
+              query TEXT NOT NULL,
               passage_id TEXT NOT NULL,
+              vote TEXT NOT NULL,
               relevant INTEGER NOT NULL,
-              ts INTEGER NOT NULL,
-              PRIMARY KEY (query_hash, ctx_hash, passage_id)
+              backend TEXT,
+              parameters TEXT NOT NULL,
+              PRIMARY KEY (query, parameters, passage_id)
             )
             """
         )
         self._db.commit()
 
+    def _migrate_vote_table(self) -> None:
+        try:
+            self._db.execute("ALTER TABLE votes RENAME TO votes_legacy")
+        except Exception:
+            self._db.execute("DROP TABLE IF EXISTS votes")
+            self._create_vote_table()
+            return
+        self._create_vote_table()
+        self._rebuild_from_json()
+        self._db.execute("DROP TABLE IF EXISTS votes_legacy")
+        self._db.commit()
+
+    def _rebuild_from_json(self) -> None:
+        if not os.path.exists(self.file_path):
+            return
+        with open(self.file_path, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    rec = json.loads(line)
+                except Exception:
+                    continue
+                self._insert_sqlite_row_from_record(rec)
+        self._db.commit()
+
+    def _insert_sqlite_row_from_record(self, record: dict) -> None:
+        query = record.get("query") or record.get("query_norm")
+        passage_id = record.get("passage_id")
+        if not query or passage_id is None:
+            return
+        backend = record.get("backend")
+        params_dict = record.get("parameters") or record.get("config") or {}
+        if not isinstance(params_dict, dict):
+            params_dict = {}
+        if backend and "backend" not in params_dict:
+            params_dict["backend"] = backend
+        canon = self._canonicalize_ctx(params_dict)
+        params_json = json.dumps(canon or {}, sort_keys=True, separators=(",", ":"))
+        relevant_bool = bool(record.get("relevant"))
+        vote_label = record.get("vote")
+        if vote_label not in ("yes", "no"):
+            vote_label = "yes" if relevant_bool else "no"
+        ts_raw = record.get("time stamp") or record.get("time_stamp") or record.get("ts")
+        if isinstance(ts_raw, (int, float)):
+            ts_str = datetime.fromtimestamp(int(ts_raw), PDT_TZ).strftime("%Y-%m-%d %H:%M:%S %Z")
+        elif isinstance(ts_raw, str):
+            ts_str = ts_raw
+        else:
+            ts_str = datetime.now(PDT_TZ).strftime("%Y-%m-%d %H:%M:%S %Z")
+        self._db.execute(
+            """
+            INSERT OR REPLACE INTO votes(time_stamp, query, passage_id, vote, relevant, backend, parameters)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                ts_str,
+                query,
+                str(passage_id),
+                vote_label,
+                1 if relevant_bool else 0,
+                backend,
+                params_json,
+            ),
+        )
+
+    @staticmethod
+    def _canonical_params_json(canon_ctx: dict | None) -> str:
+        return json.dumps(canon_ctx or {}, sort_keys=True, separators=(",", ":"))
+
     def record_vote(self, query: str, passage_id: str, relevant: bool, ctx: dict | None = None) -> None:
-        ts_epoch = int(time.time())
-        normalized_query = self._normalize_query(query)
         compact_ctx = self._canonicalize_ctx(ctx)
-        backend_label = compact_ctx.get("backend")
-        params_for_payload = {k: v for k, v in compact_ctx.items() if k != "backend"}
+        backend_label = compact_ctx.get("backend") if compact_ctx else None
         payload = {
             "time stamp": current_pdt_timestamp(),
             "query": query,
             "passage_id": str(passage_id),
             "vote": "yes" if bool(relevant) else "no",
             "relevant": bool(relevant),
-            "parameters": clean_params(params_for_payload),
+            "backend": backend_label,
+            "parameters": clean_params(compact_ctx),
         }
-        if backend_label:
-            payload["backend"] = backend_label
-        line = json.dumps(payload, ensure_ascii=False)
+        params_json = self._canonical_params_json(compact_ctx)
         with self._lock:
             with open(self.file_path, "a", encoding="utf-8") as f:
-                f.write(line + "\n")
+                f.write(json.dumps(payload, ensure_ascii=False) + "\n")
                 f.flush()
                 os.fsync(f.fileno())
-            # [disk-vote-sqlite] upsert normalized rows for efficient lookup
-            qh = self._hash_query(query)
-            cn = normalized_query
-            ch = self._hash_ctx(compact_ctx)
-            rel = 1 if bool(payload["relevant"]) else 0
-            pid = payload["passage_id"]
-            # queries map
             self._db.execute(
-                "INSERT OR IGNORE INTO queries(query_hash, query_norm) VALUES (?, ?)",
-                (qh, cn),
-            )
-            # contexts map
-            if compact_ctx:
-                self._db.execute(
-                    "INSERT OR IGNORE INTO contexts(ctx_hash, nprobe, exact_search, diverse_search, lambda) VALUES (?, ?, ?, ?, ?)",
-                    (
-                        ch,
-                        compact_ctx.get("nprobe"),
-                        1 if compact_ctx.get("exact_search") else 0 if "exact_search" in compact_ctx else None,
-                        1 if compact_ctx.get("diverse_search") else 0 if "diverse_search" in compact_ctx else None,
-                        compact_ctx.get("lambda"),
-                    ),
-                )
-            else:
-                # ensure there is at least a row for empty ctx
-                self._db.execute(
-                    "INSERT OR IGNORE INTO contexts(ctx_hash, nprobe, exact_search, diverse_search, lambda) VALUES (?, NULL, NULL, NULL, NULL)",
-                    (ch,),
-                )
-            # votes upsert
-            self._db.execute(
-                "INSERT OR REPLACE INTO votes(query_hash, ctx_hash, passage_id, relevant, ts) VALUES (?, ?, ?, ?, ?)",
-                (qh, ch, pid, rel, ts_epoch),
+                """
+                INSERT OR REPLACE INTO votes(time_stamp, query, passage_id, vote, relevant, backend, parameters)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    payload["time stamp"],
+                    query,
+                    payload["passage_id"],
+                    payload["vote"],
+                    1 if payload["relevant"] else 0,
+                    backend_label,
+                    params_json,
+                ),
             )
             self._db.commit()
 
-    def get_vote(self, query: str, passage_id: str):
+    def get_vote(self, query: str, passage_id: str, ctx: dict | None = None):
         """Return latest vote True/False for (query, passage_id) or None if unseen."""
-        qh = self._hash_query(query)
-        qn = self._normalize_query(query)
         pid = str(passage_id)
         try:
-            if not os.path.exists(self.file_path):
-                return None
-            # Read tail blocks backwards without loading entire file
-            with open(self.file_path, "rb") as f:
-                f.seek(0, os.SEEK_END)
-                buffer = bytearray()
-                pos = f.tell()
-                lines_seen = 0
-                while pos > 0 and lines_seen < self.tail_scan_limit:
-                    step = min(4096, pos)
-                    pos -= step
-                    f.seek(pos)
-                    chunk = f.read(step)
-                    buffer[:0] = chunk
-                    while True:
-                        nl = buffer.rfind(b"\n")
-                        if nl == -1:
-                            break
-                        line = buffer[nl+1:]
-                        del buffer[nl:]
-                        if not line:
-                            continue
-                        try:
-                            rec = json.loads(line.decode("utf-8"))
-                            rec_qh = rec.get("query_hash")
-                            rec_norm = rec.get("normalized_query") or rec.get("query_norm")
-                            matches_query = False
-                            if rec_qh and rec_qh == qh:
-                                matches_query = True
-                            elif isinstance(rec_norm, str) and rec_norm == qn:
-                                matches_query = True
-                            if matches_query and str(rec.get("passage_id")) == pid:
-                                return bool(rec.get("relevant"))
-                        except Exception:
-                            pass
-                        lines_seen += 1
-                # Check remaining buffer (start of file)
-                if buffer:
-                    try:
-                        rec = json.loads(buffer.decode("utf-8"))
-                        rec_qh = rec.get("query_hash")
-                        rec_norm = rec.get("normalized_query") or rec.get("query_norm")
-                        matches_query = False
-                        if rec_qh and rec_qh == qh:
-                            matches_query = True
-                        elif isinstance(rec_norm, str) and rec_norm == qn:
-                            matches_query = True
-                        if matches_query and str(rec.get("passage_id")) == pid:
-                            return bool(rec.get("relevant"))
-                    except Exception:
-                        pass
-            return None
+            canon_ctx = self._canonicalize_ctx(ctx)
+            params_json = self._canonical_params_json(canon_ctx)
+            row = self._db.execute(
+                """
+                SELECT relevant FROM votes
+                WHERE query = ? AND parameters = ? AND passage_id = ?
+                """,
+                (query, params_json, pid),
+            ).fetchone()
+            if row is not None:
+                return bool(row[0])
         except Exception:
-            return None
+            pass
+        return None
 
 
 # Instantiate vote store under VM root folder (override with VOTES_DIR if set)
@@ -417,9 +390,13 @@ QUERY_LOGGER = QueryLogger(_query_log_dir)
 try:
     if _ivf and hasattr(_ivf, 'set_query_logger'):
         _ivf.set_query_logger(QUERY_LOGGER)
+    if _ivf and hasattr(_ivf, 'set_query_encoder'):
+        _ivf.set_query_encoder(query_encoder)
 except Exception:
     pass
 # ============================ [query-log] END additions ============================
+
+_SINGLE_QUERY_NOTICE_SHOWN = False
 
  
 class Item:
@@ -517,7 +494,10 @@ def search():
             print(f"[Batched Search] Received {len(request.json['queries'])} queries.")
             query_input = request.json["queries"]
         else:
-            print("Processing a single query at once. ")
+            global _SINGLE_QUERY_NOTICE_SHOWN
+            if not _SINGLE_QUERY_NOTICE_SHOWN:
+                print("Processing a single query at once.")
+                _SINGLE_QUERY_NOTICE_SHOWN = True
             query_input=request.json['query']
         # Build canonical config for caching key; suppress IVFPQ-only knobs when method=diskann
         method = request.json.get('backend') or request.json.get('method') or request.json.get('engine') or 'diskann'
@@ -531,8 +511,8 @@ def search():
         request_cfg = {
             'nprobe': request.json.get('nprobe', None) if method != 'diskann' else None,
             'exact_search': request.json.get('exact_search', False) if method != 'diskann' else False,
-            'diverse_search': request.json.get('diverse_search', False) if method != 'diskann' else False,
-            'lambda': request.json.get('lambda', 0.5) if method != 'diskann' else None,
+            'diverse_search': request.json.get('diverse_search', False),
+            'lambda': request.json.get('lambda', 0.5),
         }
         canon_cfg = DiskVoteStore._canonicalize_ctx(request_cfg)
         item = Item(
@@ -545,8 +525,8 @@ def search():
             # exact_rerank = request.json.get('use_rerank', False),  # ORIGINAL - commented out
             # use_diverse=request.json.get('use_diverse', False),  # ORIGINAL - commented out
             exact_rerank = request.json.get('exact_search', False) if method != 'diskann' else False,
-            use_diverse=request.json.get('diverse_search', False) if method != 'diskann' else False,
-            lambda_val=request.json.get('lambda', 0.5) if method != 'diskann' else None,
+            use_diverse=request.json.get('diverse_search', False),
+            lambda_val=request.json.get('lambda', 0.5),
             backend=method,
             diskann_L=request.json.get('diskann_L'),
             diskann_W=request.json.get('diskann_W'),
@@ -636,8 +616,8 @@ def search():
                         'k': int(item.n_docs),
                         'nprobe': None,
                         'exact_search': False,
-                        'diverse_search': False,
-                        'lambda': None,
+                        'diverse_search': bool(request.json.get('diverse_search', False)),
+                        'lambda': request.json.get('lambda', 0.5),
                     }
                     passages = []
                     if isinstance(results, dict):
@@ -715,9 +695,10 @@ def vote_peek():
         data = request.get_json(force=True, silent=True) or {}
         query = data.get('query')
         passage_id = data.get('passage_id')
+        ctx = data.get('config')
         if not query or passage_id is None:
             return jsonify({"status": "error", "message": "Missing query or passage_id"}), 400
-        val = vote_store.get_vote(query, str(passage_id))
+        val = vote_store.get_vote(query, str(passage_id), ctx if isinstance(ctx, dict) else None)
         return jsonify({"status": "ok", "vote": val}), 200
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500

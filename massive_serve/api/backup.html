@@ -484,6 +484,7 @@
       const welcomeMessage = document.getElementById('welcomeMessage');
       const sidebar = document.getElementById('historySidebar');
       const headerContent = document.getElementById('headerContent');
+      const queryHeader = document.querySelector('[data-query-header]');
       if (!searchGroup || !welcomeMessage || !sidebar || !headerContent) return;
 
       const isDesktop = window.innerWidth >= 1024;
@@ -497,6 +498,10 @@
         headerContent.style.marginLeft = `${sidebarWidth}px`;
         headerContent.style.marginRight = '0px';
         headerContent.style.width = `calc(100% - ${sidebarWidth}px)`;
+        if (queryHeader) {
+          queryHeader.style.left = `${sidebarWidth}px`;
+          queryHeader.style.right = '0px';
+        }
       } else {
         searchGroup.style.left = '0px';
         searchGroup.style.right = '0px';
@@ -505,6 +510,10 @@
         headerContent.style.marginLeft = '0px';
         headerContent.style.marginRight = '0px';
         headerContent.style.width = '100%';
+        if (queryHeader) {
+          queryHeader.style.left = '0px';
+          queryHeader.style.right = '0px';
+        }
       }
     }
 
@@ -718,8 +727,11 @@
 
     }
 
+    let isSearching = false;
+
     // Loading state management
     function setLoading(loading) {
+      isSearching = loading;
       const sendButton = document.getElementById('sendButton');
       const loadingSpinner = document.getElementById('loadingSpinner');
       
@@ -811,7 +823,8 @@
         const previewAttr = (previewEscaped || '').replace(/'/g, "&#39;");
 
         const queryDisplay = document.createElement('div');
-        queryDisplay.className = "text-gray-700 text-lg font-medium mb-4 bg-[#f7f9fc] py-3 px-4 shadow-sm rounded-lg fixed top-0 left-0 md:left-80 right-2 md:right-6 z-20";
+        queryDisplay.className = "text-gray-700 text-lg font-medium mb-4 bg-[#f7f9fc] py-3 px-4 shadow-sm rounded-lg fixed top-0 left-0 right-2 z-20";
+        queryDisplay.setAttribute('data-query-header', '1');
         // append first for measuring available width
         container.appendChild(queryDisplay);
 
@@ -850,6 +863,7 @@
         initQueryCollapsible(queryDisplay);
         // On resize, recompute collapse based on available width
         setupResponsiveHeader(queryDisplay);
+        adjustSearchGroupPosition();
       }
       
       const passages = data?.results?.passages?.[0] || [];
@@ -989,8 +1003,6 @@
       // Gray out IVFPQ params when DiskANN
       setRowDisabled(nprobeRow, isDiskANN);
       setRowDisabled(rerankBtn.parentElement, isDiskANN);
-      setRowDisabled(diverseBtn.parentElement, isDiskANN);
-      setRowDisabled(lambdaRow, isDiskANN);
 
       // Gray out DiskANN params when IVFPQ
       setRowDisabled(diskannLRow, !isDiskANN);
@@ -1035,6 +1047,9 @@
     async function submitQuery(addToHist) {
       // Hide parameter panel when submitting query
       document.getElementById('paramPanel').classList.add('hidden');
+      if (isSearching) {
+        return;
+      }
       
       const qi = document.getElementById('queryInput');
       const displayVal = qi.value;
@@ -1093,8 +1108,8 @@
             nprobe: method === 'diskann' ? undefined : parseInt(nprobe),
             n_docs: parseInt(k),
             exact_search: method === 'diskann' ? false : useRerank,
-            diverse_search: method === 'diskann' ? false : useDiverse,
-            lambda: method === 'diskann' ? undefined : lambdaVal,
+            diverse_search: useDiverse,
+            lambda: useDiverse ? lambdaVal : undefined,
             
             diskann_L: method === 'diskann' ? parseInt(diskannL) : undefined,
             diskann_W: method === 'diskann' ? parseInt(diskannW) : undefined,
@@ -1246,8 +1261,8 @@
                 min_words: typeof minWordsCandidate === 'number' ? minWordsCandidate : toInt(minWordsCandidate),
                 nprobe: backend === 'diskann' ? undefined : toInt(nprobeCandidate),
                 exact_search: backend === 'diskann' ? false : useRerank,
-                diverse_search: backend === 'diskann' ? false : useDiverse,
-                lambda: backend === 'diskann' ? 0 : (useDiverse ? lambdaVal : 0),
+                diverse_search: useDiverse,
+                lambda: useDiverse ? lambdaVal : 0,
                 diskann_L: backend === 'diskann' ? (typeof diskannLCandidate === 'number' ? diskannLCandidate : toInt(diskannLCandidate)) : undefined,
                 diskann_W: backend === 'diskann' ? (typeof diskannWCandidate === 'number' ? diskannWCandidate : toInt(diskannWCandidate)) : undefined,
                 diskann_threads: backend === 'diskann' ? (typeof diskannThreadsCandidate === 'number' ? diskannThreadsCandidate : toInt(diskannThreadsCandidate)) : undefined,
