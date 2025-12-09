@@ -1,6 +1,7 @@
 __pycache__/
 *.egg-info/
 dist/
+./logging/
 build/lib/
 embedding_cache/
 !embedding_cache/.gitkeep
