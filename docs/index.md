@@ -51,21 +51,60 @@ p { font-size: 18px; margin: 6px 0; }
   text-decoration: none;
 }
 .note-sup a:hover { color: #6b7280; text-decoration: underline; }
+/* Overview highlight box */
+.overview-box {
+  background: #ffffb3;
+  border-left: 4px solid #facc15;
+  padding: 12px 16px;
+  margin: 12px 0 16px;
+  border-radius: 6px;
+  color: #1f2937;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
 /* Make details summaries match paragraph sizing */
 details > summary {
   font-size: 18px;
   margin: 6px 0;
   cursor: pointer;
 }
+/* Responsive helpers */
+.affiliations {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 14px;
+  font-size: 15px;
+  line-height: 1.4;
+  margin: 0 auto 4px;
+  max-width: 520px;
+  text-align: center;
+}
+.affiliations span {
+  white-space: normal;
+}
+.affiliations sup {
+  margin-right: 2px;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
 /* Hide theme-injected page title on homepage to avoid duplicate 'DS Serve' */
 .post-title, .page-title { display: none; }
 /* Hide the Minima footer on the homepage to avoid duplicate site title */
 .site-footer { display: none !important; }
 /* Center the top navigation and enlarge links on the homepage */
-.site-header .wrapper { justify-content: center; }
+.site-header .wrapper { justify-content: center; flex-wrap: wrap; gap: 8px; }
 .site-header .site-title { font-size: 18px !important; font-weight: 600 !important; color: #111827 !important; margin-right: 12px !important; }
-.site-header .site-nav .page-link { font-size: 18px; font-weight: 600; color: #111827; }
-.site-header .site-nav .trigger { justify-content: center; gap: 10px; }
+.site-header .site-nav .page-link { display: inline-block; margin: 2px 6px; font-size: 16px; }
+.site-header .site-nav .trigger { justify-content: center; gap: 10px; flex-wrap: wrap; }
 /* Stronger header divider and single-line layout */
 .site-header { border-bottom: 3px solid #111827 !important; }
 /* Header logo sizing */
@@ -75,6 +114,39 @@ details > summary {
   object-fit: contain;
   margin-right: 8px;
   vertical-align: middle;
+}
+@media (max-width: 768px) {
+  .affiliations {
+    max-width: 100%;
+    padding: 0 12px;
+  }
+}
+@media (max-width: 640px) {
+  .site-header .site-title {
+    display: none !important;
+  }
+  .site-header .wrapper {
+    justify-content: flex-end;
+  }
+  .site-header .site-nav .trigger {
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px 16px;
+    margin-top: 10px;
+    background: #ffffff;
+    border: 1px solid rgba(15,23,42,0.1);
+    border-radius: 12px;
+    box-shadow: 0 12px 25px rgba(15,23,42,0.12);
+    text-align: left;
+  }
+  .site-header .site-nav input.nav-trigger:checked ~ .trigger {
+    display: flex;
+  }
+  .site-header .site-nav .page-link {
+    font-size: 16px;
+    margin: 4px 0;
+  }
 }
 /* Performance table */
 .perf-table { overflow-x: auto; margin: 8px 0 12px; }
@@ -97,12 +169,12 @@ details > summary {
   <a href="https://people.eecs.berkeley.edu/~matei/" target="_blank">Matei Zaharia</a><sup>1</sup>, 
   <a href="https://www.sewonmin.com/" target="_blank">Sewon Min</a><sup>1</sup>
 </p>
-<p align="center">
-  <sup>1</sup>University of California, Berkeley &nbsp;
-  <sup>2</sup>University of Illinois Urbana–Champaign &nbsp;
-  <sup>3</sup>University of Washington
+<p align="center" class="affiliations">
+  <sup>1</sup>University of California, Berkeley &nbsp; <sup>2</sup>University of Illinois Urbana–Champaign &nbsp; <sup>3</sup>University of Washington
 </p>
-<p align="center"><sup>*</sup>Equal contribution.</p>
+<p align="center" class="equal-note">
+  <sup>*</sup>Equal contribution.
+</p>
 <p align="center">[<a href="http://api.ds-serve.org:30888/ui">Web Interface</a>] [<a href="{{ 'API_DOCUMENTATION.html' | relative_url }}">API Endpoint</a>] [<a href="{{ 'VOTES_DOCUMENTATION.html' | relative_url }}">Voting System</a>] [<a href="https://github.com/Berkeley-Large-RAG/RAG-DS-Serve">Code</a>] [<a href="{{ 'assets/DS_SERVE_Camera_Ready.pdf' | relative_url }}">Paper</a>]</p>
 
 <!-- **[✨NEW]** DiskANN integration: >2000 index-level QPS and ~200+ end-to-end QPS at 500B-token scale with ~200 GB RAM.
@@ -116,17 +188,25 @@ details > summary {
 
 ## Overview
 
-The design of **DS Serve** is motivated by current challenges in information retrieval:
-- Commercial search engines struggle with long and complex queries while being costly to deploy at scale, so a powerful yet affordable search framework is needed
-- Exponential growth of information database obsoletes traditional linear search, urging more efficient neural retrieval.
-- A gap persists between the NLP and database search community, preventing effective uses of search tools and algorithms like ANN<sup class="note-sup"><a href="#overview-note" aria-label="See note">*</a></sup>
-- User labels for search results have been difficult to collect and curate
+<div class="overview-box">
+  <p>You can turn any large in-house dataset (<1T tokens) into a high-throughput (200+ end-to-end QPS), memory-efficient (<200 GB RAM) retrieval system with a web UI and API.</p>
+  <p>Our prototype, built on 400B words of high-quality LLM pre-training data, is readily available and provides downstream gains comparable to commercial search engine endpoints.</p>
+</div>
 
-To address these challenges, we introduce **DS Serve**, a framework that transforms a large-scale text corpus into a high-performance neural retrieval system that's:
-- **[✨NEW]** blazing fast with high throughput 🚀 
-- **[✨NEW]** built upon the largest datastore (~500B tokens, ~2B vectors, ~5T vector embeddings)
-- **[✨NEW]** featuring customizable and efficient search backends -- IVFPQ/DiskANN, plus Exact and Diverse Search<sup class="note-sup"><a href="#overview-note" aria-label="See note">*</a></sup>
-- **[✨NEW]** providing high-performance neural retrieval through free public endpoints and gathers user feedback in real-time
+<p align="center">
+  <img src="{{ 'assets/UI.png' | relative_url }}" alt="UI snippet" style="width: 36%; margin: 5px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);" />
+  <img src="{{ 'assets/panel.png' | relative_url }}" alt="Parameter panel snippet" style="width: 24%; margin: 5px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);" />
+</p>
+<p align="center" class="small-note"><i>UI and parameter panel snippets</i></p>
+### Why was it previously challenging?
+
+- **Scaling neural retrieval is hard.** Achieving high throughput, low memory use, and strong accuracy on very large datasets is non-trivial—traditional linear scan is simply infeasible.
+- **Widely used ANN methods don’t scale gracefully.** At large scales, IVFPQ suffers from inefficient latency–performance tradeoffs and quantization errors, while HNSW demands substantial RAM, making modest deployments impractical.
+- **End-to-end tooling is lacking.** Few frameworks offer a ready-to-use retrieval stack with a web UI, API endpoints, and built-in feedback collection.
+
+As an example, most users default to search engines for general knowledge queries even when high-quality web data (e.g., LLM pre-training corpora) is publicly available. However, those engines are costly, low-throughput, and often unreliable at scale.
+
+**DS Serve** addresses these challenges by making it easy to transform any large-scale in-house dataset into a high-throughput, memory-efficient neural retrieval system backed by DiskANN—complete with a web UI, API endpoints, and mechanisms for collecting search-result feedback. Our prototype (400B tokens, 2B vectors, 5 TB embeddings) matches the downstream gains of commercial search endpoints and, to the best of our knowledge, is the largest publicly accessible vector store.
 
 <p align="left"><i>Figure 1: DS SERVE converts the largest pretraining dataset into an efficient neural retrieval system: a query q retrieves relevant text via ANN (IVFPQ or DiskANN), optionally reranks with exact and/or diverse search, and returns the top-k chunks with voting options for user feedback.</i></p>
 <p align="center">
@@ -161,7 +241,7 @@ We envision the use of **DS Serve** for fast, controllable retrieval in RAG and 
 ## Performance 
 <div class="perf-table">
   <table>
-    <caption>Table 1: Evaluation results. <i>Acc</i> is accuracy (%); <i>t</i> is end‑to‑end retrieval latency (s). For Exact Search, <i>t</i> is without cache and <i>t</i><sub>cache</sub> with cache. We use <i>K</i>=1000, <i>k</i>=10, and <i>n</i><sub>probe</sub>=256.</caption>
+    <caption>Table 1: Evaluation results (LLaMa 3.1 8B). <i>Acc</i> is accuracy (%); <i>t</i> is end‑to‑end retrieval latency (s). For Exact Search, <i>t</i> is without cache and <i>t</i><sub>cache</sub> with cache. We use <i>K</i>=1000, <i>k</i>=10, and <i>n</i><sub>probe</sub>=256.</caption>
     <thead>
       <tr>
         <th rowspan="2">Task</th>
@@ -236,7 +316,7 @@ The approximate nature of the ANN backend inevitably sacrifices accuracy, thus w
 </p>
 <p>Single-request search is typically only used on the UI where the users search one query at a time light and easy. However, as tested batched search is always faster thanks to less overhead per request on average, so using a bigger batch is recommended for more intense retrieval with the API.</p>
 
-<p align="left"><i>Figures 7a–7b: TriviaQA and NaturalQS accuracy on the metrics: Recall, F1, Exact Match. DiskANN outperforms IVFPQ across both datasets. L=5000 for DiskANN and nprobe=256 for IVFPQ</i></p>
+<p align="left"><i>Figures 7a–7b: TriviaQA and NaturalQS accuracy on Recall (fraction of queries with at least one correct hit), Exact Match (strict string match on the answer), and F1 (token‑level overlap). DiskANN outperforms IVFPQ across both datasets. L=5000 for DiskANN and nprobe=256 for IVFPQ.</i></p>
 <p align="center">
   <img src="{{ 'accuracy_ivfpq_vs_diskann_triviaqa.png' | relative_url }}" style="width: 45%; margin: 5px;" />
   <img src="{{ 'accuracy_ivfpq_vs_diskann_naturalqs.png' | relative_url }}" style="width: 45%; margin: 5px;" />
@@ -285,7 +365,7 @@ We provide two ways to use **DS Serve**: API calls and a web UI.
 ## Technical design 
 
 ### Datastore
-While prior work shows that retrieval over large pre‑training corpora can improve RAG accuracy (see <a href="https://arxiv.org/abs/2112.04426" target="_blank">RETRO</a>, <a href="https://arxiv.org/abs/2407.12854" target="_blank">MassiveDS</a>, <a href="https://arxiv.org/abs/2507.01297" target="_blank">CompactDS</a>, <a href="https://arxiv.org/abs/2005.11401" target="_blank">RAG</a>, <a href="https://arxiv.org/abs/2002.08909" target="_blank">REALM</a>), accessible frameworks for non‑experts to build and operate billion‑scale indexes have been lacking. Here, we demonstrate DS SERVE on CompactDS, a 380‑billion‑word corpus (~2B vectors) spanning web crawl data, Wikipedia, research papers, and more.
+While prior work shows that retrieval over large pre‑training corpora can improve RAG accuracy (see <a href="https://arxiv.org/abs/2112.04426" target="_blank">RETRO</a>, <a href="https://arxiv.org/abs/2407.12854" target="_blank">MassiveDS</a>, <a href="https://arxiv.org/abs/2507.01297" target="_blank">CompactDS</a>,<a href="https://arxiv.org/abs/2005.11401" target="_blank">RAG</a>, <a href="https://arxiv.org/abs/2002.08909" target="_blank">REALM</a>), accessible frameworks for non‑experts to build and operate billion‑scale indexes have been lacking. Here, we demonstrate DS SERVE on CompactDS, a 380‑billion‑word corpus (~2B vectors) spanning web crawl data, Wikipedia, research papers, and more.
 
 This represents a significantly larger datastore than most prior work, and to the best of our knowledge is the largest pretraining dataset that users can access in open source for free. Typical evaluations run at much smaller scales (often ≤ tens of millions of vectors), e.g., <a href="https://microsoft.github.io/msmarco/" target="_blank">MS&nbsp;MARCO</a>, <a href="https://ai.google.com/research/NaturalQuestions" target="_blank">Natural Questions</a>, and <a href="https://hotpotqa.github.io/" target="_blank">HotpotQA</a>, as well as consolidated leaderboards such as <a href="https://arxiv.org/abs/2104.08663" target="_blank">BEIR</a>. Even advanced commercial vector databases commonly impose per‑namespace/index limits well below the billion‑vector regime; see pricing/capacity notes for <a href="https://turbopuffer.com/pricing?namespaces=1&namespace=0&docs=1000000000&doc=7&writes=0&write=0" target="_blank">Turbopuffer</a>.
 
