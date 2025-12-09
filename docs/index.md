@@ -5,8 +5,8 @@ title: DS Serve
 
 <style>
 @import url('{{ "assets/infini-gram.css" | relative_url }}');
-p { font-size: 18px; margin: 6px 0; }
-.small-note { font-size: 14px; color: #666; margin-top: 2px; }
+p { font-size: 16px; margin: 6px 0; }
+.small-note { font-size: 13px; color: #666; margin-top: 2px; }
 /* Compact callout note for Overview */
 .callout-note {
   font-size: 13px;
@@ -63,20 +63,16 @@ p { font-size: 18px; margin: 6px 0; }
 }
 /* Make details summaries match paragraph sizing */
 details > summary {
-  font-size: 18px;
+  font-size: 16px;
   margin: 6px 0;
   cursor: pointer;
 }
 /* Responsive helpers */
 .affiliations {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 8px 14px;
-  font-size: 15px;
-  line-height: 1.4;
+  font-size: 13px;
+  line-height: 1.2;
   margin: 0 auto 4px;
-  max-width: 520px;
+  max-width: 100%;
   text-align: center;
 }
 .affiliations span {
@@ -158,9 +154,9 @@ details > summary {
 
 
 
-<h2 align="center">🚀 <b>DS SERVE: A Framework for Efficient and Scalable Neural Retrieval</b></h2>
+<h2 align="center" style="margin-top: 10px; margin-bottom: 5px;">🚀 <b>DS SERVE: A Framework for Efficient and Scalable Neural Retrieval</b></h2>
 
-<p align="center" class="authors">
+<p align="center" class="authors" style="margin-bottom: 2px;">
   <a href="https://github.com/berkeleyljj" target="_blank">Jinjian Liu</a><sup>1*</sup>, 
   <a href="https://yichuan-w.github.io/" target="_blank">Yichuan Wang</a><sup>1*</sup>, 
   <a href="https://alrope123.github.io/" target="_blank">Xinxi Lyu</a><sup>2</sup>, 
@@ -169,13 +165,13 @@ details > summary {
   <a href="https://people.eecs.berkeley.edu/~matei/" target="_blank">Matei Zaharia</a><sup>1</sup>, 
   <a href="https://www.sewonmin.com/" target="_blank">Sewon Min</a><sup>1</sup>
 </p>
-<p align="center">
+<p align="center" class="affiliations">
   <sup>1</sup>University of California, Berkeley &nbsp;
   <sup>2</sup>University of Illinois Urbana–Champaign &nbsp;
   <sup>3</sup>University of Washington
 </p>
-<p align="center"><sup>*</sup>Equal contribution.</p>
-<p align="center">[<a href="http://api.ds-serve.org:30888/ui">Web Interface</a>] [<a href="{{ 'API_DOCUMENTATION.html' | relative_url }}">API Endpoint</a>] [<a href="{{ 'VOTES_DOCUMENTATION.html' | relative_url }}">Voting System</a>] [<a href="https://github.com/Berkeley-Large-RAG/RAG-DS-Serve">Code</a>] [<a href="{{ 'assets/DS_SERVE_Camera_Ready.pdf' | relative_url }}">Paper</a>]</p>
+<p align="center" style="font-size: 13px; margin-top: 2px;"><sup>*</sup>Equal contribution.</p>
+<p align="center" style="margin-top: 6px;">[<a href="http://api.ds-serve.org:30888/ui">Web Interface</a>] [<a href="{{ 'API_DOCUMENTATION.html' | relative_url }}">API Endpoint</a>] [<a href="{{ 'VOTES_DOCUMENTATION.html' | relative_url }}">Voting System</a>] [<a href="https://github.com/Berkeley-Large-RAG/RAG-DS-Serve">Code</a>] [<a href="{{ 'assets/DS_SERVE_Camera_Ready.pdf' | relative_url }}">Paper</a>]</p>
 
 <!-- **[✨NEW]** DiskANN integration: >2000 index-level QPS and ~200+ end-to-end QPS at 500B-token scale with ~200 GB RAM.
 
@@ -186,12 +182,10 @@ details > summary {
 ---
 <br/>
 
-## Overview
-
 <div class="overview-box">
   <ol style="margin: 0; padding-left: 20px;">
-    <li style="margin-bottom: 8px;">You can turn any large in-house dataset (<1T tokens) into a high-throughput (200+ end-to-end QPS), memory-efficient (<200 GB RAM) retrieval system with a web UI and API.</li>
-    <li>Our prototype, built on 400B words of high-quality LLM pre-training data, is readily available and provides downstream gains comparable to commercial search engine endpoints.</li>
+    <li style="margin-bottom: 8px;">You can turn any large in-house dataset (<1T tokens) into a <b>high-throughput (200+ end-to-end QPS)</b>, <b>memory-efficient (<200 GB RAM)</b> retrieval system with a <b>web UI and API</b>.</li>
+    <li>Our <b>prototype</b>, built on <b>400B words</b> of high-quality LLM pre-training data, is readily available and provides downstream gains comparable to commercial search engine endpoints.</li>
   </ol>
 </div>
 
@@ -200,6 +194,7 @@ details > summary {
   <img src="{{ 'assets/panel.png' | relative_url }}" alt="Parameter panel snippet" style="width: 24%; margin: 5px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);" />
 </p>
 <p align="center" class="small-note"><i>UI and parameter panel snippets</i></p>
+
 ### Why was it previously challenging?
 
 - **Scaling neural retrieval is hard.** Achieving high throughput, low memory use, and strong accuracy on very large datasets is non-trivial—traditional linear scan is simply infeasible.
