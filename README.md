@@ -69,14 +69,14 @@ Notes:
 
 The server looks up passage text by FAISS index id using position mapping arrays. Generate them once from your `passages/` directory:
 
-- Open `build_arr.py` and set `INPUT_DIR` to your passages folder, e.g.:
+- Open `utils/build_arr.py` and set `INPUT_DIR` to your passages folder, e.g.:
 ```python
 INPUT_DIR = "/home/ubuntu/massive-serve-dev/index_dev/passages"
 ```
 
 - Then run from the repo root:
 ```bash
-python build_arr.py
+python utils/build_arr.py
 ```
 
 This writes three files next to the script (and the server expects them under `index_dev/` as configured by the code):
