@@ -101,7 +101,6 @@ details > summary {
 .site-header .site-title { font-size: 20px !important; font-weight: 700 !important; color: #111827 !important; margin-right: 12px !important; text-transform: uppercase; }
 .site-header .site-nav .page-link { display: inline-block; margin: 2px 6px; font-size: 16px; }
 .site-header .site-nav .trigger { justify-content: center; gap: 10px; flex-wrap: wrap; }
-.site-header .site-nav { display: none !important; } /* hide header links; keep title centered */
 /* Stronger header divider and single-line layout */
 .site-header { border-bottom: 3px solid #111827 !important; }
 /* Header logo sizing */
@@ -187,7 +186,6 @@ details > summary {
   <ol style="margin: 0; padding-left: 20px;">
     <li style="margin-bottom: 8px;">You can turn any large in-house dataset (<1T tokens) into a <b>high-throughput (up to 10000 QPS)</b>, <b>memory-efficient (<200 GB RAM)</b> retrieval system with a <b>web UI and API</b>.</li>
     <li>Our <b>prototype</b>, built on <b>400B words</b> of high-quality LLM pre-training data, is readily available and provides downstream gains comparable to commercial search engine endpoints.</li>
-    <li>DiskANN delivers the best balance of accuracy, latency, and RAM cost in our deployments, outperforming IVFPQ on real workloads.</li>
   </ol>
 </div>
 
@@ -241,33 +239,14 @@ We envision **DS Serve** enabling a range of high-impact applications:
 
 We provide two ways to use **DS Serve**: API calls and a web UI.
 
-<details>
-<summary><b>API</b></summary>
-<p><b>DS Serve</b> provides a free API for programmatic access via HTTP requests, enabling seamless integration into your applications and workflows. The API accepts configurable parameters and returns responses with retrieved passages and metadata. For detailed API documentation and usage examples, please refer to the <a href="{{ 'API_DOCUMENTATION.html' | relative_url }}">API Documentation</a> page.</p>
-</details>
+### API
+For programmatic access, see the API docs: <a href="{{ 'API_DOCUMENTATION.html' | relative_url }}">API Documentation</a>.
 
-<details>
-<summary><b>Web Interface</b></summary>
-<p align="left"><i>Figure 2: Control panel with tunable parameters and tooltips.</i></p>
+### Web interface
 <p align="center">
-  <img src="{{ 'panel.png' | relative_url }}" style="width: 90%;" />
+  <img src="{{ 'assets/ds-serve-ui.webp' | relative_url }}" alt="UI demo gif" style="width: 65%; margin: 8px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);" />
 </p>
-<p>Use the control panel to adjust search behavior (Figure 2):</p>
-<ul>
-  <li><b>nprobe</b>: Higher values increase accuracy but marginally add latency. Therefore a large value is generally recommended.</li>
-  <li><b>k (max: 1000)</b>: number of top passages to display.</li>
-  <li><b>Min words</b>: filter out passages shorter than this before display to encourage more context-rich results.</li>
-  <li><b>Exact Search</b>: improves accuracy at the cost of increased compute and overhead.</li>
-  <li><b>Diverse Search</b>: reduces redundant results for better coverage.</li>
-  <li><b>λ (lambda)</b>: diversity weight used only for <b>Diverse Search</b>. Higher values favor diversity, and lower relevance.</li>
-  <li><b>? icon</b>: click to reveal inline tooltips explaining each control parameter.</li>
-</ul>
-<p><b>Quick Walkthrough</b></p>
-<ul>
-  <li>Type a query. Optionally enable <b>Exact Search</b> to prioritize accuracy and <b>Diverse Search</b> to prioritize diversity. Then press "Enter" or click the arrow icon to search with either IVF_PQ ANN or DiskANN backend.</li>
-  <li>After results are shown, click the expand/collapse button to control the displayed chunk. Users can also vote <b>YES/NO</b> on the relevance of each result.</li>
-</ul>
-</details>
+<p>Use the control panel and toggles in the web UI to adjust search behavior.</p>
 
 ---
 <br/>
@@ -362,30 +341,21 @@ The approximate nature of the ANN backend inevitably sacrifices accuracy, thus w
 </details>
 
 
-<h3 align="center">Batched Retrieval</h3>
-<p><b>QPS:</b> IVFPQ vs DiskANN when batching queries.</p>
+<h3 align="center">DiskANN latency breakdown</h3>
+<p>Latency components for batched (left) vs single-request (right) serving. In practice, batched search keeps per-query overhead low, while single-request is for interactive UI usage.</p>
 <p align="center">
-  <img src="{{ 'plots/ivfpq_qps_batched.png' | relative_url }}" alt="IVFPQ QPS batched" style="width: 44%; margin: 8px;" />
-  <img src="{{ 'plots/diskann_qps_vs_L.png' | relative_url }}" alt="DiskANN batched QPS vs L" style="width: 44%; margin: 8px;" />
-</p>
-<p><b>Latency/Breakdown:</b> IVFPQ vs DiskANN batched latency.</p>
-<p align="center">
-  <img src="{{ 'plots/ivfpq_latency_batched.png' | relative_url }}" alt="IVFPQ latency batched" style="width: 44%; margin: 8px;" />
   <img src="{{ 'plots/diskann_latency_breakdown_vs_L.png' | relative_url }}" alt="DiskANN batched latency breakdown" style="width: 44%; margin: 8px;" />
+  <img src="{{ 'plots/diskann_single_request_latency_vs_L.png' | relative_url }}" alt="DiskANN single-request latency breakdown" style="width: 44%; margin: 8px;" />
 </p>
 <hr />
 
-<h3 align="center">Single-request Retrieval</h3>
-<p><b>QPS:</b> IVFPQ vs DiskANN for single-query serving.</p>
+<h3 align="center">DiskANN throughput vs L</h3>
+<p>QPS vs list size <i>L</i> for batched (left) and single-request (right). Smaller <i>L</i> can raise throughput but may hurt recall; we recommend <b>L≈1000</b> as a balance of accuracy and speed.</p>
 <p align="center">
-  <img src="{{ 'plots/ivfpq_qps_single.png' | relative_url }}" alt="IVFPQ QPS single" style="width: 44%; margin: 8px;" />
-  <img src="{{ 'plots/diskann_single_request_qps_vs_L.png' | relative_url }}" alt="DiskANN single QPS vs L" style="width: 44%; margin: 8px;" />
+  <img src="{{ 'plots/diskann_qps_vs_L.png' | relative_url }}" alt="DiskANN batched QPS vs L" style="width: 44%; margin: 8px;" />
+  <img src="{{ 'plots/diskann_single_request_qps_vs_L.png' | relative_url }}" alt="DiskANN single-request QPS vs L" style="width: 44%; margin: 8px;" />
 </p>
-<p><b>Latency/Breakdown:</b> IVFPQ vs DiskANN single-request latency.</p>
-<p align="center">
-  <img src="{{ 'plots/ivfpq_latency_single.png' | relative_url }}" alt="IVFPQ latency single" style="width: 44%; margin: 8px;" />
-  <img src="{{ 'plots/diskann_single_request_latency_vs_L.png' | relative_url }}" alt="DiskANN single latency vs L" style="width: 44%; margin: 8px;" />
-</p>
+<p>Higher <i>L</i> improves recall/quality; <i>L≈1000</i> is a recommended default for robust accuracy with strong throughput.</p>
 <hr />
 
 <h3 align="center">Accuracy comparisons</h3>

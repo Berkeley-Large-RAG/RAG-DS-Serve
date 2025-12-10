@@ -18,9 +18,12 @@ except Exception:
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 PLOT_DIR = os.path.join(REPO_ROOT, "docs", "plots")
-COLOR_QPS = "#4C78A8"
-COLOR_EMBED = "#4C78A8"
-COLOR_SEARCH = "#F58518"
+# ColorBrewer Set3 palette for consistent professional colors
+PALETTE = ["#8dd3c7", "#ffffb3", "#bebada", "#fb8072", "#80b1d3", "#fdb462", "#b3de69"]
+COLOR_QPS = PALETTE[4]      # soft blue
+COLOR_EMBED = PALETTE[0]    # teal
+COLOR_SEARCH = PALETTE[3]   # coral
+COLOR_TOTAL = PALETTE[5]    # orange
 
 # Measurements collected with COUNT=100 shared queries.
 BATCHED_RESULTS: List[Dict[str, float]] = [
@@ -78,7 +81,7 @@ def _plot_latency(rows: List[Dict[str, float]], mode_label: str, filename: str) 
     metrics = [
         ("embed", "Embed", COLOR_EMBED),
         ("search", "Search", COLOR_SEARCH),
-        ("total", "Total", "#54A24B"),
+        ("total", "Total", COLOR_TOTAL),
     ]
 
     plt.figure(figsize=(8.5, 4.2))

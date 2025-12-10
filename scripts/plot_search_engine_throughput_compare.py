@@ -70,9 +70,10 @@ def make_plot(
 
 
 def main() -> None:
+    # ColorBrewer Set3 palette
     colors = {
-        "Google API": "#E45756",  # red
-        "DS Serve": "#4C78A8",    # blue
+        "Google API": "#fb8072",  # coral
+        "DS Serve": "#80b1d3",    # soft blue
     }
 
     single = [
