@@ -5,8 +5,8 @@ title: DS Serve
 
 <style>
 @import url('{{ "assets/infini-gram.css" | relative_url }}');
-p { font-size: 18px; margin: 6px 0; }
-.small-note { font-size: 14px; color: #666; margin-top: 2px; }
+p { font-size: 16px; margin: 12px 0; }
+.small-note { font-size: 13px; color: #666; margin-top: 2px; }
 /* Compact callout note for Overview */
 .callout-note {
   font-size: 13px;
@@ -63,20 +63,16 @@ p { font-size: 18px; margin: 6px 0; }
 }
 /* Make details summaries match paragraph sizing */
 details > summary {
-  font-size: 18px;
+  font-size: 16px;
   margin: 6px 0;
   cursor: pointer;
 }
 /* Responsive helpers */
 .affiliations {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 8px 14px;
-  font-size: 15px;
-  line-height: 1.4;
+  font-size: 13px;
+  line-height: 1.2;
   margin: 0 auto 4px;
-  max-width: 520px;
+  max-width: 100%;
   text-align: center;
 }
 .affiliations span {
@@ -158,9 +154,9 @@ details > summary {
 
 
 
-<h2 align="center">🚀 <b>DS SERVE: A Framework for Efficient and Scalable Neural Retrieval</b></h2>
+<h2 align="center" style="margin-top: 10px; margin-bottom: 5px;">🚀 <b>DS SERVE: A Framework for Efficient and Scalable Neural Retrieval</b></h2>
 
-<p align="center" class="authors">
+<p align="center" class="authors" style="margin-bottom: 2px;">
   <a href="https://github.com/berkeleyljj" target="_blank">Jinjian Liu</a><sup>1*</sup>, 
   <a href="https://yichuan-w.github.io/" target="_blank">Yichuan Wang</a><sup>1*</sup>, 
   <a href="https://alrope123.github.io/" target="_blank">Xinxi Lyu</a><sup>2</sup>, 
@@ -169,12 +165,13 @@ details > summary {
   <a href="https://people.eecs.berkeley.edu/~matei/" target="_blank">Matei Zaharia</a><sup>1</sup>, 
   <a href="https://www.sewonmin.com/" target="_blank">Sewon Min</a><sup>1</sup>
 </p>
-<p class="affiliations">
-  <span><sup>1</sup>University of California, Berkeley</span>
-  <span><sup>2</sup>University of Illinois Urbana–Champaign</span>
-  <span><sup>3</sup>University of Washington</span>
+<p align="center" class="affiliations">
+  <sup>1</sup>University of California, Berkeley &nbsp;
+  <sup>2</sup>University of Illinois Urbana–Champaign &nbsp;
+  <sup>3</sup>University of Washington
 </p>
-<p align="center" style="color:#9ca3af;font-size:13px;margin-top:4px;"><sup>*</sup>Equal contribution.</p>
+<p align="center" style="font-size: 13px; margin-top: 2px;"><sup>*</sup>Equal contribution.</p>
+<p align="center" style="margin-top: 6px;">[<a href="http://api.ds-serve.org:30888/ui">Web Interface</a>] [<a href="{{ 'API_DOCUMENTATION.html' | relative_url }}">API Endpoint</a>] [<a href="{{ 'VOTES_DOCUMENTATION.html' | relative_url }}">Voting System</a>] [<a href="https://github.com/Berkeley-Large-RAG/RAG-DS-Serve">Code</a>] [<a href="{{ 'assets/DS_SERVE_Camera_Ready.pdf' | relative_url }}">Paper</a>]</p>
 
 <!-- **[✨NEW]** DiskANN integration: >2000 index-level QPS and ~200+ end-to-end QPS at 500B-token scale with ~200 GB RAM.
 
@@ -185,11 +182,11 @@ details > summary {
 ---
 <br/>
 
-## Overview
-
 <div class="overview-box">
-  <p>You can turn any large in-house dataset (<1T tokens) into a high-throughput (200+ end-to-end QPS), memory-efficient (<200 GB RAM) retrieval system with a web UI and API.</p>
-  <p>Our prototype, built on 400B words of high-quality LLM pre-training data, is readily available and provides downstream gains comparable to commercial search engine endpoints.</p>
+  <ol style="margin: 0; padding-left: 20px;">
+    <li style="margin-bottom: 8px;">You can turn any large in-house dataset (<1T tokens) into a <b>high-throughput (200+ end-to-end QPS)</b>, <b>memory-efficient (<200 GB RAM)</b> retrieval system with a <b>web UI and API</b>.</li>
+    <li>Our <b>prototype</b>, built on <b>400B words</b> of high-quality LLM pre-training data, is readily available and provides downstream gains comparable to commercial search engine endpoints.</li>
+  </ol>
 </div>
 
 <p align="center">
@@ -197,6 +194,7 @@ details > summary {
   <img src="{{ 'assets/panel.png' | relative_url }}" alt="Parameter panel snippet" style="width: 24%; margin: 5px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);" />
 </p>
 <p align="center" class="small-note"><i>UI and parameter panel snippets</i></p>
+
 ### Why was it previously challenging?
 
 - **Scaling neural retrieval is hard.** Achieving high throughput, low memory use, and strong accuracy on very large datasets is non-trivial—traditional linear scan is simply infeasible.
@@ -207,124 +205,34 @@ As an example, most users default to search engines for general knowledge querie
 
 **DS Serve** addresses these challenges by making it easy to transform any large-scale in-house dataset into a high-throughput, memory-efficient neural retrieval system backed by DiskANN—complete with a web UI, API endpoints, and mechanisms for collecting search-result feedback. Our prototype (400B tokens, 2B vectors, 5 TB embeddings) matches the downstream gains of commercial search endpoints and, to the best of our knowledge, is the largest publicly accessible vector store.
 
-<p align="left"><i>Figure 1: DS SERVE converts the largest pretraining dataset into an efficient neural retrieval system: a query q retrieves relevant text via ANN (IVFPQ or DiskANN), optionally reranks with exact and/or diverse search, and returns the top-k chunks with voting options for user feedback.</i></p>
 <p align="center">
   <img src="{{ 'plots/Figure-1.png' | relative_url }}" style="width: 70%;" />
 </p>
+<p>
+DS SERVE converts the largest pretraining dataset into an efficient neural retrieval system: a query q retrieves relevant text via ANN (IVFPQ or DiskANN), optionally reranks with exact and/or diverse search, and returns the top-k chunks with voting options for user feedback.
+</p>
 
-<div id="overview-note" class="callout-note"><span class="note-sup" aria-hidden="true">*</span> Note: For detailed technical explanations of the algorithms, see the <a href="#technical-design">Technical Design</a> section.</div>
----
-<br/>
+<!-- <div id="overview-note" class="callout-note"><span class="note-sup" aria-hidden="true">*</span> Note: For detailed technical explanations of the algorithms, see the <a href="#technical-design">Technical Design</a> section.</div> -->
 
-
-
-**Key Contributions**
-- We present the **DS Serve** framework to convert any text corpus into a high-performance, fully controllable in-house neural datastore, with a web interface and API endpoints.  
-- Through this framework, we enable access to and controlled experiemtation on the largest publicly-deployed datastore, featuring 500B tokens and achieving **10000+** index-level QPS with DiskANN integration and **200+** end-to-end QPS.
-- We demonstrate DiskANN as a scalable and more accurate alternative to IVFPQ, achieving **10000+** QPS at the index level while maintaining manageable memory footprint (~200 GB RAM).
-- Furthermore, **DS Serve** contributes to practical applications including data attribution, training search agents, and advancing search methods. For more details please refer to the Application section below. 
+<p>
+See below for a set of <a href="#application">new applications our framework enables</a>, <a href="#user-guide">documentation for using DS-Serve</a>, our <a href="#technical-design">detailed system design</a>, and <a href="#performance">performance benchmarks</a>!
+</p>
 
 ---
 <br/>
 
 ## Application
 
-We envision the use of **DS Serve** for fast, controllable retrieval in RAG and search applications:
-1. **Data attribution & curation**: **DS Serve** can readily be used for training data attribution by indexing the entire pretraining corpus, as a complementary or improvement over OLMoTrace (). In addition, the framework enables improved data curation through semantic deduplication, decontamination, and customized filtering. 
-2. **Training search agents**: **DS Serve** addresses difficulties in search agent training by providing a fully controllable search backend, allowing developers to set their own latency-accuracy tradeoffs without incurring costs or rate limits.
-3. **Pushing the frontier of search**: Our vector-based framework is more effective for long and complex inputs than commercial search engines, and it also collects labeled data in real-time with the voting option. 
+We envision **DS Serve** enabling a range of high-impact applications:
+
+1. **Retrieval-Augmented Generation (RAG)**: DS Serve powers efficient RAG by feeding high-quality search results into LLMs. As shown in the [Performance section](#performance), it delivers superior accuracy and latency compared to both open-source baselines (like IVFPQ) and commercial search endpoints.
+2. **Data Attribution & Curation**: By indexing entire pre-training corpora, DS Serve enables semantic data attribution, complementing n-gram based systems like OLMoTrace. It also facilitates advanced curation—allowing semantic deduplication, decontamination, and customized filtering for query-specific datasets.
+3. **Training Search Agents**: Training deep-research agents requires high-frequency search rollouts that are often cost-prohibitive on commercial engines. DS Serve provides a free, high-throughput backend where developers can control latency-accuracy tradeoffs without rate limits.
+4. **Pushing the Frontier of Search**: While traditional search engines struggle with long or complex queries, our vector-based approach handles them effectively. Additionally, the built-in voting system collects real-world labeled data to help build realistic benchmarks for retrieval research. 
 
 ---
 <br/>
 
-## Performance 
-<div class="perf-table">
-  <table>
-    <caption>Table 1: Evaluation results (LLaMa 3.1 8B). <i>Acc</i> is accuracy (%); <i>t</i> is end‑to‑end retrieval latency (s). For Exact Search, <i>t</i> is without cache and <i>t</i><sub>cache</sub> with cache. We use <i>K</i>=1000, <i>k</i>=10, and <i>n</i><sub>probe</sub>=256.</caption>
-    <thead>
-      <tr>
-        <th rowspan="2">Task</th>
-        <th colspan="1">No DS Serve</th>
-        <th colspan="2">DS Serve</th>
-        <th colspan="3">DS Serve + Exact</th>
-      </tr>
-      <tr>
-        <th>Acc</th>
-        <th>Acc</th><th>t (s)</th>
-        <th>Acc</th><th>t (s)</th><th>t<sub>cache</sub> (s)</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td style="text-align:left">MMLU</td><td>68.9</td><td>73.5</td><td>0.17</td><td>73.7</td><td>16.44</td><td>0.30</td></tr>
-      <tr><td style="text-align:left">MMLU Pro</td><td>39.8</td><td>47.5</td><td>0.19</td><td>49.4</td><td>16.54</td><td>0.32</td></tr>
-      <tr><td style="text-align:left">AGI Eval</td><td>56.2</td><td>56.2</td><td>0.21</td><td>58.3</td><td>15.03</td><td>0.34</td></tr>
-      <tr><td style="text-align:left">MATH</td><td>46.9</td><td>50.0</td><td>0.18</td><td>53.1</td><td>16.51</td><td>0.33</td></tr>
-      <tr><td style="text-align:left">GPQA</td><td>29.9</td><td>31.7</td><td>0.17</td><td>36.6</td><td>16.57</td><td>0.32</td></tr>
-    </tbody>
-  </table>
-</div>
-<details>
-<summary><b>What is Approximate Nearest Neighbor (ANN) search?</b></summary>
-<p>First, a database is embedded into a colleciton of vectors named datastore <i>D</i>. Then an index over <i>D</i> is built for easy lookup. Given a user query <i>q</i>, ANN returns the nearest neighbors — the vectors in <i>D</i> most semantically similar to <i>q</i> -- through approximation. By visiting only part of the index, ANN retrieves faster than exhaustive search, which is infeasible at a billion‑vector scale. Therefore, ANN optimizes for latency with a small tradeoff in recall.<sup class="note-sup"><a href="#technical-design" aria-label="See Technical design">*</a></sup></p>
-</details>
-
-<details>
-<summary><b>What are post‑ANN Exact and Diverse Search?</b></summary>
-<p><b>Exact Search</b> reranks ANN candidates by computing exact similarities between the query embedding and passages. We enable it on demand; with our embedding cache, latency remains practical for repeated or similar queries.</p>
-<p><b>Diverse Search</b> reduces redundancy using maximal marginal relevance (MMR) on the ANN pool:</p>
-<p align="center"><code>Score(i) = λ · sim(q, d<sub>i</sub>) − (1 − λ) · max<sub>j ∈ S</sub> sim(d<sub>i</sub>, d<sub>j</sub>)</code></p>
-<p><small><code>sim(·,·)</code> is cosine similarity; <code>λ</code> (lambda) balances relevance and diversity.</small></p>
-<p>In practice, Diverse Search eliminates redundant texts and improves overall coverage.</p>
-</details>
-
-<details>
-<summary><b>Performance Analysis</b></summary>
-The approximate nature of the ANN backend inevitably sacrifices accuracy, thus we integrate <b>Exact Search</b> as an optional reranking mode. To do so, we compute exact similarities, instead of using approximation, between queries and passages. Then search results are reranked according to the newly computed exact scores. In our evaluation results, <b>Exact Search</b> effectively enhances accuracy across all five tasks. On a cold start, embedding the results can be slow, so we've built an embedding cache to allow ~1000ms latency on similar queries in Exact Search. (Table 1)</p>
-
-<p>Additionally, search results often suffer from information overlap, i.e. nearly identical text chunks. To address this problem we offer a Diverse Search option that penalizes redundant information. In our use cases, we find <b>Diverse Search</b> substantially improves user experience.</p>
-
-<p>For queries that are less common or rely on very recent knowledge — for example “Jensen Huang” — the datastore may only contain a handful of truly relevant passages due to its frozen state. In these situations, <b>Exact Search</b> performs well because it ranks those relevant results to the top. In contrast, <b>Diverse Search</b> risks surfacing less accurate results.</p>
-
-<p>During search, <b>DS Serve</b> initially oversamples a pool of candidates, and then finds top results among them. To make it easier for users, a with improvement suggestions shows in the case of failing to retrieve enough results, even though this is very rare.</p> 
-</details>
-
-
-<!-- NO CHANGE -->
-<p align="left"><i>Figures 3a–3b: IVFPQ batched search.</i></p>
-<p align="center">
-  <img src="{{ 'plots/ivfpq_qps_batched.png' | relative_url }}" style="width: 48%; margin: 5px;" />
-  <img src="{{ 'plots/ivfpq_latency_batched.png' | relative_url }}" style="width: 48%; margin: 5px;" />
-</p>
-
-<p align="left"><i>Figures 4a–4b: IVFPQ single-request search.</i></p>
-<p align="center">
-  <img src="{{ 'plots/ivfpq_qps_single.png' | relative_url }}" style="width: 48%; margin: 5px;" />
-  <img src="{{ 'plots/ivfpq_latency_single.png' | relative_url }}" style="width: 48%; margin: 5px;" />
-</p>
-
-<p align="left"><i>Figures 5a–5b: DiskANN batched search, where all queries are processed at once. Left: end-to-end QPS; right: latency breakdown from server timings.</i></p>
-<p align="center">
-  <img src="{{ 'plots/diskann_qps_vs_L.png' | relative_url }}" style="width: 48%; margin: 5px;" />
-  <img src="{{ 'plots/diskann_latency_breakdown_vs_L.png' | relative_url }}" style="width: 48%; margin: 5px;" />
-</p>
-
-<p align="left"><i>Figures 6a–6b: DiskANN single-request search, where each query is processed individually. Left: QPS vs L; right: latency decomposition (embed, search, mapping).</i></p>
-<p align="center">
-  <img src="{{ 'plots/diskann_single_request_qps_vs_L.png' | relative_url }}" style="width: 48%; margin: 5px;" />
-  <img src="{{ 'plots/diskann_single_request_latency_vs_L.png' | relative_url }}" style="width: 48%; margin: 5px;" />
-</p>
-<p>Single-request search is typically only used on the UI where the users search one query at a time light and easy. However, as tested batched search is always faster thanks to less overhead per request on average, so using a bigger batch is recommended for more intense retrieval with the API.</p>
-
-<p align="left"><i>Figures 7a–7b: TriviaQA and NaturalQS accuracy on Recall (fraction of queries with at least one correct hit), Exact Match (strict string match on the answer), and F1 (token‑level overlap). DiskANN outperforms IVFPQ across both datasets. L=5000 for DiskANN and nprobe=256 for IVFPQ.</i></p>
-<p align="center">
-  <img src="{{ 'accuracy_ivfpq_vs_diskann_triviaqa.png' | relative_url }}" style="width: 45%; margin: 5px;" />
-  <img src="{{ 'accuracy_ivfpq_vs_diskann_naturalqs.png' | relative_url }}" style="width: 45%; margin: 5px;" />
-</p>
-<p class="small-note"><b>Note:</b> The latency number shown on the UI measures end-to-end wall-clock time (request setup, network travel, JSON encode/decode, rendering). QPS and latency can have small fluctuations depending on network speed.</p>
-
----
-<br/>
-<!-- NO CHANGE -->
 ## User guide
 
 We provide two ways to use **DS Serve**: API calls and a web UI.
@@ -360,7 +268,6 @@ We provide two ways to use **DS Serve**: API calls and a web UI.
 ---
 <br/>
 
-
 ## Technical design 
 
 ### Datastore
@@ -369,6 +276,10 @@ While prior work shows that retrieval over large pre‑training corpora can impr
 This represents a significantly larger datastore than most prior work, and to the best of our knowledge is the largest pretraining dataset that users can access in open source for free. Typical evaluations run at much smaller scales (often ≤ tens of millions of vectors), e.g., <a href="https://microsoft.github.io/msmarco/" target="_blank">MS&nbsp;MARCO</a>, <a href="https://ai.google.com/research/NaturalQuestions" target="_blank">Natural Questions</a>, and <a href="https://hotpotqa.github.io/" target="_blank">HotpotQA</a>, as well as consolidated leaderboards such as <a href="https://arxiv.org/abs/2104.08663" target="_blank">BEIR</a>. Even advanced commercial vector databases commonly impose per‑namespace/index limits well below the billion‑vector regime; see pricing/capacity notes for <a href="https://turbopuffer.com/pricing?namespaces=1&namespace=0&docs=1000000000&doc=7&writes=0&write=0" target="_blank">Turbopuffer</a>.
 
 ### Scalable and efficient search
+<details>
+<summary><b>What is Approximate Nearest Neighbor (ANN) search?</b></summary>
+<p>First, a database is embedded into a colleciton of vectors named datastore <i>D</i>. Then an index over <i>D</i> is built for easy lookup. Given a user query <i>q</i>, ANN returns the nearest neighbors — the vectors in <i>D</i> most semantically similar to <i>q</i> -- through approximation. By visiting only part of the index, ANN retrieves faster than exhaustive search, which is infeasible at a billion‑vector scale. Therefore, ANN optimizes for latency with a small tradeoff in recall.<sup class="note-sup"><a href="#technical-design" aria-label="See Technical design">*</a></sup></p>
+</details>
 <details>
 <summary><b>How we integrate Approximate Nearest Neighbor (ANN) search</b></summary>
 <p>Real‑world vector datasets can contain billions of vectors and occupy terabytes. Keeping all vectors in DRAM is expensive. Two practical strategies reduce cost while preserving accuracy:</p>
@@ -399,7 +310,7 @@ Key takeaways:
 
 1.We find in real open‑source deployments that DiskANN offers the best balance of accuracy, latency, and RAM cost -- overall outperforming IVFPQ.
 
-<p>See Figures 3a–7b above for the visual comparison.</p>
+<p>See the visual comparison below:</p>
 
 
 <table style="width:100%; border-collapse:collapse; text-align:center;">
@@ -445,17 +356,95 @@ Key takeaways:
   </tbody>
 </table>
 
-
-
 2.yichuan add more take away[TODO]
-
- 
-
 
 ---
 <br/>
 
+## Performance 
+<div class="perf-table">
+  <table>
+    <caption>Table 1: Evaluation results (LLaMa 3.1 8B). <i>Acc</i> is accuracy (%); <i>t</i> is end‑to‑end retrieval latency (s). For Exact Search, <i>t</i> is without cache and <i>t</i><sub>cache</sub> with cache. We use <i>K</i>=1000, <i>k</i>=10, and <i>n</i><sub>probe</sub>=256.</caption>
+    <thead>
+      <tr>
+        <th rowspan="2">Task</th>
+        <th colspan="1">No DS Serve</th>
+        <th colspan="2">DS Serve</th>
+        <th colspan="3">DS Serve + Exact</th>
+      </tr>
+      <tr>
+        <th>Acc</th>
+        <th>Acc</th><th>t (s)</th>
+        <th>Acc</th><th>t (s)</th><th>t<sub>cache</sub> (s)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td style="text-align:left">MMLU</td><td>68.9</td><td>73.5</td><td>0.17</td><td>73.7</td><td>16.44</td><td>0.30</td></tr>
+      <tr><td style="text-align:left">MMLU Pro</td><td>39.8</td><td>47.5</td><td>0.19</td><td>49.4</td><td>16.54</td><td>0.32</td></tr>
+      <tr><td style="text-align:left">AGI Eval</td><td>56.2</td><td>56.2</td><td>0.21</td><td>58.3</td><td>15.03</td><td>0.34</td></tr>
+      <tr><td style="text-align:left">MATH</td><td>46.9</td><td>50.0</td><td>0.18</td><td>53.1</td><td>16.51</td><td>0.33</td></tr>
+      <tr><td style="text-align:left">GPQA</td><td>29.9</td><td>31.7</td><td>0.17</td><td>36.6</td><td>16.57</td><td>0.32</td></tr>
+    </tbody>
+  </table>
+</div>
 
+
+<details>
+<summary><b>What are post‑ANN Exact and Diverse Search?</b></summary>
+<p><b>Exact Search</b> reranks ANN candidates by computing exact similarities between the query embedding and passages. We enable it on demand; with our embedding cache, latency remains practical for repeated or similar queries.</p>
+<p><b>Diverse Search</b> reduces redundancy using maximal marginal relevance (MMR) on the ANN pool:</p>
+<p align="center"><code>Score(i) = λ · sim(q, d<sub>i</sub>) − (1 − λ) · max<sub>j ∈ S</sub> sim(d<sub>i</sub>, d<sub>j</sub>)</code></p>
+<p><small><code>sim(·,·)</code> is cosine similarity; <code>λ</code> (lambda) balances relevance and diversity.</small></p>
+<p>In practice, Diverse Search eliminates redundant texts and improves overall coverage.</p>
+</details>
+
+<details>
+<summary><b>Performance Analysis</b></summary>
+The approximate nature of the ANN backend inevitably sacrifices accuracy, thus we integrate <b>Exact Search</b> as an optional reranking mode. To do so, we compute exact similarities, instead of using approximation, between queries and passages. Then search results are reranked according to the newly computed exact scores. In our evaluation results, <b>Exact Search</b> effectively enhances accuracy across all five tasks. On a cold start, embedding the results can be slow, so we've built an embedding cache to allow ~1000ms latency on similar queries in Exact Search. (Table 1)</p>
+
+<p>Additionally, search results often suffer from information overlap, i.e. nearly identical text chunks. To address this problem we offer a Diverse Search option that penalizes redundant information. In our use cases, we find <b>Diverse Search</b> substantially improves user experience.</p>
+
+<p>For queries that are less common or rely on very recent knowledge — for example “Jensen Huang” — the datastore may only contain a handful of truly relevant passages due to its frozen state. In these situations, <b>Exact Search</b> performs well because it ranks those relevant results to the top. In contrast, <b>Diverse Search</b> risks surfacing less accurate results.</p>
+
+<p>During search, <b>DS Serve</b> initially oversamples a pool of candidates, and then finds top results among them. To make it easier for users, a with improvement suggestions shows in the case of failing to retrieve enough results, even though this is very rare.</p> 
+</details>
+
+
+<!-- NO CHANGE -->
+<p align="left"><i>IVFPQ batched search.</i></p>
+<p align="center">
+  <img src="{{ 'plots/ivfpq_qps_batched.png' | relative_url }}" style="width: 48%; margin: 5px;" />
+  <img src="{{ 'plots/ivfpq_latency_batched.png' | relative_url }}" style="width: 48%; margin: 5px;" />
+</p>
+
+<p align="left"><i>IVFPQ single-request search.</i></p>
+<p align="center">
+  <img src="{{ 'plots/ivfpq_qps_single.png' | relative_url }}" style="width: 48%; margin: 5px;" />
+  <img src="{{ 'plots/ivfpq_latency_single.png' | relative_url }}" style="width: 48%; margin: 5px;" />
+</p>
+
+<p align="left"><i>DiskANN batched search, where all queries are processed at once. Left: end-to-end QPS; right: latency breakdown from server timings.</i></p>
+<p align="center">
+  <img src="{{ 'plots/diskann_qps_vs_L.png' | relative_url }}" style="width: 48%; margin: 5px;" />
+  <img src="{{ 'plots/diskann_latency_breakdown_vs_L.png' | relative_url }}" style="width: 48%; margin: 5px;" />
+</p>
+
+<p align="left"><i>DiskANN single-request search, where each query is processed individually. Left: QPS vs L; right: latency decomposition (embed, search, mapping).</i></p>
+<p align="center">
+  <img src="{{ 'plots/diskann_single_request_qps_vs_L.png' | relative_url }}" style="width: 48%; margin: 5px;" />
+  <img src="{{ 'plots/diskann_single_request_latency_vs_L.png' | relative_url }}" style="width: 48%; margin: 5px;" />
+</p>
+<p>Single-request search is typically only used on the UI where the users search one query at a time light and easy. However, as tested batched search is always faster thanks to less overhead per request on average, so using a bigger batch is recommended for more intense retrieval with the API.</p>
+
+<p align="left"><i>TriviaQA and NaturalQS accuracy on Recall (fraction of queries with at least one correct hit), Exact Match (strict string match on the answer), and F1 (token‑level overlap). DiskANN outperforms IVFPQ across both datasets. L=5000 for DiskANN and nprobe=256 for IVFPQ.</i></p>
+<p align="center">
+  <img src="{{ 'accuracy_ivfpq_vs_diskann_triviaqa.png' | relative_url }}" style="width: 45%; margin: 5px;" />
+  <img src="{{ 'accuracy_ivfpq_vs_diskann_naturalqs.png' | relative_url }}" style="width: 45%; margin: 5px;" />
+</p>
+<p class="small-note"><b>Note:</b> The latency number shown on the UI measures end-to-end wall-clock time (request setup, network travel, JSON encode/decode, rendering). QPS and latency can have small fluctuations depending on network speed.</p>
+
+---
+<br/>
 
 ## Acknowledgements
 
@@ -463,4 +452,3 @@ We thank the following open‑source projects and communities:
 
 - <a href="https://github.com/RulinShao/massive-serve" target="_blank">Massive Serve</a> — for the serving infrastructure and deployment utilities that power DS Serve.
 - <a href="https://github.com/facebookresearch/faiss" target="_blank">IVFPQ</a> and <a href="https://github.com/microsoft/DiskANN" target="_blank">DiskANN</a> — for enabling high‑performance ANN search at scale.
-

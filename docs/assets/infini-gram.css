@@ -46,7 +46,11 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 }
 .authors a {
   font-weight: 600;
-  color: #111827; /* Dark gray for names */
+  color: #1a73e8; /* Blue link color */
+  text-decoration: none;
+}
+.authors a:hover {
+  text-decoration: underline;
 }
 .affiliations {
   font-size: 16px;
