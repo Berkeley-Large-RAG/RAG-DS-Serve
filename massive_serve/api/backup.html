@@ -406,6 +406,13 @@
     
     <!-- Main results container that scrolls till the top edge -->
     <main class="pt-20 sm:pt-20 lg:pt-24 px-2 sm:px-4 lg:px-6 mb-24 sm:mb-36 overflow-y-auto max-h-[calc(100vh-160px)] sm:max-h-[calc(100vh-112px)]" id="results"></main>
+    <!-- Floating Home button: shown only after results are displayed -->
+    <button id="homeFab" class="hidden fixed bottom-6 right-6 z-30 bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold px-3 py-2 rounded-full border border-gray-200 shadow-lg transition-colors flex items-center gap-2" aria-label="Return to home">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 11l9-8 9 8M5 12v7a1 1 0 001 1h4m4 0h4a1 1 0 001-1v-7"/>
+      </svg>
+      <span class="hidden sm:inline">Home</span>
+    </button>
 
 
 
@@ -421,6 +428,29 @@
 
     const bodyEl = document.body;
     let queryHistory = [];
+
+    function showHomeButton(show) {
+      const homeFab = document.getElementById('homeFab');
+      if (!homeFab) return;
+      homeFab.classList.toggle('hidden', !show);
+    }
+
+    function goHome() {
+      const qi = document.getElementById('queryInput');
+      const resultsEl = document.getElementById('results');
+      const welcomeMessage = document.getElementById('welcomeMessage');
+      const centeredSearchGroup = document.getElementById('centeredSearchGroup');
+      const paramPanel = document.getElementById('paramPanel');
+      if (qi) qi.value = '';
+      if (resultsEl) resultsEl.innerHTML = '';
+      if (welcomeMessage) welcomeMessage.style.display = 'flex';
+      if (centeredSearchGroup) centeredSearchGroup.style.display = 'flex';
+      if (paramPanel) paramPanel.classList.add('hidden');
+      if (typeof expandedPassages !== 'undefined' && expandedPassages?.clear) expandedPassages.clear();
+      if (typeof expandedPassagesData !== 'undefined' && expandedPassagesData?.clear) expandedPassagesData.clear();
+      showHomeButton(false);
+      resultsEl?.scrollTo?.({ top: 0, behavior: 'smooth' });
+    }
 
     const HELP_CONTENT = {
       shared: [
@@ -681,6 +711,7 @@
           if (item) {
             document.getElementById('queryInput').value = item.query;
             displayResults(item.results, item.query, item.searchParams, item.latency);
+            showHomeButton(true);
           }
         });
       });
@@ -720,6 +751,7 @@
             if (centeredSearchGroup) {
               centeredSearchGroup.style.display = 'flex';
             }
+            showHomeButton(false);
           }
         });
       });
@@ -790,6 +822,7 @@
       if (welcomeMessage) {
         welcomeMessage.style.display = 'none';
       }
+      showHomeButton(true);
       // Do NOT hide the search group here!
       
       // Add query and parameter display at the top (fixed position)
@@ -1022,6 +1055,7 @@
     document.getElementById('sendButton').addEventListener('click', function () {
       submitQuery(true);
     });
+    document.getElementById('homeFab')?.addEventListener('click', goHome);
 
     function toggleLambdaState() {
       const lambda = document.getElementById('lambda');
@@ -1137,6 +1171,7 @@
       } finally {
         setLoading(false);
       }
+      showHomeButton(true);
     }
 
     // Show More/Less functionality
