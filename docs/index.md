@@ -7,6 +7,8 @@ title: DS Serve
 @import url('{{ "assets/infini-gram.css" | relative_url }}');
 p { font-size: 16px; margin: 12px 0; }
 .small-note { font-size: 13px; color: #666; margin-top: 2px; }
+/* Constrain page width for readability */
+.page-content { max-width: 1100px; margin: 0 auto; padding: 0 16px; }
 /* Compact callout note for Overview */
 .callout-note {
   font-size: 13px;
