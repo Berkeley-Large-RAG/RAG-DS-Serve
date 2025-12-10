@@ -171,11 +171,13 @@ details > summary {
   <sup>3</sup>University of Washington
 </p>
 <p align="center" style="font-size: 13px; margin-top: 2px;"><sup>*</sup>Equal contribution.</p>
+<!-- Header links commented out for now; keep DS SERVE centered above.
 <p align="center" style="margin-top: 6px;">[<a href="http://api.ds-serve.org:30888/ui">Web Interface</a>] [<a href="{{ 'API_DOCUMENTATION.html' | relative_url }}">API Endpoint</a>] [<a href="{{ 'VOTES_DOCUMENTATION.html' | relative_url }}">Voting System</a>] [<a href="https://github.com/Berkeley-Large-RAG/RAG-DS-Serve">Code</a>] [<a href="{{ 'assets/DS_SERVE_Camera_Ready.pdf' | relative_url }}">Paper</a>]</p>
+-->
 
-<!-- **[✨NEW]** DiskANN integration: >2000 index-level QPS and ~200+ end-to-end QPS at 500B-token scale with ~200 GB RAM.
+<!-- **[✨NEW]** DiskANN integration: >2000 index-level QPS and up to 10000 QPS at 500B-token scale with ~200 GB RAM.
 
-**[✨NEW]** Dual ANN backends: Choose between IVFPQ (~100 GB RAM, ~100 QPS) and DiskANN (+200 GB RAM, 200+ end-to-end QPS) based on your throughput and memory requirements.
+**[✨NEW]** Dual ANN backends: Choose between IVFPQ (~100 GB RAM, ~100 QPS) and DiskANN (+200 GB RAM, 10000 QPS) based on your throughput and memory requirements.
 
 **[✨NEW]** Exact + Diverse modes: tune accuracy–diversity–latency on demand. -->
 
@@ -308,6 +310,8 @@ This represents a significantly larger datastore than most prior work, and to th
 </details>
 
 ## Performance 
+<hr />
+
 <div class="perf-table">
   <h3 style="margin: 6px 0 2px;">Interpolating DS-Serve with neural LLM</h3>
   <table>
