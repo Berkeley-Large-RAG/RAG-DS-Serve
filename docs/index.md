@@ -319,30 +319,16 @@ This represents a significantly larger datastore than most prior work, and to th
   </table>
 </div>
 
-
-<details>
-<summary><b>What are post‑ANN Exact and Diverse Search?</b></summary>
-<p><b>Exact Search</b> reranks ANN candidates by computing exact similarities between the query embedding and passages. We enable it on demand; with our embedding cache, latency remains practical for repeated or similar queries.</p>
-<p><b>Diverse Search</b> reduces redundancy using maximal marginal relevance (MMR) on the ANN pool:</p>
-<p align="center"><code>Score(i) = λ · sim(q, d<sub>i</sub>) − (1 − λ) · max<sub>j ∈ S</sub> sim(d<sub>i</sub>, d<sub>j</sub>)</code></p>
-<p><small><code>sim(·,·)</code> is cosine similarity; <code>λ</code> (lambda) balances relevance and diversity.</small></p>
-<p>In practice, Diverse Search eliminates redundant texts and improves overall coverage.</p>
-</details>
-
-<details>
-<summary><b>Performance Analysis</b></summary>
-The approximate nature of the ANN backend inevitably sacrifices accuracy, thus we integrate <b>Exact Search</b> as an optional reranking mode. To do so, we compute exact similarities, instead of using approximation, between queries and passages. Then search results are reranked according to the newly computed exact scores. In our evaluation results, <b>Exact Search</b> effectively enhances accuracy across all five tasks. On a cold start, embedding the results can be slow, so we've built an embedding cache to allow ~1000ms latency on similar queries in Exact Search. (Table 1)</p>
-
-<p>Additionally, search results often suffer from information overlap, i.e. nearly identical text chunks. To address this problem we offer a Diverse Search option that penalizes redundant information. In our use cases, we find <b>Diverse Search</b> substantially improves user experience.</p>
-
-<p>For queries that are less common or rely on very recent knowledge — for example “Jensen Huang” — the datastore may only contain a handful of truly relevant passages due to its frozen state. In these situations, <b>Exact Search</b> performs well because it ranks those relevant results to the top. In contrast, <b>Diverse Search</b> risks surfacing less accurate results.</p>
-
-<p>During search, <b>DS Serve</b> initially oversamples a pool of candidates, and then finds top results among them. To make it easier for users, a with improvement suggestions shows in the case of failing to retrieve enough results, even though this is very rare.</p> 
-</details>
-
+<h3 align="center">Accuracy: DiskANN vs IVFPQ (higher is better)</h3>
+<p>DiskANN dominates IVFPQ across Recall / EM / F1 on TriviaQA and NaturalQS, so DiskANN is the recommended backend; IVFPQ is legacy.</p>
+<p align="center">
+  <img src="{{ 'accuracy_ivfpq_vs_diskann_triviaqa.png' | relative_url }}" alt="TriviaQA accuracy DiskANN vs IVFPQ" style="width: 44%; margin: 8px;" />
+  <img src="{{ 'accuracy_ivfpq_vs_diskann_naturalqs.png' | relative_url }}" alt="NaturalQS accuracy DiskANN vs IVFPQ" style="width: 44%; margin: 8px;" />
+</p>
+<hr />
 
 <h3 align="center">DiskANN latency breakdown</h3>
-<p>Latency components for batched (left) vs single-request (right) serving. In practice, batched search keeps per-query overhead low, while single-request is for interactive UI usage.</p>
+<p>Latency components for batched (left) vs single-request (right). Batched keeps per-query overhead low; single is for interactive UI.</p>
 <p align="center">
   <img src="{{ 'plots/diskann_latency_breakdown_vs_L.png' | relative_url }}" alt="DiskANN batched latency breakdown" style="width: 44%; margin: 8px;" />
   <img src="{{ 'plots/diskann_single_request_latency_vs_L.png' | relative_url }}" alt="DiskANN single-request latency breakdown" style="width: 44%; margin: 8px;" />
@@ -350,22 +336,14 @@ The approximate nature of the ANN backend inevitably sacrifices accuracy, thus w
 <hr />
 
 <h3 align="center">DiskANN throughput vs L</h3>
-<p>QPS vs list size <i>L</i> for batched (left) and single-request (right). Smaller <i>L</i> can raise throughput but may hurt recall; we recommend <b>L≈1000</b> as a balance of accuracy and speed.</p>
+<p>QPS vs list size <i>L</i> for batched (left) and single-request (right). Smaller <i>L</i> boosts throughput but can reduce recall; <b>L≈1000</b> is a good balance of accuracy and speed.</p>
 <p align="center">
   <img src="{{ 'plots/diskann_qps_vs_L.png' | relative_url }}" alt="DiskANN batched QPS vs L" style="width: 44%; margin: 8px;" />
   <img src="{{ 'plots/diskann_single_request_qps_vs_L.png' | relative_url }}" alt="DiskANN single-request QPS vs L" style="width: 44%; margin: 8px;" />
 </p>
-<p>Higher <i>L</i> improves recall/quality; <i>L≈1000</i> is a recommended default for robust accuracy with strong throughput.</p>
+<p>Higher <i>L</i> improves recall/quality; <i>L≈1000</i> is the recommended default for robust accuracy with strong throughput.</p>
 <hr />
 
-<h3 align="center">Accuracy comparisons</h3>
-<p>Recall, Exact Match, and F1 for DiskANN vs IVFPQ (L=5000, nprobe=256) on TriviaQA and NaturalQS.</p>
-<p align="center">
-  <img src="{{ 'accuracy_ivfpq_vs_diskann_triviaqa.png' | relative_url }}" alt="TriviaQA accuracy DiskANN vs IVFPQ" style="width: 44%; margin: 8px;" />
-  <img src="{{ 'accuracy_ivfpq_vs_diskann_naturalqs.png' | relative_url }}" alt="NaturalQS accuracy DiskANN vs IVFPQ" style="width: 44%; margin: 8px;" />
-</p>
-<p>Single-request search is used mainly for the interactive UI; batched search is recommended for higher-throughput API workloads.</p>
-<hr />
 
 <h3 align="center">Throughput comparison vs Google API</h3>
 <p>Measured average QPS for single-request and batched modes.</p>
