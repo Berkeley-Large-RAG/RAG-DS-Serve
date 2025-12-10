@@ -38,11 +38,12 @@ def plot_diskann_qps(data, out_dir: str) -> None:
     y = [r["QPS"] for r in rows]
 
     plt.figure(figsize=(9, 4))
+    bar_color = "#80b1d3"  # darker Set3 blue
     if sns:
         sns.set_theme(style="whitegrid")
-        ax = sns.barplot(x=x, y=y, color="#4C78A8")
+        ax = sns.barplot(x=x, y=y, color=bar_color)
     else:
-        ax = plt.bar(x, y, color="#4C78A8")
+        ax = plt.bar(x, y, color=bar_color)
         ax = plt.gca()
     plt.title("DiskANN QPS vs L")
     plt.xlabel("L")
@@ -57,6 +58,57 @@ def plot_diskann_qps(data, out_dir: str) -> None:
     annotate_bars(ax)
     plt.tight_layout()
     plt.savefig(os.path.join(out_dir, "diskann_qps_vs_L.png"), dpi=160)
+    plt.close()
+
+
+def plot_diskann_vs_ivfpq_summary(diskann_rows, faiss_rows, out_dir: str) -> None:
+    """Compare best QPS and latency between DiskANN and IVFPQ on one figure."""
+    # Best QPS rows
+    diskann_best_qps = max(diskann_rows, key=lambda r: r["QPS"])
+    faiss_best_qps = max(faiss_rows, key=lambda r: r["QPS"])
+    # Use the same rows for latency comparison (their total_ms)
+    diskann_latency = diskann_best_qps["total_ms"]
+    faiss_latency = faiss_best_qps["total_ms"]
+
+    colors = {"DiskANN": "#80b1d3", "IVFPQ": "#fb8072"}  # darker Set3
+
+    fig, axs = plt.subplots(1, 2, figsize=(10, 4))
+
+    # QPS comparison
+    qps_labels = ["DiskANN", "IVFPQ"]
+    qps_vals = [diskann_best_qps["QPS"], faiss_best_qps["QPS"]]
+    axs[0].bar(qps_labels, qps_vals, color=[colors["DiskANN"], colors["IVFPQ"]])
+    axs[0].set_title("Throughput (higher is better)")
+    axs[0].set_ylabel("QPS")
+    for i, v in enumerate(qps_vals):
+        axs[0].annotate(f"{v:.1f}", (i, v), ha="center", va="bottom",
+                        fontsize=11, fontweight="bold", xytext=(0, 4), textcoords="offset points")
+    try:
+        ymax = max(qps_vals)
+        if math.isfinite(ymax) and ymax > 0:
+            axs[0].set_ylim(0, ymax * 1.15)
+    except Exception:
+        pass
+
+    # Latency comparison (total_ms)
+    lat_labels = ["DiskANN", "IVFPQ"]
+    lat_vals = [diskann_latency, faiss_latency]
+    axs[1].bar(lat_labels, lat_vals, color=[colors["DiskANN"], colors["IVFPQ"]])
+    axs[1].set_title("End-to-end latency (lower is better)")
+    axs[1].set_ylabel("Latency (ms)")
+    for i, v in enumerate(lat_vals):
+        axs[1].annotate(f"{v:.2f}", (i, v), ha="center", va="bottom",
+                        fontsize=11, fontweight="bold", xytext=(0, 4), textcoords="offset points")
+    try:
+        ymax = max(lat_vals)
+        if math.isfinite(ymax) and ymax > 0:
+            axs[1].set_ylim(0, ymax * 1.15)
+    except Exception:
+        pass
+
+    fig.suptitle("DiskANN vs IVFPQ (same plot): DiskANN recommended", fontsize=14, fontweight="bold")
+    plt.tight_layout()
+    plt.savefig(os.path.join(out_dir, "diskann_vs_ivfpq_qps_latency.png"), dpi=160)
     plt.close()
 
 
@@ -99,7 +151,7 @@ def plot_diskann_latency_breakdown(data, out_dir: str) -> None:
         sns.set_theme(style="whitegrid")
     ax = plt.gca()
 
-    palette = ["#4C78A8", "#F58518", "#54A24B", "#E45756", "#72B7B2"]
+    palette = ["#80b1d3", "#fb8072", "#b3de69", "#fdb462", "#bc80bd"]  # darker Set3 tones
     for idx, (series, (key, disp)) in enumerate(zip(values_by_metric, metrics)):
         bar_positions = [i + idx * width - (width * (num_bars - 1) / 2) for i in x]
         ax.bar(bar_positions, series, width=width, label=disp, color=palette[idx % len(palette)])
@@ -571,6 +623,7 @@ def main() -> None:
         actions = {
             "diskann_qps": lambda: plot_diskann_qps(diskann_rows, out_dir),
             "diskann_latency": lambda: plot_diskann_latency_breakdown(diskann_rows, out_dir),
+            "diskann_vs_ivfpq": lambda: plot_diskann_vs_ivfpq_summary(diskann_rows, faiss_rows, out_dir),
             "faiss_qps": lambda: plot_faiss_qps_and_latency(faiss_rows, out_dir, which="qps"),
             "faiss_latency": lambda: plot_faiss_qps_and_latency(faiss_rows, out_dir, which="latency"),
             "diskann_index_only": lambda: plot_diskann_index_only_qps(idx_only_rows, out_dir),
@@ -586,6 +639,7 @@ def main() -> None:
     else:
         plot_diskann_qps(diskann_rows, out_dir)
         plot_diskann_latency_breakdown(diskann_rows, out_dir)
+        plot_diskann_vs_ivfpq_summary(diskann_rows, faiss_rows, out_dir)
         plot_faiss_qps_and_latency(faiss_rows, out_dir)
         plot_diskann_index_only_qps(idx_only_rows, out_dir)
         plot_accuracy_triviaqa_faiss_vs_diskann(out_dir)

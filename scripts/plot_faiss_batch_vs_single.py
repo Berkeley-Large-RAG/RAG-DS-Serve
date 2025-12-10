@@ -18,12 +18,12 @@ except Exception:
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 PLOT_DIR = os.path.join(REPO_ROOT, "docs", "plots")
-# ColorBrewer Set3 palette for consistent professional colors
-PALETTE = ["#8dd3c7", "#ffffb3", "#bebada", "#fb8072", "#80b1d3", "#fdb462", "#b3de69"]
-COLOR_QPS = PALETTE[4]      # soft blue
-COLOR_EMBED = PALETTE[0]    # teal
-COLOR_SEARCH = PALETTE[3]   # coral
-COLOR_TOTAL = PALETTE[5]    # orange
+# Darker subset of ColorBrewer Set3 (avoids the very light pastels)
+PALETTE = ["#80b1d3", "#fb8072", "#bc80bd", "#fdb462", "#b3de69", "#bebada"]
+COLOR_QPS = PALETTE[0]      # blue
+COLOR_EMBED = PALETTE[1]    # coral
+COLOR_SEARCH = PALETTE[4]   # green
+COLOR_TOTAL = PALETTE[3]    # orange
 
 # Measurements collected with COUNT=100 shared queries.
 BATCHED_RESULTS: List[Dict[str, float]] = [

@@ -66,8 +66,8 @@ def main() -> None:
 
     plt.figure(figsize=(12, 5))
     ax = plt.gca()
-    # ColorBrewer Set3 palette
-    palette = ["#8dd3c7", "#fb8072", "#b3de69", "#fdb462"]
+    # Darker subset of ColorBrewer Set3
+    palette = ["#80b1d3", "#fb8072", "#b3de69", "#fdb462"]
 
     for idx, (metric_key, display_name) in enumerate(metrics):
         values = [row[metric_key] for row in SINGLE_REQUEST_LATENCY]

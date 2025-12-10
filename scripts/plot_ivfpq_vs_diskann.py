@@ -23,8 +23,8 @@ except Exception:  # pragma: no cover - seaborn is optional
     sns = None
 
 
-IVFPQ_COLOR = "#8dd3c7"    # ColorBrewer Set3 teal
-DISKANN_COLOR = "#fb8072"  # ColorBrewer Set3 coral
+IVFPQ_COLOR = "#80b1d3"    # Darker Set3 blue
+DISKANN_COLOR = "#fb8072"  # Darker Set3 coral
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 DOCS_DIR = os.path.join(REPO_ROOT, "docs")
 METRIC_ORDER = ["Recall", "F1", "EM"]
