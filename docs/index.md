@@ -192,7 +192,7 @@ details > summary {
 </div>
 
 <p align="center">
-  <img src="{{ 'assets/ds-serve-ui.gif?v=1' | relative_url }}" alt="UI snippet" style="width: 36%; margin: 5px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);" />
+  <img src="{{ 'assets/ds-serve-ui.gif' | relative_url }}" alt="UI snippet" style="width: 36%; margin: 5px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);" />
   <img src="{{ 'assets/panel.png' | relative_url }}" alt="Parameter panel snippet" style="width: 24%; margin: 5px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);" />
 </p>
 <p align="center" class="small-note"><i>UI (gif) and parameter panel snippets</i></p>
@@ -360,32 +360,26 @@ The approximate nature of the ANN backend inevitably sacrifices accuracy, thus w
 </details>
 
 
-<h3 align="center">IVFPQ batched search</h3>
-<p>End-to-end QPS and latency when batching queries for IVFPQ.</p>
+<h3 align="center">Batched Retrieval</h3>
+<p><b>IVFPQ batched:</b> End-to-end QPS and latency when batching queries for IVFPQ.</p>
 <p align="center">
   <img src="{{ 'plots/ivfpq_qps_batched.png' | relative_url }}" alt="IVFPQ QPS batched" style="width: 44%; margin: 8px;" />
   <img src="{{ 'plots/ivfpq_latency_batched.png' | relative_url }}" alt="IVFPQ latency batched" style="width: 44%; margin: 8px;" />
 </p>
-<hr />
-
-<h3 align="center">IVFPQ single-request</h3>
-<p>Per-query QPS and latency when each request is issued independently.</p>
-<p align="center">
-  <img src="{{ 'plots/ivfpq_qps_single.png' | relative_url }}" alt="IVFPQ QPS single" style="width: 44%; margin: 8px;" />
-  <img src="{{ 'plots/ivfpq_latency_single.png' | relative_url }}" alt="IVFPQ latency single" style="width: 44%; margin: 8px;" />
-</p>
-<hr />
-
-<h3 align="center">DiskANN batched</h3>
-<p>End-to-end QPS vs L and latency breakdown when all queries are processed at once.</p>
+<p><b>DiskANN batched:</b> End-to-end QPS vs L and latency breakdown when all queries are processed at once.</p>
 <p align="center">
   <img src="{{ 'plots/diskann_qps_vs_L.png' | relative_url }}" alt="DiskANN batched QPS vs L" style="width: 44%; margin: 8px;" />
   <img src="{{ 'plots/diskann_latency_breakdown_vs_L.png' | relative_url }}" alt="DiskANN batched latency breakdown" style="width: 44%; margin: 8px;" />
 </p>
 <hr />
 
-<h3 align="center">DiskANN single-request</h3>
-<p>QPS vs L and latency decomposition when serving one query at a time.</p>
+<h3 align="center">Single-request Retrieval</h3>
+<p><b>IVFPQ single-request:</b> Per-query QPS and latency when each request is issued independently.</p>
+<p align="center">
+  <img src="{{ 'plots/ivfpq_qps_single.png' | relative_url }}" alt="IVFPQ QPS single" style="width: 44%; margin: 8px;" />
+  <img src="{{ 'plots/ivfpq_latency_single.png' | relative_url }}" alt="IVFPQ latency single" style="width: 44%; margin: 8px;" />
+</p>
+<p><b>DiskANN single-request:</b> QPS vs L and latency decomposition when serving one query at a time.</p>
 <p align="center">
   <img src="{{ 'plots/diskann_single_request_qps_vs_L.png' | relative_url }}" alt="DiskANN single QPS vs L" style="width: 44%; margin: 8px;" />
   <img src="{{ 'plots/diskann_single_request_latency_vs_L.png' | relative_url }}" alt="DiskANN single latency vs L" style="width: 44%; margin: 8px;" />
