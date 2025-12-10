@@ -79,7 +79,7 @@ def main() -> None:
     ax.set_xlabel("L", fontsize=13)
     ax.set_ylabel("Latency (ms)", fontsize=13)  # match breakdown style; not bold
     ax.set_title("DiskANN Single-request Latency Breakdown", fontsize=14)  # smaller, unbold
-    ax.legend(ncol=4, fontsize=11)
+    ax.legend(ncol=4, fontsize=11, loc="upper left")
 
     for tick in list(ax.get_xticklabels()) + list(ax.get_yticklabels()):
         tick.set_fontsize(11)

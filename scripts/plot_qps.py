@@ -62,53 +62,49 @@ def plot_diskann_qps(data, out_dir: str) -> None:
 
 
 def plot_diskann_vs_ivfpq_summary(diskann_rows, faiss_rows, out_dir: str) -> None:
-    """Compare best QPS and latency between DiskANN and IVFPQ on one figure."""
-    # Best QPS rows
-    diskann_best_qps = max(diskann_rows, key=lambda r: r["QPS"])
-    faiss_best_qps = max(faiss_rows, key=lambda r: r["QPS"])
-    # Use the same rows for latency comparison (their total_ms)
-    diskann_latency = diskann_best_qps["total_ms"]
-    faiss_latency = faiss_best_qps["total_ms"]
-
+    """Throughput-only comparison with clear L/nprobe labels, more bars."""
     colors = {"DiskANN": "#80b1d3", "IVFPQ": "#fb8072"}  # darker Set3
 
-    fig, axs = plt.subplots(1, 2, figsize=(10, 4))
+    labels = []
+    vals = []
+    bar_colors = []
+    for r in sorted(diskann_rows, key=lambda r: r["L"]):
+        labels.append(f"DiskANN L={r['L']}")
+        vals.append(r["QPS"])
+        bar_colors.append(colors["DiskANN"])
+    for r in sorted(faiss_rows, key=lambda r: r["nprobe"]):
+        labels.append(f"IVFPQ nprobe={r['nprobe']}")
+        vals.append(r["QPS"])
+        bar_colors.append(colors["IVFPQ"])
 
-    # QPS comparison
-    qps_labels = ["DiskANN", "IVFPQ"]
-    qps_vals = [diskann_best_qps["QPS"], faiss_best_qps["QPS"]]
-    axs[0].bar(qps_labels, qps_vals, color=[colors["DiskANN"], colors["IVFPQ"]])
-    axs[0].set_title("Throughput (higher is better)")
-    axs[0].set_ylabel("QPS")
-    for i, v in enumerate(qps_vals):
-        axs[0].annotate(f"{v:.1f}", (i, v), ha="center", va="bottom",
-                        fontsize=11, fontweight="bold", xytext=(0, 4), textcoords="offset points")
+    plt.figure(figsize=(10, 4.5))
+    if sns:
+        sns.set_theme(style="whitegrid")
+    ax = plt.gca()
+    ax.bar(range(len(labels)), vals, color=bar_colors)
+
+    ax.set_xticks(range(len(labels)))
+    ax.set_xticklabels(labels, rotation=25, ha="right", fontsize=10)
+    ax.set_ylabel("QPS")
+    ax.set_title("DiskANN vs IVFPQ throughput (higher is better)")
+    ax.legend(handles=[
+        plt.Rectangle((0, 0), 1, 1, color=colors["DiskANN"], label="DiskANN"),
+        plt.Rectangle((0, 0), 1, 1, color=colors["IVFPQ"], label="IVFPQ"),
+    ], fontsize=11)
+
+    for i, v in enumerate(vals):
+        ax.annotate(f"{v:.1f}", (i, v), ha="center", va="bottom",
+                    fontsize=10, fontweight="bold", xytext=(0, 4), textcoords="offset points")
+
     try:
-        ymax = max(qps_vals)
+        ymax = max(vals)
         if math.isfinite(ymax) and ymax > 0:
-            axs[0].set_ylim(0, ymax * 1.15)
+            ax.set_ylim(0, ymax * 1.15)
     except Exception:
         pass
 
-    # Latency comparison (total_ms)
-    lat_labels = ["DiskANN", "IVFPQ"]
-    lat_vals = [diskann_latency, faiss_latency]
-    axs[1].bar(lat_labels, lat_vals, color=[colors["DiskANN"], colors["IVFPQ"]])
-    axs[1].set_title("End-to-end latency (lower is better)")
-    axs[1].set_ylabel("Latency (ms)")
-    for i, v in enumerate(lat_vals):
-        axs[1].annotate(f"{v:.2f}", (i, v), ha="center", va="bottom",
-                        fontsize=11, fontweight="bold", xytext=(0, 4), textcoords="offset points")
-    try:
-        ymax = max(lat_vals)
-        if math.isfinite(ymax) and ymax > 0:
-            axs[1].set_ylim(0, ymax * 1.15)
-    except Exception:
-        pass
-
-    fig.suptitle("DiskANN vs IVFPQ (same plot): DiskANN recommended", fontsize=14, fontweight="bold")
     plt.tight_layout()
-    plt.savefig(os.path.join(out_dir, "diskann_vs_ivfpq_qps_latency.png"), dpi=160)
+    plt.savefig(os.path.join(out_dir, "diskann_vs_ivfpq_qps_multi.png"), dpi=160)
     plt.close()
 
 
@@ -161,7 +157,7 @@ def plot_diskann_latency_breakdown(data, out_dir: str) -> None:
     ax.set_xlabel("L")
     ax.set_ylabel("Latency (ms)")
     ax.set_title("DiskANN Latency Breakdown")
-    ax.legend(ncol=3, fontsize=9)
+    ax.legend(ncol=4, fontsize=11, loc="upper left")
 
     # Add headroom so annotations don't clip
     try:
