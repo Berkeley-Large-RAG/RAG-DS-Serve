@@ -357,52 +357,43 @@ The approximate nature of the ANN backend inevitably sacrifices accuracy, thus w
 </details>
 
 
-<h3>IVFPQ batched search</h3>
+<h3 align="center">IVFPQ batched search</h3>
 <p>End-to-end QPS and latency when batching queries for IVFPQ.</p>
 <p align="center">
-  <img src="{{ 'plots/ivfpq_qps_batched.png' | relative_url }}" alt="IVFPQ QPS batched" style="width: 78%; margin: 10px 0;" />
+  <img src="{{ 'plots/ivfpq_qps_batched.png' | relative_url }}" alt="IVFPQ QPS batched" style="width: 44%; margin: 8px;" />
+  <img src="{{ 'plots/ivfpq_latency_batched.png' | relative_url }}" alt="IVFPQ latency batched" style="width: 44%; margin: 8px;" />
 </p>
-<p align="center">
-  <img src="{{ 'plots/ivfpq_latency_batched.png' | relative_url }}" alt="IVFPQ latency batched" style="width: 78%; margin: 10px 0;" />
-</p>
+<hr />
 
-<h3>IVFPQ single-request</h3>
+<h3 align="center">IVFPQ single-request</h3>
 <p>Per-query QPS and latency when each request is issued independently.</p>
 <p align="center">
-  <img src="{{ 'plots/ivfpq_qps_single.png' | relative_url }}" alt="IVFPQ QPS single" style="width: 78%; margin: 10px 0;" />
+  <img src="{{ 'plots/ivfpq_qps_single.png' | relative_url }}" alt="IVFPQ QPS single" style="width: 44%; margin: 8px;" />
+  <img src="{{ 'plots/ivfpq_latency_single.png' | relative_url }}" alt="IVFPQ latency single" style="width: 44%; margin: 8px;" />
 </p>
-<p align="center">
-  <img src="{{ 'plots/ivfpq_latency_single.png' | relative_url }}" alt="IVFPQ latency single" style="width: 78%; margin: 10px 0;" />
-</p>
+<hr />
 
-<h3>DiskANN batched</h3>
+<h3 align="center">DiskANN batched</h3>
 <p>End-to-end QPS vs L and latency breakdown when all queries are processed at once.</p>
 <p align="center">
-  <img src="{{ 'plots/diskann_qps_vs_L.png' | relative_url }}" alt="DiskANN batched QPS vs L" style="width: 78%; margin: 10px 0;" />
+  <img src="{{ 'plots/diskann_qps_vs_L.png' | relative_url }}" alt="DiskANN batched QPS vs L" style="width: 44%; margin: 8px;" />
+  <img src="{{ 'plots/diskann_latency_breakdown_vs_L.png' | relative_url }}" alt="DiskANN batched latency breakdown" style="width: 44%; margin: 8px;" />
 </p>
-<p align="center">
-  <img src="{{ 'plots/diskann_latency_breakdown_vs_L.png' | relative_url }}" alt="DiskANN batched latency breakdown" style="width: 78%; margin: 10px 0;" />
-</p>
+<hr />
 
-<h3>DiskANN single-request</h3>
+<h3 align="center">DiskANN single-request</h3>
 <p>QPS vs L and latency decomposition when serving one query at a time.</p>
 <p align="center">
-  <img src="{{ 'plots/diskann_single_request_qps_vs_L.png' | relative_url }}" alt="DiskANN single QPS vs L" style="width: 78%; margin: 10px 0;" />
+  <img src="{{ 'plots/diskann_single_request_qps_vs_L.png' | relative_url }}" alt="DiskANN single QPS vs L" style="width: 44%; margin: 8px;" />
+  <img src="{{ 'plots/diskann_single_request_latency_vs_L.png' | relative_url }}" alt="DiskANN single latency vs L" style="width: 44%; margin: 8px;" />
 </p>
-<p align="center">
-  <img src="{{ 'plots/diskann_single_request_latency_vs_L.png' | relative_url }}" alt="DiskANN single latency vs L" style="width: 78%; margin: 10px 0;" />
-</p>
+<hr />
 
-<h3>Accuracy: TriviaQA</h3>
-<p>Recall, Exact Match, and F1 for DiskANN vs IVFPQ (L=5000, nprobe=256).</p>
+<h3 align="center">Accuracy comparisons</h3>
+<p>Recall, Exact Match, and F1 for DiskANN vs IVFPQ (L=5000, nprobe=256) on TriviaQA and NaturalQS.</p>
 <p align="center">
-  <img src="{{ 'accuracy_ivfpq_vs_diskann_triviaqa.png' | relative_url }}" alt="TriviaQA accuracy DiskANN vs IVFPQ" style="width: 70%; margin: 10px 0;" />
-</p>
-
-<h3>Accuracy: NaturalQS</h3>
-<p>Recall, Exact Match, and F1 for DiskANN vs IVFPQ (L=5000, nprobe=256).</p>
-<p align="center">
-  <img src="{{ 'accuracy_ivfpq_vs_diskann_naturalqs.png' | relative_url }}" alt="NaturalQS accuracy DiskANN vs IVFPQ" style="width: 70%; margin: 10px 0;" />
+  <img src="{{ 'accuracy_ivfpq_vs_diskann_triviaqa.png' | relative_url }}" alt="TriviaQA accuracy DiskANN vs IVFPQ" style="width: 44%; margin: 8px;" />
+  <img src="{{ 'accuracy_ivfpq_vs_diskann_naturalqs.png' | relative_url }}" alt="NaturalQS accuracy DiskANN vs IVFPQ" style="width: 44%; margin: 8px;" />
 </p>
 <p>Single-request search is used mainly for the interactive UI; batched search is recommended for higher-throughput API workloads.</p>
 <p class="small-note"><b>Note:</b> The latency number shown on the UI measures end-to-end wall-clock time (request setup, network travel, JSON encode/decode, rendering). QPS and latency can have small fluctuations depending on network speed.</p>
