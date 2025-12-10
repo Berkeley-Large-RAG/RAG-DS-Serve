@@ -54,7 +54,7 @@ def make_plot(
     plt.figure(figsize=(5.2, 4.2))
     ax = plt.gca()
     ax.bar(labels, values, color=colors)
-    ax.set_xlabel("System", fontsize=13)
+    ax.set_xlabel("Framework", fontsize=13)
     ax.set_ylabel("QPS", fontsize=13)
     ax.set_title(title, fontsize=14)
 
