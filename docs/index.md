@@ -150,6 +150,24 @@ details > summary {
 .perf-table th, .perf-table td { border: 1px solid #e5e7eb; padding: 6px 8px; text-align: center; white-space: nowrap; }
 .perf-table thead th { background: #f9fafb; }
 .perf-table caption { caption-side: top; font-weight: 600; margin-bottom: 6px; text-align: left; }
+/* Figure cards */
+.figure-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin: 8px 0 12px;
+}
+.figure-card {
+  flex: 1 1 320px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 10px 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+.figure-card h4 { margin: 6px 0 4px; font-size: 16px; }
+.figure-card p { margin: 4px 0 8px; font-size: 14px; color: #4b5563; }
+.figure-card img { width: 100%; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
 </style>
 
 
@@ -186,6 +204,7 @@ details > summary {
   <ol style="margin: 0; padding-left: 20px;">
     <li style="margin-bottom: 8px;">You can turn any large in-house dataset (<1T tokens) into a <b>high-throughput (200+ end-to-end QPS)</b>, <b>memory-efficient (<200 GB RAM)</b> retrieval system with a <b>web UI and API</b>.</li>
     <li>Our <b>prototype</b>, built on <b>400B words</b> of high-quality LLM pre-training data, is readily available and provides downstream gains comparable to commercial search engine endpoints.</li>
+    <li>DiskANN delivers the best balance of accuracy, latency, and RAM cost in our deployments, outperforming IVFPQ on real workloads.</li>
   </ol>
 </div>
 
@@ -306,65 +325,10 @@ This represents a significantly larger datastore than most prior work, and to th
 <p>DiskANN keeps a compressed copy of vectors in memory to compute approximate distances, while SSDs store full‑precision vectors and the proximity‑graph index. During search, the system fetches a node’s original vector (to refine distances) and its adjacency list (to continue traversal) from disk.</p>
 </details>
 
-Key takeaways:
-
-1.We find in real open‑source deployments that DiskANN offers the best balance of accuracy, latency, and RAM cost -- overall outperforming IVFPQ.
-
-<p>See the visual comparison below:</p>
-
-
-<table style="width:100%; border-collapse:collapse; text-align:center;">
-  <thead>
-    <tr>
-      <th style="border:1px solid #ddd; padding:6px;">Method</th>
-      <th style="border:1px solid #ddd; padding:6px;">Accuracy</th>
-      <th style="border:1px solid #ddd; padding:6px;">Latency</th>
-      <th style="border:1px solid #ddd; padding:6px;">RAM cost</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style="border:1px solid #ddd; padding:6px;">DiskANN</td>
-      <td style="border:1px solid #ddd; padding:6px;">Excellent</td>
-      <td style="border:1px solid #ddd; padding:6px;">Excellent</td>
-      <td style="border:1px solid #ddd; padding:6px;">Excellent</td>
-    </tr>
-    <tr>
-      <td style="border:1px solid #ddd; padding:6px;">IVFPQ</td>
-      <td style="border:1px solid #ddd; padding:6px;">Poor</td>
-      <td style="border:1px solid #ddd; padding:6px;">Good</td>
-      <td style="border:1px solid #ddd; padding:6px;">Excellent</td>
-    </tr>
-    <tr>
-      <td style="border:1px solid #ddd; padding:6px;">Linear scan (disk)</td>
-      <td style="border:1px solid #ddd; padding:6px;">Excellent</td>
-      <td style="border:1px solid #ddd; padding:6px;">Poor</td>
-      <td style="border:1px solid #ddd; padding:6px;">Excellent</td>
-    </tr>
-    <tr>
-      <td style="border:1px solid #ddd; padding:6px;">IVF (no PQ)</td>
-      <td style="border:1px solid #ddd; padding:6px;">Good</td>
-      <td style="border:1px solid #ddd; padding:6px;">Good</td>
-      <td style="border:1px solid #ddd; padding:6px;">Poor</td>
-    </tr>
-    <tr>
-      <td style="border:1px solid #ddd; padding:6px;">HNSW</td>
-      <td style="border:1px solid #ddd; padding:6px;">Excellent</td>
-      <td style="border:1px solid #ddd; padding:6px;">Excellent</td>
-      <td style="border:1px solid #ddd; padding:6px;">Poor</td>
-    </tr>
-  </tbody>
-</table>
-
-2.yichuan add more take away[TODO]
-
----
-<br/>
-
 ## Performance 
 <div class="perf-table">
   <table>
-    <caption>Table 1: Evaluation results (LLaMa 3.1 8B). <i>Acc</i> is accuracy (%); <i>t</i> is end‑to‑end retrieval latency (s). For Exact Search, <i>t</i> is without cache and <i>t</i><sub>cache</sub> with cache. We use <i>K</i>=1000, <i>k</i>=10, and <i>n</i><sub>probe</sub>=256.</caption>
+    <caption>Table 1: Evaluation results (LLaMa 3.1 8B) — interpolating DS-Serve with neural LLM. <i>Acc</i> is accuracy (%); <i>t</i> is end‑to‑end retrieval latency (s). For Exact Search, <i>t</i> is without cache and <i>t</i><sub>cache</sub> with cache. We use <i>K</i>=1000, <i>k</i>=10, and <i>n</i><sub>probe</sub>=256.</caption>
     <thead>
       <tr>
         <th rowspan="2">Task</th>
@@ -410,37 +374,49 @@ The approximate nature of the ANN backend inevitably sacrifices accuracy, thus w
 </details>
 
 
-<!-- NO CHANGE -->
-<p align="left"><i>IVFPQ batched search.</i></p>
-<p align="center">
-  <img src="{{ 'plots/ivfpq_qps_batched.png' | relative_url }}" style="width: 48%; margin: 5px;" />
-  <img src="{{ 'plots/ivfpq_latency_batched.png' | relative_url }}" style="width: 48%; margin: 5px;" />
-</p>
+<div class="figure-grid">
+  <div class="figure-card">
+    <h4>IVFPQ batched search</h4>
+    <p>End-to-end QPS (left) and latency (right) when batching queries for IVFPQ.</p>
+    <img src="{{ 'plots/ivfpq_qps_batched.png' | relative_url }}" alt="IVFPQ QPS batched" />
+    <img src="{{ 'plots/ivfpq_latency_batched.png' | relative_url }}" alt="IVFPQ latency batched" />
+  </div>
+  <div class="figure-card">
+    <h4>IVFPQ single-request</h4>
+    <p>Per-query QPS and latency when each request is issued independently.</p>
+    <img src="{{ 'plots/ivfpq_qps_single.png' | relative_url }}" alt="IVFPQ QPS single" />
+    <img src="{{ 'plots/ivfpq_latency_single.png' | relative_url }}" alt="IVFPQ latency single" />
+  </div>
+</div>
 
-<p align="left"><i>IVFPQ single-request search.</i></p>
-<p align="center">
-  <img src="{{ 'plots/ivfpq_qps_single.png' | relative_url }}" style="width: 48%; margin: 5px;" />
-  <img src="{{ 'plots/ivfpq_latency_single.png' | relative_url }}" style="width: 48%; margin: 5px;" />
-</p>
+<div class="figure-grid">
+  <div class="figure-card">
+    <h4>DiskANN batched</h4>
+    <p>End-to-end QPS vs L (left) and latency breakdown (right) when all queries are processed at once.</p>
+    <img src="{{ 'plots/diskann_qps_vs_L.png' | relative_url }}" alt="DiskANN batched QPS vs L" />
+    <img src="{{ 'plots/diskann_latency_breakdown_vs_L.png' | relative_url }}" alt="DiskANN batched latency breakdown" />
+  </div>
+  <div class="figure-card">
+    <h4>DiskANN single-request</h4>
+    <p>QPS vs L (left) and latency decomposition (right) when serving one query at a time.</p>
+    <img src="{{ 'plots/diskann_single_request_qps_vs_L.png' | relative_url }}" alt="DiskANN single QPS vs L" />
+    <img src="{{ 'plots/diskann_single_request_latency_vs_L.png' | relative_url }}" alt="DiskANN single latency vs L" />
+  </div>
+</div>
 
-<p align="left"><i>DiskANN batched search, where all queries are processed at once. Left: end-to-end QPS; right: latency breakdown from server timings.</i></p>
-<p align="center">
-  <img src="{{ 'plots/diskann_qps_vs_L.png' | relative_url }}" style="width: 48%; margin: 5px;" />
-  <img src="{{ 'plots/diskann_latency_breakdown_vs_L.png' | relative_url }}" style="width: 48%; margin: 5px;" />
-</p>
-
-<p align="left"><i>DiskANN single-request search, where each query is processed individually. Left: QPS vs L; right: latency decomposition (embed, search, mapping).</i></p>
-<p align="center">
-  <img src="{{ 'plots/diskann_single_request_qps_vs_L.png' | relative_url }}" style="width: 48%; margin: 5px;" />
-  <img src="{{ 'plots/diskann_single_request_latency_vs_L.png' | relative_url }}" style="width: 48%; margin: 5px;" />
-</p>
-<p>Single-request search is typically only used on the UI where the users search one query at a time light and easy. However, as tested batched search is always faster thanks to less overhead per request on average, so using a bigger batch is recommended for more intense retrieval with the API.</p>
-
-<p align="left"><i>TriviaQA and NaturalQS accuracy on Recall (fraction of queries with at least one correct hit), Exact Match (strict string match on the answer), and F1 (token‑level overlap). DiskANN outperforms IVFPQ across both datasets. L=5000 for DiskANN and nprobe=256 for IVFPQ.</i></p>
-<p align="center">
-  <img src="{{ 'accuracy_ivfpq_vs_diskann_triviaqa.png' | relative_url }}" style="width: 45%; margin: 5px;" />
-  <img src="{{ 'accuracy_ivfpq_vs_diskann_naturalqs.png' | relative_url }}" style="width: 45%; margin: 5px;" />
-</p>
+<div class="figure-grid">
+  <div class="figure-card">
+    <h4>Accuracy: TriviaQA</h4>
+    <p>Recall, Exact Match, and F1 for DiskANN vs IVFPQ (L=5000, nprobe=256).</p>
+    <img src="{{ 'accuracy_ivfpq_vs_diskann_triviaqa.png' | relative_url }}" alt="TriviaQA accuracy DiskANN vs IVFPQ" />
+  </div>
+  <div class="figure-card">
+    <h4>Accuracy: NaturalQS</h4>
+    <p>Recall, Exact Match, and F1 for DiskANN vs IVFPQ (L=5000, nprobe=256).</p>
+    <img src="{{ 'accuracy_ivfpq_vs_diskann_naturalqs.png' | relative_url }}" alt="NaturalQS accuracy DiskANN vs IVFPQ" />
+  </div>
+</div>
+<p>Single-request search is used mainly for the interactive UI; batched search is recommended for higher-throughput API workloads.</p>
 <p class="small-note"><b>Note:</b> The latency number shown on the UI measures end-to-end wall-clock time (request setup, network travel, JSON encode/decode, rendering). QPS and latency can have small fluctuations depending on network speed.</p>
 
 ---
