@@ -109,13 +109,12 @@ def plot_dataset(dataset: str) -> str:
 
     ax.set_xticks(x_positions)
     ax.set_xticklabels(labels)
-    ax.set_ylabel("Score", fontsize=14, fontweight="bold")
-    ax.set_title(f"{dataset} Accuracy: IVFPQ vs DiskANN", fontsize=18, fontweight="bold")
+    ax.set_ylabel("Score", fontsize=14)
+    ax.set_title(f"{dataset} Accuracy: IVFPQ vs DiskANN", fontsize=16)
     ax.legend(fontsize=12)
 
     for tick in list(ax.get_xticklabels()) + list(ax.get_yticklabels()):
         tick.set_fontsize(12)
-        tick.set_fontweight("bold")
 
     all_vals = ivfpq_vals + diskann_vals
     vmin = min(all_vals)

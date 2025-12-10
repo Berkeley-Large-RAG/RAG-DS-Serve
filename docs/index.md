@@ -98,7 +98,7 @@ details > summary {
 .site-footer { display: none !important; }
 /* Center the top navigation and enlarge links on the homepage */
 .site-header .wrapper { justify-content: center; flex-wrap: wrap; gap: 8px; }
-.site-header .site-title { font-size: 18px !important; font-weight: 600 !important; color: #111827 !important; margin-right: 12px !important; }
+.site-header .site-title { font-size: 20px !important; font-weight: 700 !important; color: #111827 !important; margin-right: 12px !important; text-transform: uppercase; }
 .site-header .site-nav .page-link { display: inline-block; margin: 2px 6px; font-size: 16px; }
 .site-header .site-nav .trigger { justify-content: center; gap: 10px; flex-wrap: wrap; }
 .site-header .site-nav { display: none !important; } /* hide header links; keep title centered */
@@ -155,7 +155,7 @@ details > summary {
 
 
 
-<h2 align="center" style="margin-top: 10px; margin-bottom: 5px;">🚀 <b>DS SERVE: A Framework for Efficient and Scalable Neural Retrieval</b></h2>
+<h2 align="center" style="margin-top: 10px; margin-bottom: 5px; font-size: 28px;">🚀 <b>DS SERVE: A Framework for Efficient and Scalable Neural Retrieval</b></h2>
 
 <p align="center" class="authors" style="margin-bottom: 2px;">
   <a href="https://github.com/berkeleyljj" target="_blank">Jinjian Liu</a><sup>1*</sup>, 
@@ -192,10 +192,10 @@ details > summary {
 </div>
 
 <p align="center">
-  <img src="{{ 'assets/UI.png' | relative_url }}" alt="UI snippet" style="width: 36%; margin: 5px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);" />
+  <img src="{{ 'scripts/DS-Serve UI.gif' | relative_url }}" alt="UI snippet" style="width: 36%; margin: 5px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);" />
   <img src="{{ 'assets/panel.png' | relative_url }}" alt="Parameter panel snippet" style="width: 24%; margin: 5px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);" />
 </p>
-<p align="center" class="small-note"><i>UI and parameter panel snippets</i></p>
+<p align="center" class="small-note"><i>UI (gif) and parameter panel snippets</i></p>
 
 ### Why was it previously challenging?
 
@@ -399,6 +399,14 @@ The approximate nature of the ANN backend inevitably sacrifices accuracy, thus w
   <img src="{{ 'accuracy_ivfpq_vs_diskann_naturalqs.png' | relative_url }}" alt="NaturalQS accuracy DiskANN vs IVFPQ" style="width: 44%; margin: 8px;" />
 </p>
 <p>Single-request search is used mainly for the interactive UI; batched search is recommended for higher-throughput API workloads.</p>
+<hr />
+
+<h3 align="center">Throughput comparison vs Google API</h3>
+<p>Measured average QPS for single-request and batched modes.</p>
+<p align="center">
+  <img src="{{ 'plots/search_engine_qps_single.png' | relative_url }}" alt="Single-request QPS: Google API vs DS Serve" style="width: 44%; margin: 8px;" />
+  <img src="{{ 'plots/search_engine_qps_batched.png' | relative_url }}" alt="Batched QPS: Google API vs DS Serve" style="width: 44%; margin: 8px;" />
+</p>
 <p class="small-note"><b>Note:</b> The latency number shown on the UI measures end-to-end wall-clock time (request setup, network travel, JSON encode/decode, rendering). QPS and latency can have small fluctuations depending on network speed.</p>
 
 ---
