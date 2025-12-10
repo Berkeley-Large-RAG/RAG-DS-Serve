@@ -63,13 +63,12 @@ def main() -> None:
     plt.figure(figsize=(8.5, 4.2))
     ax = plt.gca()
     ax.bar(labels, values, color=BAR_COLOR)
-    ax.set_xlabel("L (DiskANN list size)", fontsize=13, fontweight="bold")
-    ax.set_ylabel("Single-request QPS", fontsize=13, fontweight="bold")
-    ax.set_title("DiskANN Single-request QPS vs L", fontsize=16, fontweight="bold")
+    ax.set_xlabel("L", fontsize=13)
+    ax.set_ylabel("QPS", fontsize=13)
+    ax.set_title("DiskANN Single-request QPS vs L", fontsize=14)  # unbold, smaller to match batched
 
     for tick in list(ax.get_xticklabels()) + list(ax.get_yticklabels()):
         tick.set_fontsize(11)
-        tick.set_fontweight("bold")
 
     annotate(ax)
     plt.tight_layout()
