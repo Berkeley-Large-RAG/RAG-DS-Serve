@@ -512,7 +512,8 @@ class IVFPQIndexer(object):
         if offset == 1:
             result["original_text"] = center_text.strip()
 
-        print(f"[INFO] Return value with offset {offset} is: {result}")
+        # Suppress verbose expansion payload logs to keep terminal clean
+        # print(f"[INFO] Return value with offset {offset} is: {result}")
 
         return result
 
