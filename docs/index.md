@@ -325,10 +325,10 @@ This represents a significantly larger datastore than most prior work, and to th
   <img src="{{ 'accuracy_ivfpq_vs_diskann_triviaqa.png' | relative_url }}" alt="TriviaQA accuracy DiskANN vs IVFPQ" style="width: 44%; margin: 8px;" />
   <img src="{{ 'accuracy_ivfpq_vs_diskann_naturalqs.png' | relative_url }}" alt="NaturalQS accuracy DiskANN vs IVFPQ" style="width: 44%; margin: 8px;" />
 </p>
-<h3 align="center">DiskANN vs IVFPQ: throughput and latency (same graph)</h3>
-<p>Combined comparison: DiskANN achieves higher QPS and lower end-to-end latency than IVFPQ under the tested configs, so DiskANN is the recommended default.</p>
+<h3 align="center">DiskANN vs IVFPQ: throughput (same graph)</h3>
+<p>Combined throughput: DiskANN achieves higher QPS than IVFPQ across tested configs; labels show L (DiskANN) and nprobe (IVFPQ). DiskANN remains the recommended default.</p>
 <p align="center">
-  <img src="{{ 'plots/diskann_vs_ivfpq_qps_latency.png' | relative_url }}" alt="DiskANN vs IVFPQ QPS and latency" style="width: 70%; margin: 8px;" />
+  <img src="{{ 'plots/diskann_vs_ivfpq_qps_multi.png' | relative_url }}" alt="DiskANN vs IVFPQ throughput comparison" style="width: 75%; margin: 8px;" />
 </p>
 <hr />
 
