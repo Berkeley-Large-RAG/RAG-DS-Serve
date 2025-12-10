@@ -21,7 +21,7 @@ except Exception:  # pragma: no cover - seaborn is optional
     sns = None
 
 
-BAR_COLOR = "#80b1d3"  # ColorBrewer Set3 soft blue
+BAR_COLOR = "#80b1d3"  # Darker Set3 blue
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 OUTPUT_PATH = os.path.join(REPO_ROOT, "docs", "plots", "diskann_single_request_qps_vs_L.png")
 
@@ -60,7 +60,7 @@ def main() -> None:
     if sns:
         sns.set_theme(style="whitegrid")
 
-    plt.figure(figsize=(8.5, 4.2))
+    plt.figure(figsize=(9, 4))
     ax = plt.gca()
     ax.bar(labels, values, color=BAR_COLOR)
     ax.set_xlabel("L", fontsize=13)

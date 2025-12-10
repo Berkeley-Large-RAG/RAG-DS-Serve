@@ -154,7 +154,7 @@ details > summary {
 
 
 
-<h2 align="center" style="margin-top: 10px; margin-bottom: 5px; font-size: 28px;">🚀 <b>DS SERVE: A Framework for Efficient and Scalable Neural Retrieval</b></h2>
+<h2 align="center" style="margin-top: 10px; margin-bottom: 5px; font-size: 28px;">🚀 DS SERVE: A Framework for Efficient and Scalable Neural Retrieval</h2>
 
 <p align="center" class="authors" style="margin-bottom: 2px;">
   <a href="https://github.com/berkeleyljj" target="_blank">Jinjian Liu</a><sup>1*</sup>, 
@@ -205,7 +205,7 @@ details > summary {
 
 As an example, most users default to search engines for general knowledge queries even when high-quality web data (e.g., LLM pre-training corpora) is publicly available. However, those engines are costly, low-throughput, and often unreliable at scale.
 
-**DS Serve** addresses these challenges by making it easy to transform any large-scale in-house dataset into a high-throughput, memory-efficient neural retrieval system backed by DiskANN—complete with a web UI, API endpoints, and mechanisms for collecting search-result feedback. Our prototype (400B tokens, 2B vectors, 5 TB embeddings) matches the downstream gains of commercial search endpoints and, to the best of our knowledge, is the largest publicly accessible vector store.
+DS Serve addresses these challenges by making it easy to transform any large-scale in-house dataset into a high-throughput, memory-efficient neural retrieval system backed by DiskANN—complete with a web UI, API endpoints, and mechanisms for collecting search-result feedback. Our prototype (400B tokens, 2B vectors, 5 TB embeddings) matches the downstream gains of commercial search endpoints and, to the best of our knowledge, is the largest publicly accessible vector store.
 
 <p align="center">
   <img src="{{ 'plots/Figure-1.png' | relative_url }}" style="width: 70%;" />
@@ -225,7 +225,7 @@ See below for a set of <a href="#application">new applications our framework ena
 
 ## Application
 
-We envision **DS Serve** enabling a range of high-impact applications:
+We envision DS Serve enabling a range of high-impact applications:
 
 1. **Retrieval-Augmented Generation (RAG)**: DS Serve powers efficient RAG by feeding high-quality search results into LLMs. As shown in the [Performance section](#performance), it delivers superior accuracy and latency compared to both open-source baselines (like IVFPQ) and commercial search endpoints.
 2. **Data Attribution & Curation**: By indexing entire pre-training corpora, DS Serve enables semantic data attribution, complementing n-gram based systems like OLMoTrace. It also facilitates advanced curation—allowing semantic deduplication, decontamination, and customized filtering for query-specific datasets.
@@ -237,7 +237,7 @@ We envision **DS Serve** enabling a range of high-impact applications:
 
 ## User guide
 
-We provide two ways to use **DS Serve**: API calls and a web UI.
+We provide two ways to use DS Serve: API calls and a web UI.
 
 ### API
 For programmatic access, see the API docs: <a href="{{ 'API_DOCUMENTATION.html' | relative_url }}">API Documentation</a>.
@@ -325,6 +325,11 @@ This represents a significantly larger datastore than most prior work, and to th
   <img src="{{ 'accuracy_ivfpq_vs_diskann_triviaqa.png' | relative_url }}" alt="TriviaQA accuracy DiskANN vs IVFPQ" style="width: 44%; margin: 8px;" />
   <img src="{{ 'accuracy_ivfpq_vs_diskann_naturalqs.png' | relative_url }}" alt="NaturalQS accuracy DiskANN vs IVFPQ" style="width: 44%; margin: 8px;" />
 </p>
+<h3 align="center">DiskANN vs IVFPQ: throughput and latency (same graph)</h3>
+<p>Combined comparison: DiskANN achieves higher QPS and lower end-to-end latency than IVFPQ under the tested configs, so DiskANN is the recommended default.</p>
+<p align="center">
+  <img src="{{ 'plots/diskann_vs_ivfpq_qps_latency.png' | relative_url }}" alt="DiskANN vs IVFPQ QPS and latency" style="width: 70%; margin: 8px;" />
+</p>
 <hr />
 
 <h3 align="center">DiskANN latency breakdown</h3>
@@ -352,6 +357,13 @@ This represents a significantly larger datastore than most prior work, and to th
   <img src="{{ 'plots/search_engine_qps_batched.png' | relative_url }}" alt="Batched QPS: Google API vs DS Serve" style="width: 44%; margin: 8px;" />
 </p>
 <p class="small-note"><b>Note:</b> The latency number shown on the UI measures end-to-end wall-clock time (request setup, network travel, JSON encode/decode, rendering). QPS and latency can have small fluctuations depending on network speed.</p>
+
+<details>
+<summary><b>Exact &amp; Diverse (optional toggles)</b></summary>
+<p><b>Exact Search</b> reranks ANN candidates by recomputing exact similaritiy scores using GritLM instead of approxmimation used by ANN. This mode is the best for accuracy-sensitive queries and cached follow-ups for higher speed on similar/same queries.</p>
+<p><b>Diverse Search</b> applies MMR to reduce redundancy: <code>Score(i) = λ·sim(q,d_i) − (1−λ)·max<sub>j∈S</sub> sim(d_i,d_j)</code>. Useful to diversify results when there is noticeable redundancy.</p>
+<p>Use these toggles when you need higher precision (Exact) or to de-duplicate results (Diverse); keep them off for the fastest latency/QPS. They are omitted from the web UI because Exact Search and Diverse Search are both recommended to use with a GPU for optimized latency. If you have the compute you can enable them by building the framework from the source repo following the guidelines as a custom option.</p>
+</details>
 
 ---
 <br/>
