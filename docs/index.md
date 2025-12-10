@@ -190,7 +190,7 @@ details > summary {
 </div>
 
 <p align="center">
-  <img src="{{ 'assets/ui.gif | relative_url }}"
+  <img src="{{ 'assets/ui.webp' | relative_url }}"
        alt="UI snippet"
        style="width: 36%; margin: 5px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);" />
   <img src="{{ 'assets/panel.png' | relative_url }}" alt="Parameter panel snippet" style="width: 24%; margin: 5px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);" />
@@ -244,7 +244,7 @@ For programmatic access, see the API docs: <a href="{{ 'API_DOCUMENTATION.html' 
 
 ### Web interface
 <p align="center">
-  <img src="{{ 'assets/panel.gif' | relative_url }}" alt="UI demo gif" style="width: 65%; margin: 8px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);" />
+  <img src="{{ 'assets/panel.webp' | relative_url }}" alt="UI demo gif" style="width: 65%; margin: 8px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);" />
 </p>
 <p>Use the control panel and toggles in the web UI to control search parameters and search behaviors.</p>
 
