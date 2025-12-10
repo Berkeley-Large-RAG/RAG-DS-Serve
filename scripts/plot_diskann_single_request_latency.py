@@ -54,8 +54,8 @@ def main() -> None:
 
     metrics = [
         ("embed_ms", "Embed"),
-        ("map_ms", "Passage map"),
         ("search_ms", "Index search"),
+        ("map_ms", "Passage map"),
         ("total_ms", "Total"),
     ]
 
@@ -66,8 +66,8 @@ def main() -> None:
 
     plt.figure(figsize=(12, 5))
     ax = plt.gca()
-    # Match batched breakdown colors: Embed (blue), Passage map (green), Index search (orange), Total (red)
-    palette = ["#4C78A8", "#54A24B", "#F58518", "#E45756"]
+    # Match batched breakdown colors/order: Embed (blue), Index search (orange), Passage map (green), Total (red)
+    palette = ["#4C78A8", "#F58518", "#54A24B", "#E45756"]
 
     for idx, (metric_key, display_name) in enumerate(metrics):
         values = [row[metric_key] for row in SINGLE_REQUEST_LATENCY]

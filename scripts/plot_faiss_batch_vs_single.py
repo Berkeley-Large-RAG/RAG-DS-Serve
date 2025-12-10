@@ -47,9 +47,9 @@ def _plot_qps(rows: List[Dict[str, float]], mode_label: str, filename: str) -> s
         sns.set_theme(style="whitegrid")
     ax = plt.gca()
     ax.bar(labels, values, color=COLOR_QPS)
-    ax.set_xlabel("nprobe", fontsize=12, fontweight="bold")
-    ax.set_ylabel("QPS", fontsize=12, fontweight="bold")
-    ax.set_title(f"IVFPQ {mode_label} QPS vs nprobe", fontsize=15, fontweight="bold")
+    ax.set_xlabel("nprobe", fontsize=12)
+    ax.set_ylabel("QPS", fontsize=12)
+    ax.set_title(f"IVFPQ {mode_label} QPS vs nprobe", fontsize=14)
 
     for label, val in zip(labels, values):
         ax.annotate(
@@ -65,7 +65,6 @@ def _plot_qps(rows: List[Dict[str, float]], mode_label: str, filename: str) -> s
 
     for tick in list(ax.get_xticklabels()) + list(ax.get_yticklabels()):
         tick.set_fontsize(11)
-        tick.set_fontweight("bold")
 
     plt.tight_layout()
     out_path = os.path.join(PLOT_DIR, filename)
@@ -109,14 +108,13 @@ def _plot_latency(rows: List[Dict[str, float]], mode_label: str, filename: str) 
 
     ax.set_xticks(base_positions)
     ax.set_xticklabels(labels)
-    ax.set_xlabel("nprobe", fontsize=12, fontweight="bold")
-    ax.set_ylabel("Latency per query (ms)", fontsize=12, fontweight="bold")
-    ax.set_title(f"IVFPQ {mode_label} latency breakdown", fontsize=15, fontweight="bold")
+    ax.set_xlabel("nprobe", fontsize=12)
+    ax.set_ylabel("Latency (ms)", fontsize=12)
+    ax.set_title(f"IVFPQ {mode_label} latency breakdown", fontsize=14)
     ax.legend(fontsize=10)
 
     for tick in list(ax.get_xticklabels()) + list(ax.get_yticklabels()):
         tick.set_fontsize(11)
-        tick.set_fontweight("bold")
 
     plt.tight_layout()
     out_path = os.path.join(PLOT_DIR, filename)
