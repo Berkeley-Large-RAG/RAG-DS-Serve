@@ -54,8 +54,8 @@ def main() -> None:
 
     metrics = [
         ("embed_ms", "Embed"),
-        ("search_ms", "DiskANN search"),
-        ("map_ms", "Mapping"),
+        ("map_ms", "Passage map"),
+        ("search_ms", "Index search"),
         ("total_ms", "Total"),
     ]
 
@@ -75,9 +75,9 @@ def main() -> None:
 
     ax.set_xticks(range(num_groups))
     ax.set_xticklabels(labels)
-    ax.set_xlabel("DiskANN list size L", fontsize=13, fontweight="bold")
-    ax.set_ylabel("Latency per request (ms)", fontsize=13, fontweight="bold")
-    ax.set_title("DiskANN Single-request Latency Breakdown", fontsize=16, fontweight="bold")
+    ax.set_xlabel("L", fontsize=13)
+    ax.set_ylabel("Latency (ms)", fontsize=13)  # match breakdown style; not bold
+    ax.set_title("DiskANN Single-request Latency Breakdown", fontsize=14)  # smaller, unbold
     ax.legend(ncol=4, fontsize=11)
 
     for tick in list(ax.get_xticklabels()) + list(ax.get_yticklabels()):
