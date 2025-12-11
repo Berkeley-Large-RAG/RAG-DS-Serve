@@ -284,15 +284,11 @@ This represents a significantly larger datastore than most prior work, and to th
 </p>
 
 <h3 align="center">DiskANN vs IVFPQ</h3>
-<p>DiskANN is more accurate <i>and</i> faster than IVFPQ. At recommended configs (DiskANN L=1000, IVFPQ nprobe=256), DiskANN achieves <b>~2.6× higher throughput</b> and <b>~3× lower latency</b>. The internal DiskANN index reaches up to 10,000 QPS; DiskANN is the recommended default.</p>
+<p>DiskANN is more accurate <i>and</i> faster than IVFPQ. At recommended configs (DiskANN L=1000, IVFPQ nprobe=256), DiskANN achieves <b>~2.6× higher throughput</b> and <b>~3× lower latency</b>. The internal DiskANN index reaches up to 10,000 QPS; DiskANN is the recommended default. Accuracy comparison uses DiskANN L=5000 and IVFPQ nprobe=256 on <a href="https://arxiv.org/abs/1705.03551" target="_blank">TriviaQA</a> and <a href="https://arxiv.org/abs/1906.00300" target="_blank">Natural Questions</a>.</p>
 <p align="center">
-  <img src="{{ 'plots/diskann_vs_ivfpq_qps_multi.png' | relative_url }}" alt="DiskANN vs IVFPQ throughput" style="width: 48%; margin: 4px;" />
-  <img src="{{ 'plots/diskann_vs_ivfpq_latency.png' | relative_url }}" alt="DiskANN vs IVFPQ latency" style="width: 48%; margin: 4px;" />
-</p>
-<p>Accuracy comparison on <a href="https://arxiv.org/abs/1705.03551" target="_blank">TriviaQA</a> and <a href="https://arxiv.org/abs/1906.00300" target="_blank">Natural Questions</a> (using DiskANN L=5000, IVFPQ nprobe=256). DiskANN outperforms IVFPQ across all metrics on both datasets.</p>
-<p align="center">
-  <img src="{{ 'plots/accuracy_ivfpq_vs_diskann_triviaqa.png' | relative_url }}" alt="TriviaQA accuracy: DiskANN vs IVFPQ" style="width: 48%; margin: 4px;" />
-  <img src="{{ 'plots/accuracy_ivfpq_vs_diskann_naturalqs.png' | relative_url }}" alt="NaturalQS accuracy: DiskANN vs IVFPQ" style="width: 48%; margin: 4px;" />
+  <img src="{{ 'plots/diskann_vs_ivfpq_perf.png' | relative_url }}" alt="DiskANN vs IVFPQ throughput and latency" style="width: 32%; margin: 2px;" />
+  <img src="{{ 'plots/accuracy_ivfpq_vs_diskann_triviaqa.png' | relative_url }}" alt="TriviaQA accuracy: DiskANN vs IVFPQ" style="width: 32%; margin: 2px;" />
+  <img src="{{ 'plots/accuracy_ivfpq_vs_diskann_naturalqs.png' | relative_url }}" alt="NaturalQS accuracy: DiskANN vs IVFPQ" style="width: 32%; margin: 2px;" />
 </p>
 <p class="small-note"><b>Metrics:</b> Recall = fraction of questions where at least one retrieved passage contains the gold answer; EM (Exact Match) = generated answer exactly matches gold; F1 = token-level overlap between generated and gold answers.</p>
 <p class="small-note"><b>Note:</b> IVFPQ remains available as a legacy mode for experimentation. Latency measures end-to-end wall-clock time.</p>

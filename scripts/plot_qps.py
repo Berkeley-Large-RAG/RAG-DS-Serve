@@ -150,6 +150,46 @@ def plot_diskann_vs_ivfpq_latency(diskann_rows, faiss_rows, out_dir: str) -> Non
     plt.close()
 
 
+def plot_diskann_vs_ivfpq_perf_combined(diskann_rows, faiss_rows, out_dir: str) -> None:
+    """Combined throughput + latency figure for recommended configs only (L=1000, nprobe=256)."""
+    colors = {"DiskANN": "#fb8072", "IVFPQ": "#80b1d3"}
+
+    # Get recommended configs
+    diskann_1000 = next((r for r in diskann_rows if r["L"] == 1000), diskann_rows[0])
+    ivfpq_256 = next((r for r in faiss_rows if r["nprobe"] == 256), faiss_rows[0])
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(7, 4))
+    if sns:
+        sns.set_theme(style="whitegrid")
+
+    labels = ["DiskANN", "IVFPQ"]
+    bar_colors = [colors["DiskANN"], colors["IVFPQ"]]
+
+    # Throughput subplot
+    qps_vals = [diskann_1000["QPS"], ivfpq_256["QPS"]]
+    ax1.bar(labels, qps_vals, color=bar_colors, edgecolor='none')
+    ax1.set_ylabel("QPS (↑ higher is better)")
+    ax1.set_title("Batched throughput", fontsize=12)
+    for i, v in enumerate(qps_vals):
+        ax1.annotate(f"{v:.2f}", (i, v), ha="center", va="bottom",
+                     fontsize=10, fontweight="bold", xytext=(0, 4), textcoords="offset points")
+    ax1.set_ylim(0, max(qps_vals) * 1.15)
+
+    # Latency subplot
+    lat_vals = [diskann_1000["total_ms"], ivfpq_256["total_ms"]]
+    ax2.bar(labels, lat_vals, color=bar_colors, edgecolor='none')
+    ax2.set_ylabel("Latency (ms) (↓ lower is better)")
+    ax2.set_title("Single-request latency", fontsize=12)
+    for i, v in enumerate(lat_vals):
+        ax2.annotate(f"{v:.2f}", (i, v), ha="center", va="bottom",
+                     fontsize=10, fontweight="bold", xytext=(0, 4), textcoords="offset points")
+    ax2.set_ylim(0, max(lat_vals) * 1.15)
+
+    fig.tight_layout()
+    fig.savefig(os.path.join(out_dir, "diskann_vs_ivfpq_perf.png"), dpi=160)
+    plt.close(fig)
+
+
 def annotate_bars_custom(ax, fontsize: int = 10, y_offset: int = 4) -> None:
     for p in ax.patches:
         height = p.get_height()
