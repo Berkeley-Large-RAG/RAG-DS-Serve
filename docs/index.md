@@ -352,17 +352,13 @@ This represents a significantly larger datastore than most prior work, and to th
 <hr />
 
 
-<h3 align="center">Throughput: DS Serve vs Google Custom Search (CSE) API</h3>
-<p>Latency (single-request) and throughput (batched). Google API vs DS Serve Database.</p>
+<h3 align="center">DS Serve vs Google Custom Search (CSE) API</h3>
+<p>Latency (single-request), throughput (batched), and downstream accuracy comparison.</p>
 <p align="center">
-  <img src="{{ 'plots/search_engine_latency_throughput.png' | relative_url }}" alt="Latency and throughput: Google API vs DS Serve Database" style="width: 70%; margin: 8px;" />
+  <img src="{{ 'plots/search_engine_latency_throughput.png' | relative_url }}" alt="Latency and throughput: Google API vs DS Serve Database" style="width: 48%; margin: 4px;" />
+  <img src="{{ 'plots/search_engine_accuracy_avg.png' | relative_url }}" alt="Acccuracy: Search Engine vs DS Serve Database" style="width: 48%; margin: 4px;" />
 </p>
-
-<h3 align="center">Accuracy: Google CSE vs DS Serve Database</h3>
-<p align="center">
-  <img src="{{ 'plots/search_engine_accuracy_avg.png' | relative_url }}" alt="AVG accuracy: Search Engine vs DS Serve Database" style="width: 70%; margin: 8px;" />
-</p>
-<p> DS Serve achieves comparable or better downstream accuracy than Google CSE while offering <b>~30× higher throughput</b> (batched) and <b>~2× lower latency</b> (single-request)—all without rate limits or API costs. We aim to keep enhancing the throughput of our prototype and reach 10000 QPS end-to-end eventually.</p>
+<p>DS Serve achieves comparable or better downstream accuracy than Google CSE while offering <b>~30× higher throughput</b> (batched) and <b>~2× lower latency</b> (single-request)—all without rate limits or API costs. We aim to keep enhancing the throughput of our prototype to reach the 10000 QPS end-to-end eventually, matching the internal search-only throughput.</p>
 
 <details>
 <summary><b>Exact &amp; Diverse (optional toggles)</b></summary>
