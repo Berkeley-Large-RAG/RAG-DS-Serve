@@ -93,7 +93,7 @@ def main() -> None:
         ("DS-Serve Database", 55.1),
         ("DS-Serve + LM Rerank", 56.0),
     ]
-    plt.figure(figsize=(9, 4))
+    plt.figure(figsize=(9, 4.5))  # same height as latency/throughput figure
     if sns:
         sns.set_theme(style="whitegrid")
     ax = plt.gca()
