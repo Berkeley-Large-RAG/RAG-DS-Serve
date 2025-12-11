@@ -239,39 +239,38 @@ We envision DS Serve enabling a range of high-impact applications:
 ## Technical design 
 
 ### Datastore
-While prior work shows that retrieval over large pre‑training corpora can improve RAG accuracy (see <a href="https://arxiv.org/abs/2112.04426" target="_blank">RETRO</a>, <a href="https://arxiv.org/abs/2407.12854" target="_blank">MassiveDS</a>, <a href="https://arxiv.org/abs/2507.01297" target="_blank">CompactDS</a>,<a href="https://arxiv.org/abs/2005.11401" target="_blank">RAG</a>, <a href="https://arxiv.org/abs/2002.08909" target="_blank">REALM</a>), accessible frameworks for non‑experts to build and operate billion‑scale indexes have been lacking. Here, we demonstrate DS SERVE on CompactDS, a 380‑billion‑word corpus (~2B vectors) spanning web crawl data, Wikipedia, research papers, and more.
+Prior work showed that retrieval over large pre‑training corpora can improve RAG accuracy (see <a href="https://arxiv.org/abs/2112.04426" target="_blank">RETRO</a>, <a href="https://arxiv.org/abs/2407.12854" target="_blank">MassiveDS</a>, <a href="https://arxiv.org/abs/2507.01297" target="_blank">CompactDS</a>, <a href="https://arxiv.org/abs/2005.11401" target="_blank">RAG</a>, <a href="https://arxiv.org/abs/2002.08909" target="_blank">REALM</a>); however, accessible frameworks with modest resources have been lacking. DS SERVE is built on CompactDS, a 380‑billion‑word corpus (~2B vectors) spanning web crawl data, Wikipedia, research papers, and more.
 
 This represents a significantly larger datastore than most prior work, and to the best of our knowledge is the largest pretraining dataset that users can access in open source for free. Typical evaluations run at much smaller scales (often ≤ tens of millions of vectors), e.g., <a href="https://microsoft.github.io/msmarco/" target="_blank">MS&nbsp;MARCO</a>, <a href="https://ai.google.com/research/NaturalQuestions" target="_blank">Natural Questions</a>, and <a href="https://hotpotqa.github.io/" target="_blank">HotpotQA</a>, as well as consolidated leaderboards such as <a href="https://arxiv.org/abs/2104.08663" target="_blank">BEIR</a>. Even advanced commercial vector databases commonly impose per‑namespace/index limits well below the billion‑vector regime; see pricing/capacity notes for <a href="https://turbopuffer.com/pricing?namespaces=1&namespace=0&docs=1000000000&doc=7&writes=0&write=0" target="_blank">Turbopuffer</a>.
 
 ### Scalable and efficient search
+
+**What is Approximate Nearest Neighbor (ANN) search?**
+
+First, a database is embedded into a collection of vectors named datastore *D*. Then an index over *D* is built for easy lookup. Given a user query *q*, ANN returns the nearest neighbors—the vectors in *D* most semantically similar to *q*—through approximation. By visiting only part of the index, ANN retrieves faster than exhaustive search, which is infeasible at a billion‑vector scale. Therefore, ANN optimizes for latency with a small tradeoff in recall.
+
+**How we integrate ANN search**
+
+Real‑world vector datasets can contain billions of vectors and occupy terabytes. Keeping all vectors in DRAM is expensive. Two practical strategies reduce cost while preserving accuracy:
+- Quantization with in‑memory ANN (e.g., IVFPQ)
+- Disk‑based ANN that stores vectors on SSDs with a small RAM cache (~10–20% of dataset)
+
+In DS Serve we support both backends:
+
+1. **IVFPQ**: We use <a href="https://github.com/facebookresearch/faiss/wiki/Faiss-indexes#ivfpq" target="_blank">IVFPQ</a> to reduce memory and latency by clustering and product quantization. In our setting, IVFPQ supports inference within ~200 ms at ~100 GB RAM, achieving **~100 QPS** end‑to‑end.
+
+2. **DiskANN**: For higher throughput, we integrate <a href="https://github.com/microsoft/DiskANN" target="_blank">DiskANN</a>, a disk‑based ANN system. DiskANN achieves **>10,000** index‑level QPS and **~200+ end‑to‑end QPS** at ~200 GB RAM, making it suitable for high‑throughput deployments while maintaining competitive accuracy. In our internal evaluations, DiskANN's implicit reranking improved downstream accuracy compared to pure ANN and, on some tasks (e.g., MMLU), matched or exceeded Exact Search.
+
 <details>
-<summary><b>What is Approximate Nearest Neighbor (ANN) search?</b></summary>
-<p>First, a database is embedded into a colleciton of vectors named datastore <i>D</i>. Then an index over <i>D</i> is built for easy lookup. Given a user query <i>q</i>, ANN returns the nearest neighbors — the vectors in <i>D</i> most semantically similar to <i>q</i> -- through approximation. By visiting only part of the index, ANN retrieves faster than exhaustive search, which is infeasible at a billion‑vector scale. Therefore, ANN optimizes for latency with a small tradeoff in recall.<sup class="note-sup"><a href="#technical-design" aria-label="See Technical design">*</a></sup></p>
-</details>
-<details>
-<summary><b>How we integrate Approximate Nearest Neighbor (ANN) search</b></summary>
-<p>Real‑world vector datasets can contain billions of vectors and occupy terabytes. Keeping all vectors in DRAM is expensive. Two practical strategies reduce cost while preserving accuracy:</p>
-<ul>
-  <li>Quantization with in‑memory ANN (e.g., IVFPQ)</li>
-  <li>Disk‑based ANN that stores vectors on SSDs with a small RAM cache (~10–20% of dataset)</li>
-</ul>
-<p>In DS Serve we support both backends:</p>
-<ol>
-  <li><b>IVFPQ</b><br/>
-     We use <a href="https://github.com/facebookresearch/faiss/wiki/Faiss-indexes#ivfpq" target="_blank">IVFPQ</a> to reduce memory and latency by clustering and product quantization.<br/>
-     In our setting, IVFPQ supports inference within ~200 ms at ~100 GB RAM, achieving <b>~100 QPS</b> end‑to‑end.
-  </li>
-  <li><b>DiskANN</b><br/>
-     For higher throughput, we integrate <a href="https://github.com/microsoft/DiskANN" target="_blank">DiskANN</a>, a disk‑based ANN system.<br/>
-     DiskANN achieves <b>&gt;10000</b> index‑level QPS and <b>~200+ end‑to‑end QPS</b> at ~200 GB RAM, making it suitable for high‑throughput deployments while maintaining competitive accuracy.<br/>
-     In our internal evaluations, DiskANN’s implicit reranking improved downstream accuracy compared to pure ANN and, on some tasks (e.g., MMLU), matched or exceeded Exact Search.
-  </li>
-</ol>
+<summary><b>How DiskANN works (details)</b></summary>
+<p>DiskANN keeps a compressed copy of vectors in memory to compute approximate distances, while SSDs store full‑precision vectors and the proximity‑graph index. During search, the system fetches a node's original vector (to refine distances) and its adjacency list (to continue traversal) from disk.</p>
 </details>
 
 <details>
-<summary><b>How DiskANN works</b></summary>
-<p>DiskANN keeps a compressed copy of vectors in memory to compute approximate distances, while SSDs store full‑precision vectors and the proximity‑graph index. During search, the system fetches a node’s original vector (to refine distances) and its adjacency list (to continue traversal) from disk.</p>
+<summary><b>Exact &amp; Diverse (optional toggles)</b></summary>
+<p><b>Exact Search</b> reranks ANN candidates by recomputing exact similarity scores using GritLM instead of approximation used by ANN. This mode is best for accuracy-sensitive queries and cached follow-ups for higher speed on similar/same queries.</p>
+<p><b>Diverse Search</b> applies MMR to reduce redundancy: <code>Score(i) = λ·sim(q,d_i) − (1−λ)·max<sub>j∈S</sub> sim(d_i,d_j)</code>. Useful to diversify results when there is noticeable redundancy.</p>
+<p>Use these toggles when you need higher precision (Exact) or to de-duplicate results (Diverse); keep them off for the fastest latency/QPS. They are omitted from the public web UI because they are recommended to use with a GPU for optimized latency. If you have the compute, you can enable them by building from source.</p>
 </details>
 
 ## Performance 
@@ -302,13 +301,6 @@ This represents a significantly larger datastore than most prior work, and to th
   <img src="{{ 'plots/search_engine_accuracy_avg.png' | relative_url }}" alt="Acccuracy: Search Engine vs DS Serve Database" style="width: 48%; margin: 4px;" />
 </p>
 <p>DS Serve (backed by CompactDS) achieves better downstream accuracy than Google CSE while offering <b>~30× higher throughput</b> (batched) and <b>~2× lower latency</b> (single-request)—all without API costs. We aim to reach 10,000 QPS end-to-end, matching the internal index-only throughput.</p>
-
-<details>
-<summary><b>Exact &amp; Diverse (optional toggles)</b></summary>
-<p><b>Exact Search</b> reranks ANN candidates by recomputing exact similaritiy scores using GritLM instead of approxmimation used by ANN. This mode is the best for accuracy-sensitive queries and cached follow-ups for higher speed on similar/same queries.</p>
-<p><b>Diverse Search</b> applies MMR to reduce redundancy: <code>Score(i) = λ·sim(q,d_i) − (1−λ)·max<sub>j∈S</sub> sim(d_i,d_j)</code>. Useful to diversify results when there is noticeable redundancy.</p>
-<p>Use these toggles when you need higher precision (Exact) or to de-duplicate results (Diverse); keep them off for the fastest latency/QPS. We have confirmed their functionalities in our extensive testing, but they are omitted from the pulic web UI because Exact Search and Diverse Search are both recommended to use with a GPU for optimized latency. If you have the compute you can enable them. Simply build the framework from the source repo and enable these custom options following the guidelines.</p>
-</details>
 
 ---
 <br/>
