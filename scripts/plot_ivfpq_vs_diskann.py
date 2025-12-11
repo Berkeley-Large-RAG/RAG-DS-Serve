@@ -41,8 +41,8 @@ DATASETS = {
     },
 }
 OUTPUT_FILES = {
-    "TriviaQA": os.path.join(DOCS_DIR, "accuracy_ivfpq_vs_diskann_triviaqa.png"),
-    "NaturalQS": os.path.join(DOCS_DIR, "accuracy_ivfpq_vs_diskann_naturalqs.png"),
+    "TriviaQA": os.path.join(DOCS_DIR, "plots", "accuracy_ivfpq_vs_diskann_triviaqa.png"),
+    "NaturalQS": os.path.join(DOCS_DIR, "plots", "accuracy_ivfpq_vs_diskann_naturalqs.png"),
 }
 
 
@@ -109,7 +109,7 @@ def plot_dataset(dataset: str) -> str:
 
     ax.set_xticks(x_positions)
     ax.set_xticklabels(labels)
-    ax.set_ylabel("Score", fontsize=14)
+    ax.set_ylabel("Score (↑ higher is better)", fontsize=14)
     ax.set_title(f"{dataset} Accuracy: IVFPQ vs DiskANN", fontsize=16)
     ax.legend(fontsize=12)
 

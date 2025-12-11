@@ -55,8 +55,8 @@ def main() -> None:
     labels_lat = list(single_latency_ms.keys())
     vals_lat = [single_latency_ms[k] for k in labels_lat]
     ax1.bar(labels_lat, vals_lat, color=[colors[l] for l in labels_lat], edgecolor='none')
-    ax1.set_title("Single-request latency (ms)")
-    ax1.set_ylabel("Latency (ms)")
+    ax1.set_title("Single-request latency")
+    ax1.set_ylabel("Latency (ms) (↓ lower is better)")
     for i, v in enumerate(vals_lat):
         ax1.annotate(f"{v:.2f}", (i, v), ha="center", va="bottom",
                      fontsize=10, fontweight="bold", xytext=(0, 4), textcoords="offset points")
@@ -71,8 +71,8 @@ def main() -> None:
     labels_qps = list(batched_qps.keys())
     vals_qps = [batched_qps[k] for k in labels_qps]
     ax2.bar(labels_qps, vals_qps, color=[colors[l] for l in labels_qps], edgecolor='none')
-    ax2.set_title("Batched throughput (QPS)")
-    ax2.set_ylabel("QPS")
+    ax2.set_title("Batched throughput")
+    ax2.set_ylabel("QPS (↑ higher is better)")
     for i, v in enumerate(vals_qps):
         ax2.annotate(f"{v:.2f}", (i, v), ha="center", va="bottom",
                      fontsize=10, fontweight="bold", xytext=(0, 4), textcoords="offset points")
@@ -109,9 +109,9 @@ def main() -> None:
             color_acc.append(colors["Google API"])
         else:
             color_acc.append("#b3b3b3")
-    ax.bar(labels_acc, vals_acc, color=color_acc)
+    ax.bar(labels_acc, vals_acc, color=color_acc, edgecolor='none')
     ax.set_title("AVG accuracy (Llama 3.1 8B Instruct)")
-    ax.set_ylabel("Accuracy (%)")
+    ax.set_ylabel("Accuracy (%) (↑ higher is better)")
     ax.set_xticks(range(len(labels_acc)))
     ax.set_xticklabels(labels_acc, rotation=0, ha="center", fontsize=9)  # flat labels
     for i, v in enumerate(vals_acc):

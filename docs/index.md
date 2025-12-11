@@ -283,26 +283,12 @@ This represents a significantly larger datastore than most prior work, and to th
   <img src="{{ 'plots/llm_interpolation_accuracy.png' | relative_url }}" alt="LLM interpolation accuracy" style="width: 75%; margin: 8px;" />
 </p>
 
-<h3 align="center">Accuracy: DiskANN vs IVFPQ</h3>
-<p>Using LLaMa 3.1 8B Instruct, DiskANN (L=5000) outperforms IVFPQ (nprobe=256) across Recall / EM / F1 on <a href="https://arxiv.org/abs/1705.03551" target="_blank">TriviaQA</a> and <a href="https://arxiv.org/abs/1906.00300" target="_blank">Natural Questions</a>. DiskANN is the recommended backend; IVFPQ remains available as a legacy mode for experimentation.</p>
+<h3 align="center">DiskANN vs IVFPQ</h3>
+<p>DiskANN is more accurate <i>and</i> faster than IVFPQ. At recommended configs (DiskANN L=1000, IVFPQ nprobe=256), DiskANN achieves <b>~2.6× higher throughput</b>, <b>~3× lower latency</b>, and <b>higher accuracy</b> on <a href="https://arxiv.org/abs/1705.03551" target="_blank">TriviaQA</a>. The internal DiskANN index reaches up to 10,000 QPS; DiskANN is the recommended default.</p>
 <p align="center">
-  <img src="{{ 'plots/accuracy_ivfpq_vs_diskann_triviaqa.png' | relative_url }}" alt="TriviaQA accuracy DiskANN vs IVFPQ" style="width: 44%; margin: 8px;" />
-  <img src="{{ 'plots/accuracy_ivfpq_vs_diskann_naturalqs.png' | relative_url }}" alt="NaturalQS accuracy DiskANN vs IVFPQ" style="width: 44%; margin: 8px;" />
+  <img src="{{ 'plots/diskann_vs_ivfpq_combined.png' | relative_url }}" alt="DiskANN vs IVFPQ: throughput, latency, accuracy" style="width: 85%; margin: 8px;" />
 </p>
-<p class="small-note"><b>Metrics:</b> Recall = fraction of questions where at least one retrieved passage contains the gold answer; EM (Exact Match) = generated answer exactly matches gold; F1 = token-level overlap between generated and gold answers.</p>
-<h3 align="center">Throughput: DiskANN vs IVFPQ</h3>
-<p>DiskANN achieves higher QPS than IVFPQ across tested configs (labels show L for DiskANN, nprobe for IVFPQ). The internal DiskANN index reaches up to <b>10,000 QPS</b>; end-to-end throughput (including embedding and passage mapping) ranges ~150–240 QPS depending on <i>L</i>. <b>L≈1000</b> balances accuracy and speed; DiskANN remains the recommended default.</p>
-<p align="center">
-  <img src="{{ 'plots/diskann_vs_ivfpq_qps_multi.png' | relative_url }}" alt="DiskANN vs IVFPQ throughput comparison" style="width: 75%; margin: 8px;" />
-</p>
-<hr />
-
-<h3 align="center">Single-request latency: IVFPQ vs DiskANN</h3>
-<p>Latency breakdown for single-request mode (used in interactive UI). DiskANN achieves lower total latency than IVFPQ across tested configurations.</p>
-<p align="center">
-  <img src="{{ 'plots/diskann_single_request_latency_vs_L.png' | relative_url }}" alt="DiskANN single-request latency breakdown" style="width: 60%; margin: 8px;" />
-</p>
-<p class="small-note"><b>Note:</b> Latency measures end-to-end wall-clock time (embedding, index search, passage mapping). Values may fluctuate slightly based on system load.</p>
+<p class="small-note"><b>Note:</b> IVFPQ remains available as a legacy mode for experimentation. Latency measures end-to-end wall-clock time.</p>
 <hr />
 
 

@@ -44,7 +44,7 @@ def main() -> None:
     bars3 = ax.bar([i + width for i in x], ds_serve_exact, width, 
                    label="DS Serve + Exact", color=colors["DS Serve + Exact"], edgecolor='none')
 
-    ax.set_ylabel("Accuracy (%)")
+    ax.set_ylabel("Accuracy (%) (↑ higher is better)")
     ax.set_title("Interpolating DS Serve with LLM (LLaMa 3.1 8B Instruct)")
     ax.set_xticks(x)
     ax.set_xticklabels(tasks, fontsize=10)
