@@ -63,7 +63,7 @@ def plot_diskann_qps(data, out_dir: str) -> None:
 
 def plot_diskann_vs_ivfpq_summary(diskann_rows, faiss_rows, out_dir: str) -> None:
     """Throughput-only comparison with clear L/nprobe labels, more bars."""
-    colors = {"DiskANN": "#80b1d3", "IVFPQ": "#fb8072"}  # darker Set3
+    colors = {"DiskANN": "#fb8072", "IVFPQ": "#80b1d3"}  # darker Set3 (swapped for consistency)
 
     labels = []
     vals = []
