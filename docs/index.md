@@ -364,7 +364,7 @@ This represents a significantly larger datastore than most prior work, and to th
 <summary><b>Exact &amp; Diverse (optional toggles)</b></summary>
 <p><b>Exact Search</b> reranks ANN candidates by recomputing exact similaritiy scores using GritLM instead of approxmimation used by ANN. This mode is the best for accuracy-sensitive queries and cached follow-ups for higher speed on similar/same queries.</p>
 <p><b>Diverse Search</b> applies MMR to reduce redundancy: <code>Score(i) = λ·sim(q,d_i) − (1−λ)·max<sub>j∈S</sub> sim(d_i,d_j)</code>. Useful to diversify results when there is noticeable redundancy.</p>
-<p>Use these toggles when you need higher precision (Exact) or to de-duplicate results (Diverse); keep them off for the fastest latency/QPS. They are omitted from the web UI because Exact Search and Diverse Search are both recommended to use with a GPU for optimized latency. If you have the compute you can enable them by building the framework from the source repo following the guidelines as a custom option.</p>
+<p>Use these toggles when you need higher precision (Exact) or to de-duplicate results (Diverse); keep them off for the fastest latency/QPS. We have confirmed their functionalities in our extensive testing, but they are omitted from the pulic web UI because Exact Search and Diverse Search are both recommended to use with a GPU for optimized latency. If you have the compute you can enable them. Simply build the framework from the source repo and enable these custom options following the guidelines.</p>
 </details>
 
 ---
