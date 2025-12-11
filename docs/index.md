@@ -173,7 +173,7 @@ details > summary {
   <sup>3</sup>University of Washington
 </p>
 <p align="center" style="font-size: 13px; margin-top: 2px;"><sup>*</sup>Equal contribution.</p>
-<p align="center" style="margin-top: 6px;">[<a href="http://api.ds-serve.org:30888/ui">Web Interface</a>] [<a href="{{ 'API_DOCUMENTATION.html' | relative_url }}">API Endpoint</a>] [<a href="{{ 'VOTES_DOCUMENTATION.html' | relative_url }}">Voting System</a>] [<a href="https://github.com/Berkeley-Large-RAG/RAG-DS-Serve">Code</a>] [<a href="{{ 'assets/DS_SERVE_Camera_Ready.pdf' | relative_url }}">Paper</a>]</p>
+<p align="center" style="margin-top: 6px;">[<a href="http://api.DS Serve.org:30888/ui">Web Interface</a>] [<a href="{{ 'API_DOCUMENTATION.html' | relative_url }}">API Endpoint</a>] [<a href="{{ 'VOTES_DOCUMENTATION.html' | relative_url }}">Voting System</a>] [<a href="https://github.com/Berkeley-Large-RAG/RAG-DS Serve">Code</a>] [<a href="{{ 'assets/DS_SERVE_Camera_Ready.pdf' | relative_url }}">Paper</a>]</p>
 
 <!-- **[✨NEW]** DiskANN integration: >2000 index-level QPS and up to 10000 QPS at 500B-token scale with ~200 GB RAM.
 
@@ -218,7 +218,7 @@ DS SERVE converts the largest pretraining dataset into an efficient neural retri
 <!-- <div id="overview-note" class="callout-note"><span class="note-sup" aria-hidden="true">*</span> Note: For detailed technical explanations of the algorithms, see the <a href="#technical-design">Technical Design</a> section.</div> -->
 
 <p>
-See below for a set of <a href="#application">new applications our framework enables</a>, <a href="#user-guide">documentation for using DS-Serve</a>, our <a href="#technical-design">detailed system design</a>, and <a href="#performance">performance benchmarks</a>!
+See below for a set of <a href="#application">new applications our framework enables</a>, <a href="#user-guide">documentation for using DS Serve</a>, our <a href="#technical-design">detailed system design</a>, and <a href="#performance">performance benchmarks</a>!
 </p>
 
 ---
@@ -294,7 +294,7 @@ This represents a significantly larger datastore than most prior work, and to th
 <hr />
 
 <div class="perf-table">
-  <h3 style="margin: 6px 0 2px;">Interpolating DS-Serve with neural LLM</h3>
+  <h3 style="margin: 6px 0 2px;">Interpolating DS Serve with neural LLM</h3>
   <table>
     <caption>Table 1. LLaMa 3.1 8B results. <i>Acc</i> is accuracy (%); <i>t</i> is end‑to‑end retrieval latency (s). For Exact Search, <i>t</i> is without cache and <i>t</i><sub>cache</sub> with cache. We use <i>K</i>=1000, <i>k</i>=10, and <i>n</i><sub>probe</sub>=256.</caption>
     <thead>
@@ -321,12 +321,12 @@ This represents a significantly larger datastore than most prior work, and to th
 </div>
 
 <h3 align="center">Accuracy: DiskANN vs IVFPQ</h3>
-<p>DiskANN dominates IVFPQ across Recall / EM / F1 on TriviaQA and NaturalQS, so DiskANN is the recommended backend; IVFPQ is legacy. Recall = share of questions where any correct answer shows up; EM (Exact Match) = the answer text matches exactly; F1 = overlap of answer words, balancing precision and recall.</p>
+<p>DiskANN dominates IVFPQ across Recall / EM / F1 on TriviaQA and NaturalQS, so DiskANN is the recommended backend. IVFPQ is a legacy mode that we maintained, and it's still very functional and useable for experimentation purposes. Recall = share of questions where any correct answer shows up; EM (Exact Match) = the answer text matches exactly; F1 = overlap of answer words, balancing precision and recall.</p>
 <p align="center">
-  <img src="{{ 'plots/accuracy_triviaqa_faiss_vs_diskann.png' | relative_url }}" alt="TriviaQA accuracy DiskANN vs IVFPQ" style="width: 44%; margin: 8px;" />
-  <img src="{{ 'plots/accuracy_nqopen_faiss_vs_diskann.png' | relative_url }}" alt="NaturalQS accuracy DiskANN vs IVFPQ" style="width: 44%; margin: 8px;" />
+  <img src="{{ 'plots/accuracy_ivfpq_vs_diskann_triviaqa.png' | relative_url }}" alt="TriviaQA accuracy DiskANN vs IVFPQ" style="width: 44%; margin: 8px;" />
+  <img src="{{ 'plots/accuracy_ivfpq_vs_diskann_naturalqs.png' | relative_url }}" alt="NaturalQS accuracy DiskANN vs IVFPQ" style="width: 44%; margin: 8px;" />
 </p>
-<h3 align="center">DiskANN vs IVFPQ: throughput</h3>
+<h3 align="center">Throughput: DiskANN vs IVFPQ</h3>
 <p>Combined throughput: DiskANN achieves higher QPS than IVFPQ across tested configs; labels show L (DiskANN) and nprobe (IVFPQ). DiskANN remains the recommended default.</p>
 <p align="center">
   <img src="{{ 'plots/diskann_vs_ivfpq_qps_multi.png' | relative_url }}" alt="DiskANN vs IVFPQ throughput comparison" style="width: 75%; margin: 8px;" />
@@ -339,6 +339,7 @@ This represents a significantly larger datastore than most prior work, and to th
   <img src="{{ 'plots/diskann_latency_breakdown_vs_L.png' | relative_url }}" alt="DiskANN batched latency breakdown" style="width: 44%; margin: 8px;" />
   <img src="{{ 'plots/diskann_single_request_latency_vs_L.png' | relative_url }}" alt="DiskANN single-request latency breakdown" style="width: 44%; margin: 8px;" />
 </p>
+<p class="small-note"><b>Note:</b> The latency number shown on the UI measures end-to-end wall-clock time (request setup, network travel, JSON encode/decode, rendering). QPS and latency can have small fluctuations depending on network speed.</p>
 <hr />
 
 <h3 align="center">DiskANN throughput vs L</h3>
@@ -351,17 +352,17 @@ This represents a significantly larger datastore than most prior work, and to th
 <hr />
 
 
-<h3 align="center">Throughput comparison vs Google API</h3>
-<p>Latency (single-request) and throughput (batched). Google API vs DS-Serve Database.</p>
+<h3 align="center">Throughput: DS Serve vs Google Custom Search (CSE) API</h3>
+<p>Latency (single-request) and throughput (batched). Google API vs DS Serve Database.</p>
 <p align="center">
-  <img src="{{ 'plots/search_engine_latency_throughput.png' | relative_url }}" alt="Latency and throughput: Google API vs DS-Serve Database" style="width: 70%; margin: 8px;" />
+  <img src="{{ 'plots/search_engine_latency_throughput.png' | relative_url }}" alt="Latency and throughput: Google API vs DS Serve Database" style="width: 70%; margin: 8px;" />
 </p>
-<p class="small-note"><b>Note:</b> The latency number shown on the UI measures end-to-end wall-clock time (request setup, network travel, JSON encode/decode, rendering). QPS and latency can have small fluctuations depending on network speed.</p>
 
-<h3 align="center">Search engine vs DS-Serve Database: AVG accuracy</h3>
+<h3 align="center">Accuracy: Google CSE vs DS Serve Database</h3>
 <p align="center">
-  <img src="{{ 'plots/search_engine_accuracy_avg.png' | relative_url }}" alt="AVG accuracy: Search Engine vs DS-Serve Database" style="width: 70%; margin: 8px;" />
+  <img src="{{ 'plots/search_engine_accuracy_avg.png' | relative_url }}" alt="AVG accuracy: Search Engine vs DS Serve Database" style="width: 70%; margin: 8px;" />
 </p>
+<p><b>Takeaway:</b> DS Serve achieves comparable or better downstream accuracy than Google CSE while offering <b>~30× higher throughput</b> (batched) and <b>~2× lower latency</b> (single-request)—all without rate limits or API costs.</p>
 
 <details>
 <summary><b>Exact &amp; Diverse (optional toggles)</b></summary>
