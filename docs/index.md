@@ -348,7 +348,7 @@ This represents a significantly larger datastore than most prior work, and to th
   <img src="{{ 'plots/diskann_qps_vs_L.png' | relative_url }}" alt="DiskANN batched QPS vs L" style="width: 44%; margin: 8px;" />
   <img src="{{ 'plots/diskann_single_request_qps_vs_L.png' | relative_url }}" alt="DiskANN single-request QPS vs L" style="width: 44%; margin: 8px;" />
 </p>
-<p>Higher <i>L</i> improves recall/quality; <i>L≈1000</i> is the recommended default for robust accuracy with strong throughput.</p>
+<p>Higher <i>L</i> improves recall/quality; <i>L≈1000</i> is the recommended default for robust accuracy with strong throughput. If latency is your primary concern, a small <i>L=150</i> can deliver very good results on common queries and also keep latency low.</p>
 <hr />
 
 
@@ -362,7 +362,7 @@ This represents a significantly larger datastore than most prior work, and to th
 <p align="center">
   <img src="{{ 'plots/search_engine_accuracy_avg.png' | relative_url }}" alt="AVG accuracy: Search Engine vs DS Serve Database" style="width: 70%; margin: 8px;" />
 </p>
-<p><b>Takeaway:</b> DS Serve achieves comparable or better downstream accuracy than Google CSE while offering <b>~30× higher throughput</b> (batched) and <b>~2× lower latency</b> (single-request)—all without rate limits or API costs.</p>
+<p> DS Serve achieves comparable or better downstream accuracy than Google CSE while offering <b>~30× higher throughput</b> (batched) and <b>~2× lower latency</b> (single-request)—all without rate limits or API costs. We aim to keep enhancing the throughput of our prototype and reach 10000 QPS end-to-end eventually.</p>
 
 <details>
 <summary><b>Exact &amp; Diverse (optional toggles)</b></summary>
