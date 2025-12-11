@@ -218,7 +218,7 @@ DS SERVE converts the largest pretraining dataset into an efficient neural retri
 <!-- <div id="overview-note" class="callout-note"><span class="note-sup" aria-hidden="true">*</span> Note: For detailed technical explanations of the algorithms, see the <a href="#technical-design">Technical Design</a> section.</div> -->
 
 <p>
-See below for a set of <a href="#application">new applications our framework enables</a>, <a href="#user-guide">documentation for using DS Serve</a>, our <a href="#technical-design">detailed system design</a>, and <a href="#performance">performance benchmarks</a>!
+See below for a set of <a href="#application">new applications our framework enables</a>, our <a href="#technical-design">detailed system design</a>, and <a href="#performance">performance benchmarks</a>!
 </p>
 
 ---
@@ -232,22 +232,6 @@ We envision DS Serve enabling a range of high-impact applications:
 2. **Data Attribution & Curation**: By indexing entire pre-training corpora, DS Serve enables semantic data attribution, complementing n-gram based systems like OLMoTrace. It also facilitates advanced curation—allowing semantic deduplication, decontamination, and customized filtering for query-specific datasets.
 3. **Training Search Agents**: Training deep-research agents requires high-frequency search rollouts that are often cost-prohibitive on commercial engines. DS Serve provides a free, high-throughput backend where developers can control latency-accuracy tradeoffs without rate limits.
 4. **Pushing the Frontier of Search**: While traditional search engines struggle with long or complex queries, our vector-based approach handles them effectively. Additionally, the built-in voting system collects real-world labeled data to help build realistic benchmarks for retrieval research. 
-
----
-<br/>
-
-## User guide
-
-We provide two ways to use DS Serve: API calls and a web UI.
-
-### API
-For programmatic access, see the API docs: <a href="{{ 'API_DOCUMENTATION.html' | relative_url }}">API Documentation</a>.
-
-### Web interface
-<p align="center">
-  <img src="{{ 'assets/panel.webp' | relative_url }}" alt="UI demo gif" style="width: 65%; margin: 8px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);" />
-</p>
-<p>Use the control panel and toggles in the web UI to control search parameters and search behaviors.</p>
 
 ---
 <br/>
@@ -294,39 +278,34 @@ This represents a significantly larger datastore than most prior work, and to th
 <hr />
 
 <div class="perf-table">
-  <h3 style="margin: 6px 0 2px;">Interpolating DS Serve with neural LLM</h3>
+  <h3 style="margin: 6px 0 2px;">Interpolating DS Serve with LLM</h3>
   <table>
-    <caption>Table 1. LLaMa 3.1 8B results. <i>Acc</i> is accuracy (%); <i>t</i> is end‑to‑end retrieval latency (s). For Exact Search, <i>t</i> is without cache and <i>t</i><sub>cache</sub> with cache. We use <i>K</i>=1000, <i>k</i>=10, and <i>n</i><sub>probe</sub>=256.</caption>
+    <caption>Table 1. Accuracy (%) with LLaMa 3.1 8B Instruct. We use <i>K</i>=1000, <i>k</i>=10, and <i>n</i><sub>probe</sub>=256.</caption>
     <thead>
       <tr>
-        <th rowspan="2">Task</th>
-        <th colspan="1">No DS Serve</th>
-        <th colspan="2">DS Serve</th>
-        <th colspan="3">DS Serve + Exact</th>
-      </tr>
-      <tr>
-        <th>Acc</th>
-        <th>Acc</th><th>t (s)</th>
-        <th>Acc</th><th>t (s)</th><th>t<sub>cache</sub> (s)</th>
+        <th>Task</th>
+        <th>No DS Serve</th>
+        <th>DS Serve</th>
+        <th>DS Serve + Exact</th>
       </tr>
     </thead>
     <tbody>
-      <tr><td style="text-align:left">MMLU</td><td>68.9</td><td>73.5</td><td>0.17</td><td>73.7</td><td>16.44</td><td>0.30</td></tr>
-      <tr><td style="text-align:left">MMLU Pro</td><td>39.8</td><td>47.5</td><td>0.19</td><td>49.4</td><td>16.54</td><td>0.32</td></tr>
-      <tr><td style="text-align:left">AGI Eval</td><td>56.2</td><td>56.2</td><td>0.21</td><td>58.3</td><td>15.03</td><td>0.34</td></tr>
-      <tr><td style="text-align:left">MATH</td><td>46.9</td><td>50.0</td><td>0.18</td><td>53.1</td><td>16.51</td><td>0.33</td></tr>
-      <tr><td style="text-align:left">GPQA</td><td>29.9</td><td>31.7</td><td>0.17</td><td>36.6</td><td>16.57</td><td>0.32</td></tr>
+      <tr><td style="text-align:left">MMLU</td><td>68.9</td><td>73.5</td><td>73.7</td></tr>
+      <tr><td style="text-align:left">MMLU Pro</td><td>39.8</td><td>47.5</td><td>49.4</td></tr>
+      <tr><td style="text-align:left">AGI Eval</td><td>56.2</td><td>56.2</td><td>58.3</td></tr>
+      <tr><td style="text-align:left">MATH</td><td>46.9</td><td>50.0</td><td>53.1</td></tr>
+      <tr><td style="text-align:left">GPQA</td><td>29.9</td><td>31.7</td><td>36.6</td></tr>
     </tbody>
   </table>
 </div>
 
 <h3 align="center">Accuracy: DiskANN vs IVFPQ</h3>
-<p>DiskANN outperforms IVFPQ across Recall / EM / F1 on TriviaQA and NaturalQS, so DiskANN is the recommended backend. IVFPQ is a legacy mode that we maintained, and it's still very functional and useable for experimentation purposes.</p>
+<p>Using LLaMa 3.1 8B Instruct, DiskANN (L=5000) outperforms IVFPQ (nprobe=256) across Recall / EM / F1 on <a href="https://arxiv.org/abs/1705.03551" target="_blank">TriviaQA</a> and <a href="https://arxiv.org/abs/1906.00300" target="_blank">Natural Questions</a>. DiskANN is the recommended backend; IVFPQ remains available as a legacy mode for experimentation.</p>
 <p align="center">
   <img src="{{ 'plots/accuracy_ivfpq_vs_diskann_triviaqa.png' | relative_url }}" alt="TriviaQA accuracy DiskANN vs IVFPQ" style="width: 44%; margin: 8px;" />
   <img src="{{ 'plots/accuracy_ivfpq_vs_diskann_naturalqs.png' | relative_url }}" alt="NaturalQS accuracy DiskANN vs IVFPQ" style="width: 44%; margin: 8px;" />
 </p>
-<p class="small-note"><b>Metrics:</b> Recall = share of questions where any correct answer shows up; EM (Exact Match) = the answer text matches exactly; F1 = overlap of answer words, balancing precision and recall.</p>
+<p class="small-note"><b>Metrics:</b> Recall = fraction of questions where at least one retrieved passage contains the gold answer; EM (Exact Match) = generated answer exactly matches gold; F1 = token-level overlap between generated and gold answers.</p>
 <h3 align="center">Throughput: DiskANN vs IVFPQ</h3>
 <p>Combined throughput: DiskANN achieves higher QPS than IVFPQ across tested configs; labels show L (DiskANN) and nprobe (IVFPQ). DiskANN remains the recommended default.</p>
 <p align="center">
@@ -334,32 +313,29 @@ This represents a significantly larger datastore than most prior work, and to th
 </p>
 <hr />
 
-<h3 align="center">DiskANN latency breakdown</h3>
-<p>Latency components for batched (left) vs single-request (right). Batched keeps per-query overhead low; single is for interactive UI.</p>
+<h3 align="center">Single-request latency: IVFPQ vs DiskANN</h3>
+<p>Latency breakdown for single-request mode (used in interactive UI). DiskANN achieves lower total latency than IVFPQ across tested configurations.</p>
 <p align="center">
-  <img src="{{ 'plots/diskann_latency_breakdown_vs_L.png' | relative_url }}" alt="DiskANN batched latency breakdown" style="width: 44%; margin: 8px;" />
-  <img src="{{ 'plots/diskann_single_request_latency_vs_L.png' | relative_url }}" alt="DiskANN single-request latency breakdown" style="width: 44%; margin: 8px;" />
+  <img src="{{ 'plots/diskann_single_request_latency_vs_L.png' | relative_url }}" alt="DiskANN single-request latency breakdown" style="width: 60%; margin: 8px;" />
 </p>
-<p class="small-note"><b>Note:</b> The latency number shown on the UI measures end-to-end wall-clock time (request setup, network travel, JSON encode/decode, rendering). QPS and latency can have small fluctuations depending on network speed.</p>
+<p class="small-note"><b>Note:</b> Latency measures end-to-end wall-clock time (embedding, index search, passage mapping). Values may fluctuate slightly based on system load.</p>
 <hr />
 
 <h3 align="center">DiskANN throughput vs L</h3>
-<p>QPS vs list size <i>L</i> for batched (left) and single-request (right). Smaller <i>L</i> boosts throughput but can reduce recall; <b>L≈1000</b> is a good balance of accuracy and speed.</p>
+<p>Batched QPS vs list size <i>L</i>. The internal DiskANN index achieves up to <b>10,000 QPS</b>; end-to-end throughput (including embedding and passage mapping) ranges from ~150–240 QPS depending on <i>L</i>. Smaller <i>L</i> boosts throughput but can reduce recall; <b>L≈1000</b> balances accuracy and speed.</p>
 <p align="center">
-  <img src="{{ 'plots/diskann_qps_vs_L.png' | relative_url }}" alt="DiskANN batched QPS vs L" style="width: 44%; margin: 8px;" />
-  <img src="{{ 'plots/diskann_single_request_qps_vs_L.png' | relative_url }}" alt="DiskANN single-request QPS vs L" style="width: 44%; margin: 8px;" />
+  <img src="{{ 'plots/diskann_qps_vs_L.png' | relative_url }}" alt="DiskANN batched QPS vs L" style="width: 60%; margin: 8px;" />
 </p>
-<p>Higher <i>L</i> improves recall/quality; <i>L≈1000</i> is the recommended default for robust accuracy with strong throughput. If latency is your primary concern, a small <i>L=150</i> can deliver very good results on common queries and also keep latency low.</p>
 <hr />
 
 
 <h3 align="center">DS Serve vs Google Custom Search (CSE) API</h3>
-<p>Latency (single-request), throughput (batched), and downstream accuracy comparison.</p>
+<p>Latency (single-request), throughput (batched), and downstream accuracy comparison. Accuracy is averaged over MMLU, MMLU Pro, AGI Eval, GPQA, and MATH using LLaMa 3.1 8B Instruct (see <a href="https://arxiv.org/pdf/2507.01297" target="_blank">CompactDS Table 8</a>). Google CSE results use the official <a href="https://developers.google.com/custom-search/v1/overview" target="_blank">Custom Search JSON API</a> with top-10 snippets as context.</p>
 <p align="center">
   <img src="{{ 'plots/search_engine_latency_throughput.png' | relative_url }}" alt="Latency and throughput: Google API vs DS Serve Database" style="width: 48%; margin: 4px;" />
   <img src="{{ 'plots/search_engine_accuracy_avg.png' | relative_url }}" alt="Acccuracy: Search Engine vs DS Serve Database" style="width: 48%; margin: 4px;" />
 </p>
-<p>Retrieval Augmented Generation using DS Serve database (CompactDS) achieves better downstream accuracy than Google CSE and offers <b>~30× higher throughput</b> (batched) and <b>~2× lower latency</b> (single-request) — all without any API costs. We aim to keep enhancing the throughput of our prototype to reach the 10000 QPS end-to-end eventually, matching the internal search-only throughput.</p>
+<p>DS Serve (backed by CompactDS) achieves better downstream accuracy than Google CSE while offering <b>~30× higher throughput</b> (batched) and <b>~2× lower latency</b> (single-request)—all without API costs. We aim to reach 10,000 QPS end-to-end, matching the internal index-only throughput.</p>
 
 <details>
 <summary><b>Exact &amp; Diverse (optional toggles)</b></summary>
