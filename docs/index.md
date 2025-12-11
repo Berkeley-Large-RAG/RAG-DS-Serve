@@ -359,7 +359,7 @@ This represents a significantly larger datastore than most prior work, and to th
   <img src="{{ 'plots/search_engine_latency_throughput.png' | relative_url }}" alt="Latency and throughput: Google API vs DS Serve Database" style="width: 48%; margin: 4px;" />
   <img src="{{ 'plots/search_engine_accuracy_avg.png' | relative_url }}" alt="Acccuracy: Search Engine vs DS Serve Database" style="width: 48%; margin: 4px;" />
 </p>
-<p>DS Serve achieves comparable or better downstream accuracy than Google CSE while offering <b>~30× higher throughput</b> (batched) and <b>~2× lower latency</b> (single-request)—all without a API costs. We aim to keep enhancing the throughput of our prototype to reach the 10000 QPS end-to-end eventually, matching the internal search-only throughput.</p>
+<p>Retrieval Augmented Generation using DS Serve database (CompactDS) achieves better downstream accuracy than Google CSE and offers <b>~30× higher throughput</b> (batched) and <b>~2× lower latency</b> (single-request) — all without any API costs. We aim to keep enhancing the throughput of our prototype to reach the 10000 QPS end-to-end eventually, matching the internal search-only throughput.</p>
 
 <details>
 <summary><b>Exact &amp; Diverse (optional toggles)</b></summary>
