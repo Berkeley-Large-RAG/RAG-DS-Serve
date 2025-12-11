@@ -321,11 +321,12 @@ This represents a significantly larger datastore than most prior work, and to th
 </div>
 
 <h3 align="center">Accuracy: DiskANN vs IVFPQ</h3>
-<p>DiskANN dominates IVFPQ across Recall / EM / F1 on TriviaQA and NaturalQS, so DiskANN is the recommended backend. IVFPQ is a legacy mode that we maintained, and it's still very functional and useable for experimentation purposes. Recall = share of questions where any correct answer shows up; EM (Exact Match) = the answer text matches exactly; F1 = overlap of answer words, balancing precision and recall.</p>
+<p>DiskANN outperforms IVFPQ across Recall / EM / F1 on TriviaQA and NaturalQS, so DiskANN is the recommended backend. IVFPQ is a legacy mode that we maintained, and it's still very functional and useable for experimentation purposes.</p>
 <p align="center">
   <img src="{{ 'plots/accuracy_ivfpq_vs_diskann_triviaqa.png' | relative_url }}" alt="TriviaQA accuracy DiskANN vs IVFPQ" style="width: 44%; margin: 8px;" />
   <img src="{{ 'plots/accuracy_ivfpq_vs_diskann_naturalqs.png' | relative_url }}" alt="NaturalQS accuracy DiskANN vs IVFPQ" style="width: 44%; margin: 8px;" />
 </p>
+<p class="small-note"><b>Metrics:</b> Recall = share of questions where any correct answer shows up; EM (Exact Match) = the answer text matches exactly; F1 = overlap of answer words, balancing precision and recall.</p>
 <h3 align="center">Throughput: DiskANN vs IVFPQ</h3>
 <p>Combined throughput: DiskANN achieves higher QPS than IVFPQ across tested configs; labels show L (DiskANN) and nprobe (IVFPQ). DiskANN remains the recommended default.</p>
 <p align="center">
@@ -358,7 +359,7 @@ This represents a significantly larger datastore than most prior work, and to th
   <img src="{{ 'plots/search_engine_latency_throughput.png' | relative_url }}" alt="Latency and throughput: Google API vs DS Serve Database" style="width: 48%; margin: 4px;" />
   <img src="{{ 'plots/search_engine_accuracy_avg.png' | relative_url }}" alt="Acccuracy: Search Engine vs DS Serve Database" style="width: 48%; margin: 4px;" />
 </p>
-<p>DS Serve achieves comparable or better downstream accuracy than Google CSE while offering <b>~30× higher throughput</b> (batched) and <b>~2× lower latency</b> (single-request)—all without rate limits or API costs. We aim to keep enhancing the throughput of our prototype to reach the 10000 QPS end-to-end eventually, matching the internal search-only throughput.</p>
+<p>DS Serve achieves comparable or better downstream accuracy than Google CSE while offering <b>~30× higher throughput</b> (batched) and <b>~2× lower latency</b> (single-request)—all without a API costs. We aim to keep enhancing the throughput of our prototype to reach the 10000 QPS end-to-end eventually, matching the internal search-only throughput.</p>
 
 <details>
 <summary><b>Exact &amp; Diverse (optional toggles)</b></summary>
