@@ -78,3 +78,10 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 .site-header .site-title:hover { text-decoration: none !important; }
 .site-header .site-nav { float: none !important; display: inline-block; margin-left: 0; }
 
+/* Hide Minima theme footer and duplicate page titles on all pages */
+.site-footer,
+footer.site-footer,
+body .site-footer,
+.wrapper .site-footer { display: none !important; visibility: hidden !important; height: 0 !important; overflow: hidden !important; }
+.post-title, .page-title, h1.post-title, h1.page-title { display: none !important; }
+

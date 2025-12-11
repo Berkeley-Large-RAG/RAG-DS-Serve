@@ -57,6 +57,33 @@ class DatastoreAPI():
         query_embedding = self.embed_query(query)
         t1 = time.time()
         backend_timings = None
+
+        # Expansion path: always handled by IVFPQ expander, regardless of UI backend
+        if expand_index_id is not None:
+            searched_scores, searched_passages = self.index.search(
+                query,
+                query_embedding,
+                n_docs,
+                nprobe,
+                expand_index_id,
+                expand_offset,
+                exact_rerank,
+                use_diverse,
+                lambda_val,
+                use_diskann=False,
+                min_words=min_words,
+            )
+            t_end = time.time()
+            return {
+                'scores': searched_scores,
+                'passages': searched_passages,
+                'timings_ms': {
+                    'embed': round((t1 - t0) * 1000.0, 3),
+                    'search': round((t_end - t1) * 1000.0, 3),
+                    'total': round((t_end - t0) * 1000.0, 3),
+                }
+            }
+
         if backend == 'diskann':
             L = int(diskann_L or 300)
             W = int(diskann_W or 4)

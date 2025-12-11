@@ -23,8 +23,8 @@ except Exception:  # pragma: no cover - seaborn is optional
     sns = None
 
 
-IVFPQ_COLOR = "#4C78A8"
-DISKANN_COLOR = "#F58518"
+IVFPQ_COLOR = "#80b1d3"    # Darker Set3 blue
+DISKANN_COLOR = "#fb8072"  # Darker Set3 coral
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 DOCS_DIR = os.path.join(REPO_ROOT, "docs")
 METRIC_ORDER = ["Recall", "F1", "EM"]
@@ -109,13 +109,12 @@ def plot_dataset(dataset: str) -> str:
 
     ax.set_xticks(x_positions)
     ax.set_xticklabels(labels)
-    ax.set_ylabel("Score", fontsize=14, fontweight="bold")
-    ax.set_title(f"{dataset} Accuracy: IVFPQ vs DiskANN", fontsize=18, fontweight="bold")
+    ax.set_ylabel("Score", fontsize=14)
+    ax.set_title(f"{dataset} Accuracy: IVFPQ vs DiskANN", fontsize=16)
     ax.legend(fontsize=12)
 
     for tick in list(ax.get_xticklabels()) + list(ax.get_yticklabels()):
         tick.set_fontsize(12)
-        tick.set_fontweight("bold")
 
     all_vals = ivfpq_vals + diskann_vals
     vmin = min(all_vals)

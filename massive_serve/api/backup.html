@@ -406,6 +406,13 @@
     
     <!-- Main results container that scrolls till the top edge -->
     <main class="pt-20 sm:pt-20 lg:pt-24 px-2 sm:px-4 lg:px-6 mb-24 sm:mb-36 overflow-y-auto max-h-[calc(100vh-160px)] sm:max-h-[calc(100vh-112px)]" id="results"></main>
+    <!-- Floating Home button: shown only after results are displayed -->
+    <button id="homeFab" class="hidden fixed bottom-6 right-6 z-30 bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold px-3 py-2 rounded-full border border-gray-200 shadow-lg transition-colors flex items-center gap-2" aria-label="Return to home">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 11l9-8 9 8M5 12v7a1 1 0 001 1h4m4 0h4a1 1 0 001-1v-7"/>
+      </svg>
+      <span class="hidden sm:inline">Home</span>
+    </button>
 
 
 
@@ -421,6 +428,29 @@
 
     const bodyEl = document.body;
     let queryHistory = [];
+
+    function showHomeButton(show) {
+      const homeFab = document.getElementById('homeFab');
+      if (!homeFab) return;
+      homeFab.classList.toggle('hidden', !show);
+    }
+
+    function goHome() {
+      const qi = document.getElementById('queryInput');
+      const resultsEl = document.getElementById('results');
+      const welcomeMessage = document.getElementById('welcomeMessage');
+      const centeredSearchGroup = document.getElementById('centeredSearchGroup');
+      const paramPanel = document.getElementById('paramPanel');
+      if (qi) qi.value = '';
+      if (resultsEl) resultsEl.innerHTML = '';
+      if (welcomeMessage) welcomeMessage.style.display = 'flex';
+      if (centeredSearchGroup) centeredSearchGroup.style.display = 'flex';
+      if (paramPanel) paramPanel.classList.add('hidden');
+      if (typeof expandedPassages !== 'undefined' && expandedPassages?.clear) expandedPassages.clear();
+      if (typeof expandedPassagesData !== 'undefined' && expandedPassagesData?.clear) expandedPassagesData.clear();
+      showHomeButton(false);
+      resultsEl?.scrollTo?.({ top: 0, behavior: 'smooth' });
+    }
 
     const HELP_CONTENT = {
       shared: [
@@ -681,6 +711,7 @@
           if (item) {
             document.getElementById('queryInput').value = item.query;
             displayResults(item.results, item.query, item.searchParams, item.latency);
+            showHomeButton(true);
           }
         });
       });
@@ -720,6 +751,7 @@
             if (centeredSearchGroup) {
               centeredSearchGroup.style.display = 'flex';
             }
+            showHomeButton(false);
           }
         });
       });
@@ -728,6 +760,9 @@
     }
 
     let isSearching = false;
+    let lastBackend = 'diskann';
+    let lastQuery = '';
+    let lastSearchParams = {};
 
     // Loading state management
     function setLoading(loading) {
@@ -790,6 +825,7 @@
       if (welcomeMessage) {
         welcomeMessage.style.display = 'none';
       }
+      showHomeButton(true);
       // Do NOT hide the search group here!
       
       // Add query and parameter display at the top (fixed position)
@@ -873,6 +909,25 @@
           const div = document.createElement('div');
           div.className = 'bg-white p-3 sm:p-4 rounded-2xl shadow-md mb-3 sm:mb-4 relative overflow-hidden';
           div.setAttribute('data-passage-id', p.index_id || i);
+          if (data && data.query_backend) {
+            div.setAttribute('data-backend', data.query_backend);
+          }
+          const hasIndexId = Number.isInteger(p.index_id);
+          const showMoreSection = hasIndexId ? `
+            <div class="mt-4 pt-4 border-t border-gray-200">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                  <button 
+                    class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded text-sm transition-colors"
+                    data-show-more
+                    data-index-id="${p.index_id}"
+                    data-offset="1"
+                  >
+                    Show More
+                  </button>
+                </div>
+              </div>
+            </div>` : `<div class="mt-4 pt-4 border-t border-gray-200 text-sm text-gray-500">Expansion unavailable for this passage.</div>`;
           // Prefer per-passage scores: exact score (when exact search), else retrieval score (ANN)
           let scoreText = '';
           if (typeof p["exact score"] === 'number') {
@@ -885,20 +940,7 @@
             <div class='text-gray-900 leading-relaxed mb-4 whitespace-pre-wrap break-words' data-original-raw="${p.text.replace(/"/g, '&quot;')}">${escapeHtml(p.text)}</div>
             
             <!-- Show More/Less Section -->
-            <div class="mt-4 pt-4 border-t border-gray-200">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-4">
-                  <button 
-                    class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded text-sm transition-colors"
-                    data-show-more
-                    data-index-id="${p.index_id || i}"
-                    data-offset="1"
-                  >
-                    Show More
-                  </button>
-                </div>
-              </div>
-            </div>
+            ${showMoreSection}
             
             <!-- Rating Feedback Section -->
             <div class="flex flex-wrap items-center gap-x-2 gap-y-1 mt-3 lg:mt-0 lg:absolute lg:bottom-4 lg:right-4" data-vote-box>
@@ -1022,6 +1064,7 @@
     document.getElementById('sendButton').addEventListener('click', function () {
       submitQuery(true);
     });
+    document.getElementById('homeFab')?.addEventListener('click', goHome);
 
     function toggleLambdaState() {
       const lambda = document.getElementById('lambda');
@@ -1058,8 +1101,10 @@
         ? window.__preservedPasteRaw
         : displayVal.replace(/\\n/g, "\n"); // allow manual \\n entry
       const query = candidate.replace(/\r\n|\r/g, "\n").trim();
+      lastQuery = query;
       const backendSelect = document.getElementById('backend');
       const method = backendSelect && backendSelect.value ? backendSelect.value : 'diskann';
+      lastBackend = method;
       const nprobe = document.getElementById('nprobe').value;
       const diskannL = document.getElementById('diskannL').value;
       const diskannW = document.getElementById('diskannW').value;
@@ -1117,6 +1162,17 @@
             min_words: (minWords !== null && Number.isFinite(minWords)) ? minWords : undefined
           })
         });
+
+        // Cache last params for expansions
+        lastSearchParams = {
+          backend: method,
+          n_docs: parseInt(k),
+          nprobe: method === 'diskann' ? undefined : parseInt(nprobe),
+          diskann_L: method === 'diskann' ? parseInt(diskannL) : undefined,
+          diskann_W: method === 'diskann' ? parseInt(diskannW) : undefined,
+          diskann_threads: method === 'diskann' ? parseInt(diskannThreads) : undefined,
+          min_words: (minWords !== null && Number.isFinite(minWords)) ? minWords : undefined
+        };
         
         const data = await response.json();
         const endTime = performance.now();
@@ -1137,6 +1193,7 @@
       } finally {
         setLoading(false);
       }
+      showHomeButton(true);
     }
 
     // Show More/Less functionality
@@ -1147,7 +1204,10 @@
       document.querySelectorAll('[data-show-more]').forEach(btn => {
         btn.addEventListener('click', async (e) => {
           const indexId = parseInt(e.target.dataset.indexId);
+          if (!Number.isInteger(indexId)) return;
           const offset = parseInt(e.target.dataset.offset);
+          const passageDiv = e.target.closest('.bg-white');
+          const backendFromPassage = passageDiv?.getAttribute('data-backend');
           
           if (expandedPassages.has(indexId)) {
             // Collapse - restore original text
@@ -1180,12 +1240,11 @@
             e.target.disabled = true;
             
             // Cache DOM elements to avoid repeated queries
-            const passageDiv = e.target.closest('.bg-white');
             const textDiv = passageDiv.querySelector('[data-original-raw]');
             const originalRaw = textDiv.getAttribute('data-original-raw');
             
             try {
-              const expandedData = await expandPassage(indexId, offset);
+              const expandedData = await expandPassage(indexId, offset, backendFromPassage || lastBackend, originalRaw);
               if (expandedData && expandedData.results && expandedData.results.passages) {
                 const expandedPassagesData = expandedData.results.passages[0] || [];
                 setExpandedPassages(indexId, expandedPassagesData);
@@ -1294,13 +1353,20 @@
     }
     // ============================ [disk-vote] END additions ============================
 
-    async function expandPassage(indexId, offset) {
+    async function expandPassage(indexId, offset, backend, rawQueryForContext) {
       try {
         const response = await fetch(`${API_BASE}/search`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            query: '',
+            query: rawQueryForContext || lastQuery || '',
+            backend: backend || lastBackend || 'diskann',
+            n_docs: lastSearchParams?.n_docs,
+            nprobe: lastSearchParams?.nprobe,
+            diskann_L: lastSearchParams?.diskann_L,
+            diskann_W: lastSearchParams?.diskann_W,
+            diskann_threads: lastSearchParams?.diskann_threads,
+            min_words: lastSearchParams?.min_words,
             expand_index_id: indexId,
             expand_offset: offset
           })

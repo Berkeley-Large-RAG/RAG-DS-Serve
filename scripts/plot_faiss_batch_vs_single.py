@@ -18,9 +18,12 @@ except Exception:
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 PLOT_DIR = os.path.join(REPO_ROOT, "docs", "plots")
-COLOR_QPS = "#4C78A8"
-COLOR_EMBED = "#4C78A8"
-COLOR_SEARCH = "#F58518"
+# Darker subset of ColorBrewer Set3 (avoids the very light pastels)
+PALETTE = ["#80b1d3", "#fb8072", "#bc80bd", "#fdb462", "#b3de69", "#bebada"]
+COLOR_QPS = PALETTE[0]      # blue
+COLOR_EMBED = PALETTE[1]    # coral
+COLOR_SEARCH = PALETTE[4]   # green
+COLOR_TOTAL = PALETTE[3]    # orange
 
 # Measurements collected with COUNT=100 shared queries.
 BATCHED_RESULTS: List[Dict[str, float]] = [
@@ -47,9 +50,9 @@ def _plot_qps(rows: List[Dict[str, float]], mode_label: str, filename: str) -> s
         sns.set_theme(style="whitegrid")
     ax = plt.gca()
     ax.bar(labels, values, color=COLOR_QPS)
-    ax.set_xlabel("nprobe", fontsize=12, fontweight="bold")
-    ax.set_ylabel("QPS", fontsize=12, fontweight="bold")
-    ax.set_title(f"IVFPQ {mode_label} QPS vs nprobe", fontsize=15, fontweight="bold")
+    ax.set_xlabel("nprobe", fontsize=12)
+    ax.set_ylabel("QPS", fontsize=12)
+    ax.set_title(f"IVFPQ {mode_label} QPS vs nprobe", fontsize=14)
 
     for label, val in zip(labels, values):
         ax.annotate(
@@ -65,7 +68,6 @@ def _plot_qps(rows: List[Dict[str, float]], mode_label: str, filename: str) -> s
 
     for tick in list(ax.get_xticklabels()) + list(ax.get_yticklabels()):
         tick.set_fontsize(11)
-        tick.set_fontweight("bold")
 
     plt.tight_layout()
     out_path = os.path.join(PLOT_DIR, filename)
@@ -79,7 +81,7 @@ def _plot_latency(rows: List[Dict[str, float]], mode_label: str, filename: str) 
     metrics = [
         ("embed", "Embed", COLOR_EMBED),
         ("search", "Search", COLOR_SEARCH),
-        ("total", "Total", "#54A24B"),
+        ("total", "Total", COLOR_TOTAL),
     ]
 
     plt.figure(figsize=(8.5, 4.2))
@@ -109,14 +111,13 @@ def _plot_latency(rows: List[Dict[str, float]], mode_label: str, filename: str) 
 
     ax.set_xticks(base_positions)
     ax.set_xticklabels(labels)
-    ax.set_xlabel("nprobe", fontsize=12, fontweight="bold")
-    ax.set_ylabel("Latency per query (ms)", fontsize=12, fontweight="bold")
-    ax.set_title(f"IVFPQ {mode_label} latency breakdown", fontsize=15, fontweight="bold")
+    ax.set_xlabel("nprobe", fontsize=12)
+    ax.set_ylabel("Latency (ms)", fontsize=12)
+    ax.set_title(f"IVFPQ {mode_label} latency breakdown", fontsize=14)
     ax.legend(fontsize=10)
 
     for tick in list(ax.get_xticklabels()) + list(ax.get_yticklabels()):
         tick.set_fontsize(11)
-        tick.set_fontweight("bold")
 
     plt.tight_layout()
     out_path = os.path.join(PLOT_DIR, filename)

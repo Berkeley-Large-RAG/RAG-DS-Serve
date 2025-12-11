@@ -54,8 +54,8 @@ def main() -> None:
 
     metrics = [
         ("embed_ms", "Embed"),
-        ("search_ms", "DiskANN search"),
-        ("map_ms", "Mapping"),
+        ("search_ms", "Index search"),
+        ("map_ms", "Passage map"),
         ("total_ms", "Total"),
     ]
 
@@ -66,7 +66,8 @@ def main() -> None:
 
     plt.figure(figsize=(12, 5))
     ax = plt.gca()
-    palette = ["#4C78A8", "#F58518", "#54A24B", "#E45756"]
+    # Darker subset of ColorBrewer Set3
+    palette = ["#80b1d3", "#fb8072", "#b3de69", "#fdb462"]
 
     for idx, (metric_key, display_name) in enumerate(metrics):
         values = [row[metric_key] for row in SINGLE_REQUEST_LATENCY]
@@ -75,10 +76,10 @@ def main() -> None:
 
     ax.set_xticks(range(num_groups))
     ax.set_xticklabels(labels)
-    ax.set_xlabel("DiskANN list size L", fontsize=13, fontweight="bold")
-    ax.set_ylabel("Latency per request (ms)", fontsize=13, fontweight="bold")
-    ax.set_title("DiskANN Single-request Latency Breakdown", fontsize=16, fontweight="bold")
-    ax.legend(ncol=4, fontsize=11)
+    ax.set_xlabel("L", fontsize=13)
+    ax.set_ylabel("Latency (ms)", fontsize=13)  # match breakdown style; not bold
+    ax.set_title("DiskANN Single-request Latency Breakdown", fontsize=14)  # smaller, unbold
+    ax.legend(ncol=4, fontsize=11, loc="upper left")
 
     for tick in list(ax.get_xticklabels()) + list(ax.get_yticklabels()):
         tick.set_fontsize(11)
