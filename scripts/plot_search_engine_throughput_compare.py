@@ -51,10 +51,10 @@ def main() -> None:
     labels_lat = list(single_latency_ms.keys())
     vals_lat = [single_latency_ms[k] for k in labels_lat]
     ax1.bar(labels_lat, vals_lat, color=[colors[l] for l in labels_lat])
-    ax1.set_title("Single-request latency (ms) — lower is better")
+    ax1.set_title("Single-request latency (ms)")
     ax1.set_ylabel("Latency (ms)")
     for i, v in enumerate(vals_lat):
-        ax1.annotate(f"{v:.1f}", (i, v), ha="center", va="bottom",
+        ax1.annotate(f"{v:.2f}", (i, v), ha="center", va="bottom",
                      fontsize=10, fontweight="bold", xytext=(0, 4), textcoords="offset points")
     try:
         ymax = max(vals_lat)
@@ -68,10 +68,10 @@ def main() -> None:
     labels_qps = list(batched_qps.keys())
     vals_qps = [batched_qps[k] for k in labels_qps]
     ax2.bar(labels_qps, vals_qps, color=[colors[l] for l in labels_qps])
-    ax2.set_title("Batched throughput (QPS) — higher is better")
+    ax2.set_title("Batched throughput (QPS)")
     ax2.set_ylabel("QPS")
     for i, v in enumerate(vals_qps):
-        ax2.annotate(f"{v:.1f}", (i, v), ha="center", va="bottom",
+        ax2.annotate(f"{v:.2f}", (i, v), ha="center", va="bottom",
                      fontsize=10, fontweight="bold", xytext=(0, 4), textcoords="offset points")
     try:
         ymax = max(vals_qps)

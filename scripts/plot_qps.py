@@ -86,14 +86,14 @@ def plot_diskann_vs_ivfpq_summary(diskann_rows, faiss_rows, out_dir: str) -> Non
     ax.set_xticks(range(len(labels)))
     ax.set_xticklabels(labels, rotation=25, ha="right", fontsize=10)
     ax.set_ylabel("QPS")
-    ax.set_title("DiskANN vs IVFPQ throughput (higher is better)")
+    ax.set_title("DiskANN vs IVFPQ throughput")
     ax.legend(handles=[
         plt.Rectangle((0, 0), 1, 1, color=colors["DiskANN"], label="DiskANN"),
         plt.Rectangle((0, 0), 1, 1, color=colors["IVFPQ"], label="IVFPQ"),
     ], fontsize=11)
 
     for i, v in enumerate(vals):
-        ax.annotate(f"{v:.1f}", (i, v), ha="center", va="bottom",
+        ax.annotate(f"{v:.2f}", (i, v), ha="center", va="bottom",
                     fontsize=10, fontweight="bold", xytext=(0, 4), textcoords="offset points")
 
     try:
