@@ -277,27 +277,11 @@ This represents a significantly larger datastore than most prior work, and to th
 ## Performance 
 <hr />
 
-<div class="perf-table">
-  <h3 style="margin: 6px 0 2px;">Interpolating DS Serve with LLM</h3>
-  <table>
-    <caption>Table 1. Accuracy (%) with LLaMa 3.1 8B Instruct. We use <i>K</i>=1000, <i>k</i>=10, and <i>n</i><sub>probe</sub>=256.</caption>
-    <thead>
-      <tr>
-        <th>Task</th>
-        <th>No DS Serve</th>
-        <th>DS Serve</th>
-        <th>DS Serve + Exact</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td style="text-align:left">MMLU</td><td>68.9</td><td>73.5</td><td>73.7</td></tr>
-      <tr><td style="text-align:left">MMLU Pro</td><td>39.8</td><td>47.5</td><td>49.4</td></tr>
-      <tr><td style="text-align:left">AGI Eval</td><td>56.2</td><td>56.2</td><td>58.3</td></tr>
-      <tr><td style="text-align:left">MATH</td><td>46.9</td><td>50.0</td><td>53.1</td></tr>
-      <tr><td style="text-align:left">GPQA</td><td>29.9</td><td>31.7</td><td>36.6</td></tr>
-    </tbody>
-  </table>
-</div>
+<h3 align="center">Interpolating DS Serve with LLM</h3>
+<p>Downstream accuracy (%) with LLaMa 3.1 8B Instruct. DS Serve consistently improves accuracy across reasoning-intensive benchmarks; adding Exact Search provides further gains. We use <i>K</i>=1000, <i>k</i>=10, and <i>n</i><sub>probe</sub>=256.</p>
+<p align="center">
+  <img src="{{ 'plots/llm_interpolation_accuracy.png' | relative_url }}" alt="LLM interpolation accuracy" style="width: 75%; margin: 8px;" />
+</p>
 
 <h3 align="center">Accuracy: DiskANN vs IVFPQ</h3>
 <p>Using LLaMa 3.1 8B Instruct, DiskANN (L=5000) outperforms IVFPQ (nprobe=256) across Recall / EM / F1 on <a href="https://arxiv.org/abs/1705.03551" target="_blank">TriviaQA</a> and <a href="https://arxiv.org/abs/1906.00300" target="_blank">Natural Questions</a>. DiskANN is the recommended backend; IVFPQ remains available as a legacy mode for experimentation.</p>
@@ -307,7 +291,7 @@ This represents a significantly larger datastore than most prior work, and to th
 </p>
 <p class="small-note"><b>Metrics:</b> Recall = fraction of questions where at least one retrieved passage contains the gold answer; EM (Exact Match) = generated answer exactly matches gold; F1 = token-level overlap between generated and gold answers.</p>
 <h3 align="center">Throughput: DiskANN vs IVFPQ</h3>
-<p>Combined throughput: DiskANN achieves higher QPS than IVFPQ across tested configs; labels show L (DiskANN) and nprobe (IVFPQ). DiskANN remains the recommended default.</p>
+<p>DiskANN achieves higher QPS than IVFPQ across tested configs (labels show L for DiskANN, nprobe for IVFPQ). The internal DiskANN index reaches up to <b>10,000 QPS</b>; end-to-end throughput (including embedding and passage mapping) ranges ~150–240 QPS depending on <i>L</i>. <b>L≈1000</b> balances accuracy and speed; DiskANN remains the recommended default.</p>
 <p align="center">
   <img src="{{ 'plots/diskann_vs_ivfpq_qps_multi.png' | relative_url }}" alt="DiskANN vs IVFPQ throughput comparison" style="width: 75%; margin: 8px;" />
 </p>
@@ -321,16 +305,9 @@ This represents a significantly larger datastore than most prior work, and to th
 <p class="small-note"><b>Note:</b> Latency measures end-to-end wall-clock time (embedding, index search, passage mapping). Values may fluctuate slightly based on system load.</p>
 <hr />
 
-<h3 align="center">DiskANN throughput vs L</h3>
-<p>Batched QPS vs list size <i>L</i>. The internal DiskANN index achieves up to <b>10,000 QPS</b>; end-to-end throughput (including embedding and passage mapping) ranges from ~150–240 QPS depending on <i>L</i>. Smaller <i>L</i> boosts throughput but can reduce recall; <b>L≈1000</b> balances accuracy and speed.</p>
-<p align="center">
-  <img src="{{ 'plots/diskann_qps_vs_L.png' | relative_url }}" alt="DiskANN batched QPS vs L" style="width: 60%; margin: 8px;" />
-</p>
-<hr />
-
 
 <h3 align="center">DS Serve vs Google Custom Search (CSE) API</h3>
-<p>Latency (single-request), throughput (batched), and downstream accuracy comparison. Accuracy is averaged over MMLU, MMLU Pro, AGI Eval, GPQA, and MATH using LLaMa 3.1 8B Instruct (see <a href="https://arxiv.org/pdf/2507.01297" target="_blank">CompactDS Table 8</a>). Google CSE results use the official <a href="https://developers.google.com/custom-search/v1/overview" target="_blank">Custom Search JSON API</a> with top-10 snippets as context.</p>
+<p>Latency (single-request), throughput (batched), and downstream accuracy comparison. Accuracy is averaged over MMLU, MMLU Pro, AGI Eval, GPQA, and MATH using LLaMa 3.1 8B Instruct (see <a href="https://arxiv.org/pdf/2507.01297" target="_blank">CompactDS Table 8</a>). Google CSE results use the official <a href="https://developers.google.com/custom-search/v1/overview" target="_blank">Custom Search JSON API</a>, please check the linked documentation for use guide.</p>
 <p align="center">
   <img src="{{ 'plots/search_engine_latency_throughput.png' | relative_url }}" alt="Latency and throughput: Google API vs DS Serve Database" style="width: 48%; margin: 4px;" />
   <img src="{{ 'plots/search_engine_accuracy_avg.png' | relative_url }}" alt="Acccuracy: Search Engine vs DS Serve Database" style="width: 48%; margin: 4px;" />
