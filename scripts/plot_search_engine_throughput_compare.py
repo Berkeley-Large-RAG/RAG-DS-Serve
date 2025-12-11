@@ -54,7 +54,7 @@ def main() -> None:
     # Latency subplot (single-request)
     labels_lat = list(single_latency_ms.keys())
     vals_lat = [single_latency_ms[k] for k in labels_lat]
-    ax1.bar(labels_lat, vals_lat, color=[colors[l] for l in labels_lat])
+    ax1.bar(labels_lat, vals_lat, color=[colors[l] for l in labels_lat], edgecolor='none')
     ax1.set_title("Single-request latency (ms)")
     ax1.set_ylabel("Latency (ms)")
     for i, v in enumerate(vals_lat):
@@ -70,7 +70,7 @@ def main() -> None:
     # Throughput subplot (batched)
     labels_qps = list(batched_qps.keys())
     vals_qps = [batched_qps[k] for k in labels_qps]
-    ax2.bar(labels_qps, vals_qps, color=[colors[l] for l in labels_qps])
+    ax2.bar(labels_qps, vals_qps, color=[colors[l] for l in labels_qps], edgecolor='none')
     ax2.set_title("Batched throughput (QPS)")
     ax2.set_ylabel("QPS")
     for i, v in enumerate(vals_qps):
@@ -90,9 +90,9 @@ def main() -> None:
     # Accuracy figure (AVG row from provided table) - same figsize for alignment
     # Use shorter labels to keep x-axis flat (no rotation)
     accuracy_rows = [
-        ("No Retr.", 48.3),
-        ("Google", 51.3),
-        ("Google+LM", 51.5),
+        ("No Retrieval", 48.3),
+        ("CSE", 51.3),
+        ("CSE+LM", 51.5),
         ("DS Serve", 55.1),
         ("DS Serve+LM", 56.0),
     ]
@@ -105,7 +105,7 @@ def main() -> None:
     for lab in labels_acc:
         if "DS Serve" in lab:
             color_acc.append(colors["DS Serve"])
-        elif "Google" in lab:
+        elif "CSE" in lab:
             color_acc.append(colors["Google API"])
         else:
             color_acc.append("#b3b3b3")
