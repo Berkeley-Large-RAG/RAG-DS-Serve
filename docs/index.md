@@ -192,7 +192,7 @@ details > summary {
 </div>
 
 <p align="center">
-  <img src="{{ 'assets/ui.webp' | relative_url }}"
+  <img src="{{ 'assets/UI_example.gif" | relative_url }}"
        alt="UI search and vote demo"
        style="width: 60%; margin: 5px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);" />
 </p>
