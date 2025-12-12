@@ -192,10 +192,14 @@ details > summary {
 </div>
 
 <p align="center">
-  <img src="{{ 'assets/UI_example.gif" | relative_url }}"
-       alt="UI search and vote demo"
-       style="width: 60%; margin: 5px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);" />
+  <img src="{{ 'assets/UI_example.gif' | relative_url }}"
+       alt="DS-Serve UI"
+       style="width: 48%; margin: 5px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);" />
+  <img src="{{ 'assets/panel_example.gif' | relative_url }}"
+       alt="DS-Serve control panel"
+       style="width: 48%; margin: 5px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);" />
 </p>
+<p align="center" class="small-note"><b>DS-Serve UI & control panel</b></p>
 <p align="center" class="small-note"><i>UI search &amp; vote demonstration</i></p>
 
 ### Why was it previously challenging?
@@ -292,7 +296,7 @@ In DS Serve we support both backends:
 <p align="center">
   <img src="{{ 'plots/internal_qps_diskann_vs_ivfpq.png' | relative_url }}" alt="Internal index QPS: DiskANN vs IVFPQ" style="width: 70%; margin: 8px;" />
 </p>
-<p class="small-note"><b>Internal QPS:</b> Raw index search throughput without embedding or network overhead. DiskANN achieves <b>~16× higher</b> internal throughput than IVFPQ at recommended settings (L=1000: 1,885 QPS vs nprobe=256: 115 QPS).</p>
+<p class="small-note"><b>Internal QPS:</b> Raw index search throughput without embedding or network overhead. DiskANN achieves <b>~10-50× higher</b> internal throughput than IVFPQ across comparable settings (e.g., L=1000: 1,885 QPS vs nprobe=128: 159 QPS).</p>
 <p class="small-note"><b>Metrics:</b> Recall = fraction of questions where at least one retrieved passage contains the gold answer; EM (Exact Match) = generated answer exactly matches gold; F1 = token-level overlap between generated and gold answers.</p>
 <p class="small-note"><b>Note:</b> IVFPQ remains available as a legacy mode for experimentation. Latency measures end-to-end wall-clock time.</p>
 <hr />
