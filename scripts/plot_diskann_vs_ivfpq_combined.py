@@ -28,19 +28,15 @@ def main() -> None:
     
     # Latency (single-request, ms) - from 2024-12-11 tests
     latency = {"DiskANN (L=2000)": 124.04, "IVFPQ (nprobe=256)": 307.18}
-    
-    # Accuracy (TriviaQA Recall as representative metric)
-    accuracy = {"DiskANN (L=5000)": 89.9, "IVFPQ (nprobe=256)": 88.2}
 
-    FIGSIZE = (10, 4)
+    FIGSIZE = (7, 4)
     os.makedirs(PLOTS_DIR, exist_ok=True)
 
-    fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=FIGSIZE)
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=FIGSIZE)
     if sns:
         sns.set_theme(style="whitegrid")
 
     # Throughput subplot
-    labels_qps = list(throughput.keys())
     vals_qps = list(throughput.values())
     bar_colors_qps = [colors["DiskANN"], colors["IVFPQ"]]
     ax1.bar(["DiskANN", "IVFPQ"], vals_qps, color=bar_colors_qps, edgecolor='none')
@@ -52,7 +48,6 @@ def main() -> None:
     ax1.set_ylim(0, max(vals_qps) * 1.15)
 
     # Latency subplot
-    labels_lat = list(latency.keys())
     vals_lat = list(latency.values())
     bar_colors_lat = [colors["DiskANN"], colors["IVFPQ"]]
     ax2.bar(["DiskANN", "IVFPQ"], vals_lat, color=bar_colors_lat, edgecolor='none')
@@ -62,21 +57,6 @@ def main() -> None:
         ax2.annotate(f"{v:.2f}", (i, v), ha="center", va="bottom",
                      fontsize=10, fontweight="bold", xytext=(0, 4), textcoords="offset points")
     ax2.set_ylim(0, max(vals_lat) * 1.15)
-
-    # Accuracy subplot
-    labels_acc = list(accuracy.keys())
-    vals_acc = list(accuracy.values())
-    bar_colors_acc = [colors["DiskANN"], colors["IVFPQ"]]
-    ax3.bar(["DiskANN", "IVFPQ"], vals_acc, color=bar_colors_acc, edgecolor='none')
-    ax3.set_title("TriviaQA Recall", fontsize=12)
-    ax3.set_ylabel("Recall (%) (↑ higher is better)")
-    for i, v in enumerate(vals_acc):
-        ax3.annotate(f"{v:.1f}", (i, v), ha="center", va="bottom",
-                     fontsize=10, fontweight="bold", xytext=(0, 4), textcoords="offset points")
-    # Zoom y-axis to show difference
-    vmin, vmax = min(vals_acc), max(vals_acc)
-    padding = max(1.0, (vmax - vmin) * 0.3)
-    ax3.set_ylim(max(0, vmin - padding * 3), vmax + padding)
 
     fig.tight_layout()
     fig.savefig(os.path.join(PLOTS_DIR, "diskann_vs_ivfpq_combined.png"), dpi=200)
