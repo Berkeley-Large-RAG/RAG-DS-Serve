@@ -23,12 +23,13 @@ OUTPUT_PATH = os.path.join(REPO_ROOT, "docs", "plots", "internal_qps_diskann_vs_
 
 # Paired data: DiskANN L values paired with IVFPQ nprobe values
 # Each pair: (DiskANN config, IVFPQ config)
+# IVFPQ internal QPS = 1000 / faiss_ms (pure index search, from batched test 2024-12-11)
 PAIRED_DATA = [
-    {"diskann_label": "L=150", "diskann_qps": 10715.00, "ivfpq_label": "nprobe=32", "ivfpq_qps": 1000 / 4.39},
-    {"diskann_label": "L=500", "diskann_qps": 4037.98, "ivfpq_label": "nprobe=64", "ivfpq_qps": 1000 / 5.02},
-    {"diskann_label": "L=1000", "diskann_qps": 1885.35, "ivfpq_label": "nprobe=128", "ivfpq_qps": 1000 / 6.27},
-    {"diskann_label": "L=1500", "diskann_qps": 1324.28, "ivfpq_label": "nprobe=256", "ivfpq_qps": 1000 / 8.70},
-    {"diskann_label": "L=2000", "diskann_qps": 989.19, "ivfpq_label": "nprobe=512", "ivfpq_qps": 1000 / 18.76},
+    {"diskann_label": "L=150", "diskann_qps": 10715.00, "ivfpq_label": "nprobe=32", "ivfpq_qps": 1000 / 1.00},   # 1000
+    {"diskann_label": "L=500", "diskann_qps": 4037.98, "ivfpq_label": "nprobe=64", "ivfpq_qps": 1000 / 1.64},   # 610
+    {"diskann_label": "L=1000", "diskann_qps": 1885.35, "ivfpq_label": "nprobe=128", "ivfpq_qps": 1000 / 2.97}, # 337
+    {"diskann_label": "L=1500", "diskann_qps": 1324.28, "ivfpq_label": "nprobe=256", "ivfpq_qps": 1000 / 5.41}, # 185
+    {"diskann_label": "L=2000", "diskann_qps": 989.19, "ivfpq_label": "nprobe=512", "ivfpq_qps": 1000 / 10.01}, # 100
 ]
 
 

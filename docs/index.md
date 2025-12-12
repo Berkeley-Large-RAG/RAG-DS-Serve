@@ -286,7 +286,7 @@ In DS Serve we support both backends:
 </p>
 
 <h3 align="center">DiskANN vs IVFPQ</h3>
-<p>DiskANN is more accurate <i>and</i> faster than IVFPQ. At recommended configs (DiskANN L=2000, IVFPQ nprobe=256), DiskANN achieves <b>~2.6× higher throughput</b> and <b>~2.7× lower latency</b>. The internal DiskANN index reaches up to 10,000 QPS; DiskANN is the recommended default. Accuracy comparison uses DiskANN L=2000 and IVFPQ nprobe=256 on <a href="https://arxiv.org/abs/1705.03551" target="_blank">TriviaQA</a> and <a href="https://arxiv.org/abs/1906.00300" target="_blank">Natural Questions</a>.</p>
+<p>DiskANN is more accurate <i>and</i> faster than IVFPQ. At recommended configs (DiskANN L=2000, IVFPQ nprobe=256), DiskANN achieves <b>~2.3× higher throughput</b> and <b>~2.2× lower latency</b>. The internal DiskANN index reaches up to 10,000 QPS; DiskANN is the recommended default. Accuracy comparison uses DiskANN L=2000 and IVFPQ nprobe=256 on <a href="https://arxiv.org/abs/1705.03551" target="_blank">TriviaQA</a> and <a href="https://arxiv.org/abs/1906.00300" target="_blank">Natural Questions</a>.</p>
 <p align="center">
   <img src="{{ 'plots/diskann_vs_ivfpq_perf.png' | relative_url }}" alt="DiskANN vs IVFPQ throughput and latency" style="width: 32%; margin: 2px;" />
   <img src="{{ 'plots/accuracy_ivfpq_vs_diskann_triviaqa.png' | relative_url }}" alt="TriviaQA accuracy: DiskANN vs IVFPQ" style="width: 32%; margin: 2px;" />

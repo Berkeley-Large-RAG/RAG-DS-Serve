@@ -11,7 +11,7 @@ if [[ ! -f "$SWEEP_SCRIPT" ]]; then
 fi
 
 HOST=${HOST:-http://api.ds-serve.org:30888}
-QUERIES=${QUERIES:-"$ROOT_DIR/e2e_queries_20000.txt"}
+QUERIES=${QUERIES:-"$ROOT_DIR/test-data/e2e_queries_20000.txt"}
 COUNT=${COUNT:-2000}
 CONCURRENCY=${CONCURRENCY:-128}
 K=${K:-10}
