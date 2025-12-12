@@ -173,7 +173,7 @@ details > summary {
   <sup>3</sup>University of Washington
 </p>
 <p align="center" style="font-size: 13px; margin-top: 2px;"><sup>*</sup>Equal contribution.</p>
-<p align="center" style="margin-top: 6px;">[<a href="http://api.DS Serve.org:30888/ui">Web Interface</a>] [<a href="{{ 'API_DOCUMENTATION.html' | relative_url }}">API Endpoint</a>] [<a href="{{ 'VOTES_DOCUMENTATION.html' | relative_url }}">Voting System</a>] [<a href="https://github.com/Berkeley-Large-RAG/RAG-DS Serve">Code</a>] [<a href="{{ 'assets/DS_SERVE_Camera_Ready.pdf' | relative_url }}">Paper</a>]</p>
+<p align="center" style="margin-top: 6px;">[<a href="http://api.ds-serve.org:30888/ui">Web Interface</a>] [<a href="{{ 'API_DOCUMENTATION.html' | relative_url }}">API Endpoint</a>] [<a href="{{ 'VOTES_DOCUMENTATION.html' | relative_url }}">Voting System</a>] [<a href="https://github.com/Berkeley-Large-RAG/RAG-DS-Serve">Code</a>] [<a href="{{ 'assets/DS_SERVE_Camera_Ready.pdf' | relative_url }}">Paper</a>]</p>
 
 <!-- **[✨NEW]** DiskANN integration: >2000 index-level QPS and up to 10000 QPS at 500B-token scale with ~200 GB RAM.
 
@@ -262,7 +262,7 @@ In DS Serve we support both backends:
 
 1. **IVFPQ**: We use <a href="https://github.com/facebookresearch/faiss/wiki/Faiss-indexes#ivfpq" target="_blank">IVFPQ</a> to reduce memory and latency by clustering and product quantization. In our setting, IVFPQ supports inference within ~200 ms at ~100 GB RAM, achieving **~100 QPS** end‑to‑end.
 
-2. **DiskANN**: For higher throughput, we integrate <a href="https://github.com/microsoft/DiskANN" target="_blank">DiskANN</a>, a disk‑based ANN system. DiskANN achieves **>10,000** index‑level QPS and **~200+ end‑to‑end QPS** at ~200 GB RAM, making it suitable for high‑throughput deployments while maintaining competitive accuracy. In our internal evaluations, DiskANN's implicit reranking improved downstream accuracy compared to pure ANN and, on some tasks (e.g., MMLU), matched or exceeded Exact Search.
+2. **DiskANN**: For higher throughput, we integrate <a href="https://github.com/microsoft/DiskANN" target="_blank">DiskANN</a>, a disk‑based ANN system. DiskANN achieves **>10,000** index‑level QPS and **200+ end‑to‑end QPS** at ~200 GB RAM, making it suitable for high‑throughput deployments while maintaining competitive accuracy. In our internal evaluations, DiskANN's implicit reranking improved downstream accuracy compared to pure ANN and, on some tasks (e.g., MMLU), matched or exceeded Exact Search.
 
 <details>
 <summary><b>How DiskANN works (details)</b></summary>
@@ -270,10 +270,10 @@ In DS Serve we support both backends:
 </details>
 
 <details>
-<summary><b>Exact &amp; Diverse (optional toggles)</b></summary>
-<p><b>Exact Search</b> reranks ANN candidates by recomputing exact similarity scores using GritLM instead of approximation used by ANN. This mode is best for accuracy-sensitive queries and cached follow-ups for higher speed on similar/same queries.</p>
-<p><b>Diverse Search</b> applies MMR to reduce redundancy: <code>Score(i) = λ·sim(q,d_i) − (1−λ)·max<sub>j∈S</sub> sim(d_i,d_j)</code>. Useful to diversify results when there is noticeable redundancy.</p>
-<p>Use these toggles when you need higher precision (Exact) or to de-duplicate results (Diverse); keep them off for the fastest latency/QPS. They are omitted from the public web UI because they are recommended to use with a GPU for optimized latency. If you have the compute, you can enable them by building from source.</p>
+<summary><b>Diverse Search &amp; Exact Search</b></summary>
+<p><b>Diverse Search</b> (available on UI) applies MMR to reduce redundancy: <code>Score(i) = λ·sim(q,d_i) − (1−λ)·max<sub>j∈S</sub> sim(d_i,d_j)</code>. Enable this when results contain noticeable duplicates or near-duplicates.</p>
+<p><b>Exact Search</b> (requires GPU, not on public UI) reranks ANN candidates by recomputing exact similarity scores using GritLM. This improves accuracy for harder queries and benefits from caching for repeated or similar queries. To enable Exact Search, build from source with a dedicated GPU.</p>
+<p>For fastest latency/QPS, keep both toggles off. Use Diverse Search to de-duplicate results; use Exact Search when accuracy is critical and you have GPU compute available.</p>
 </details>
 
 ## Performance 
@@ -295,7 +295,7 @@ In DS Serve we support both backends:
 <p align="center">
   <img src="{{ 'plots/internal_qps_diskann_vs_ivfpq.png' | relative_url }}" alt="Internal index QPS: DiskANN vs IVFPQ" style="width: 70%; margin: 8px;" />
 </p>
-<p class="small-note"><b>Note:</b> L≈150 is sufficient for most queries; higher L improves accuracy for harder queries but remains fast. Internal QPS shows raw index throughput (no embedding/network overhead). Metrics: Recall = passage contains gold answer; EM = exact match; F1 = token overlap. IVFPQ available as legacy mode.</p>
+<p class="small-note"><b>Note:</b> L≈100 is sufficient for most queries; higher L improves accuracy for harder queries but remains fast. Internal QPS shows raw index throughput (no embedding/network overhead) -- this is what we aim to enhance the e2e latency to for our prototype. Metrics: Recall = passage contains gold answer; EM = exact match; F1 = token overlap. IVFPQ available as legacy mode.</p>
 <hr />
 
 
