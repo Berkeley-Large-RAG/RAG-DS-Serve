@@ -22,12 +22,12 @@ def main() -> None:
         "IVFPQ": "#80b1d3",    # blue
     }
     
-    # Data for recommended configs: DiskANN L=1000, IVFPQ nprobe=256
+    # Data for recommended configs: DiskANN L=2000, IVFPQ nprobe=256
     # Throughput (batched QPS)
-    throughput = {"DiskANN (L=1000)": 238.10, "IVFPQ (nprobe=256)": 91.02}
+    throughput = {"DiskANN (L=2000)": 232.56, "IVFPQ (nprobe=256)": 91.02}
     
     # Latency (single-request, ms)
-    latency = {"DiskANN (L=1000)": 3.78, "IVFPQ (nprobe=256)": 10.57}
+    latency = {"DiskANN (L=2000)": 3.92, "IVFPQ (nprobe=256)": 10.57}
     
     # Accuracy (TriviaQA Recall as representative metric)
     accuracy = {"DiskANN (L=5000)": 89.9, "IVFPQ (nprobe=256)": 88.2}
