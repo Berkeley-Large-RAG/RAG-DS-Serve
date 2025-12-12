@@ -107,18 +107,26 @@ class DatastoreAPI():
                 try:
                     reranked_passages = []
                     if isinstance(searched_passages, list):
-                        for raw_passages in searched_passages:
+                        for i, raw_passages in enumerate(searched_passages):
                             if not raw_passages:
                                 reranked_passages.append(raw_passages)
                                 continue
-                            reranked_passages.append(
-                                diverse_rerank_precomputed(
-                                    raw_passages,
-                                    query_embedding=query_embedding,
-                                    query_encoder=self.query_encoder,
-                                    lambda_val=lambda_val,
-                                )
+                            # Try precomputed path first (fast)
+                            reranked = diverse_rerank_precomputed(
+                                raw_passages,
+                                query_embedding=query_embedding,
+                                query_encoder=self.query_encoder,
+                                lambda_val=lambda_val,
                             )
+                            # Check if precomputed path worked (returned different order)
+                            if reranked is raw_passages:
+                                # Precomputed embeddings unavailable, fallback to on-the-fly
+                                logging.info(f"[DiskANN] [QUERY {i}] Precomputed unavailable, using on-the-fly diverse rerank")
+                                reranked = diverse_rerank_topk(raw_passages, self.query_encoder, lambda_val=lambda_val)
+                                logging.info(f"[DiskANN] [QUERY {i}] On-the-fly diverse rerank complete")
+                            else:
+                                logging.info(f"[DiskANN] [QUERY {i}] Used precomputed diverse rerank")
+                            reranked_passages.append(reranked)
                         searched_passages = reranked_passages
                 except Exception as exc:
                     logging.warning(f"[DiskANN] Diverse rerank failed: {exc}")

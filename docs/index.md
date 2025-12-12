@@ -289,6 +289,10 @@ In DS Serve we support both backends:
   <img src="{{ 'plots/accuracy_ivfpq_vs_diskann_triviaqa.png' | relative_url }}" alt="TriviaQA accuracy: DiskANN vs IVFPQ" style="width: 32%; margin: 2px;" />
   <img src="{{ 'plots/accuracy_ivfpq_vs_diskann_naturalqs.png' | relative_url }}" alt="NaturalQS accuracy: DiskANN vs IVFPQ" style="width: 32%; margin: 2px;" />
 </p>
+<p align="center">
+  <img src="{{ 'plots/internal_qps_diskann_vs_ivfpq.png' | relative_url }}" alt="Internal index QPS: DiskANN vs IVFPQ" style="width: 70%; margin: 8px;" />
+</p>
+<p class="small-note"><b>Internal QPS:</b> Raw index search throughput without embedding or network overhead. DiskANN achieves <b>~16× higher</b> internal throughput than IVFPQ at recommended settings (L=1000: 1,885 QPS vs nprobe=256: 115 QPS).</p>
 <p class="small-note"><b>Metrics:</b> Recall = fraction of questions where at least one retrieved passage contains the gold answer; EM (Exact Match) = generated answer exactly matches gold; F1 = token-level overlap between generated and gold answers.</p>
 <p class="small-note"><b>Note:</b> IVFPQ remains available as a legacy mode for experimentation. Latency measures end-to-end wall-clock time.</p>
 <hr />

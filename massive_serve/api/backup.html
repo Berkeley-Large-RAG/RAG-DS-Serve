@@ -112,7 +112,7 @@
   border-color: rgba(15, 118, 110, 0.6);
   background: rgba(15, 118, 110, 0.1);
   transform: translateY(-1px);
-}
+    }
     .toggle-switch {
       width: 40px;
       height: 20px;
@@ -328,12 +328,10 @@
               <input type="number" id="minWords" min="0" value="10" placeholder="Min words" class="border rounded-md p-1 text-sm w-24 text-center">
             </div>
             
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
-              <label class="text-sm font-medium text-gray-700">Exact Search</label>
-              <button id="rerankToggle" class="toggle-switch disabled self-start sm:self-auto" data-exact-rerank>
-                <span class="toggle-switch-thumb"></span>
-              </button>
-            </div>
+            <!-- Exact Search toggle hidden from UI (backend preserved) -->
+            <button id="rerankToggle" class="toggle-switch disabled hidden" data-exact-rerank style="display:none;">
+              <span class="toggle-switch-thumb"></span>
+            </button>
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
               <label class="text-sm font-medium text-gray-700">Diverse Search</label>
               <button id="diverseToggle" class="toggle-switch disabled self-start sm:self-auto" data-diverse-search>
@@ -455,7 +453,6 @@
     const HELP_CONTENT = {
       shared: [
         { label: 'n_docs (k)', description: 'Number of passages returned and displayed.' },
-        { label: 'Exact Search', description: 'Runs an exact rerank on top of ANN results for better accuracy at the cost of latency.' },
         { label: 'Diverse Search', description: 'Penalizes near-duplicate passages so the final set covers more unique information.' },
         { label: 'λ (lambda)', description: 'Tradeoff knob used with Diverse Search. Lower λ favors accuracy, higher λ favors coverage.' },
         { label: 'Min words', description: 'Filter out passages shorter than this threshold before final selection.' }
@@ -597,7 +594,7 @@
     function openHelpCover() {
       const paramPanel = document.getElementById('paramPanel');
       if (!paramPanel) return;
-
+      
       if (window.currentHelpCover && window.currentHelpCover.parentNode) {
         window.currentHelpCover.parentNode.removeChild(window.currentHelpCover);
         window.currentHelpCover = null;
@@ -887,7 +884,6 @@
               : `<span class=\"bg-gray-200 text-gray-700 text-sm px-2 py-1 rounded-full\">nprobe: ${effectiveNprobe}</span>`}
             <span class="bg-gray-200 text-gray-700 text-sm px-2 py-1 rounded-full">k: ${k}</span>
             ${minWordsChip !== '' ? `<span class="bg-gray-200 text-gray-700 text-sm px-2 py-1 rounded-full">Min Words: ${minWordsChip}</span>` : ''}
-            ${useRerank ? '<span class="bg-teal-100 text-teal-700 text-sm px-2 py-1 rounded-full">Exact Search</span>' : ''}
             ${useDiverse ? '<span class="bg-blue-100 text-blue-700 text-sm px-2 py-1 rounded-full">Diverse Search</span>' : ''}
             ${useDiverse ? `<span class="bg-blue-100 text-blue-700 text-sm px-2 py-1 rounded-full">λ: ${lambdaVal}</span>` : ''}
             ${latency ? `<span class="bg-green-100 text-green-700 text-sm px-2 py-1 rounded-full flex items-center gap-1"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path></svg>${latency}s</span>` : ''}
@@ -1044,7 +1040,7 @@
 
       // Gray out IVFPQ params when DiskANN
       setRowDisabled(nprobeRow, isDiskANN);
-      setRowDisabled(rerankBtn.parentElement, isDiskANN);
+      // rerankBtn (Exact Search) is hidden from UI
 
       // Gray out DiskANN params when IVFPQ
       setRowDisabled(diskannLRow, !isDiskANN);
@@ -1554,7 +1550,7 @@
       historyToggleBtn.addEventListener('click', () => {
         if (window.innerWidth < 1024 && isSidebarOpen()) {
           closeSidebar();
-        } else {
+      } else {
           openSidebar();
         }
       });
@@ -1563,7 +1559,7 @@
       hidePill.addEventListener('click', (e) => {
         e.preventDefault();
         closeSidebar();
-      });
+    });
     }
 
     // Close sidebar when clicking outside on mobile
@@ -1631,7 +1627,7 @@
         helpBtn.addEventListener('click', (e) => {
           e.preventDefault();
           e.stopPropagation();
-          openHelpCover();
+            openHelpCover();
         });
       }
       

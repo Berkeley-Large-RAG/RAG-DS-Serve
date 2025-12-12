@@ -162,24 +162,24 @@ class DiskVoteStore:
         out = {}
         backend = ctx.get("backend")
         if backend:
-            try:
+        try:
                 out["backend"] = str(backend).strip().lower()
-            except Exception:
+        except Exception:
                 out["backend"] = str(backend)
         nprobe_val = ctx.get("nprobe")
         coerced_nprobe = coerce_int(nprobe_val)
         if coerced_nprobe is not None:
             out["nprobe"] = coerced_nprobe  # ensure int
-        if "exact_search" in ctx:
+            if "exact_search" in ctx:
             out["exact_search"] = bool(ctx["exact_search"])  # required boolean
-        if "diverse_search" in ctx:
+            if "diverse_search" in ctx:
             out["diverse_search"] = bool(ctx["diverse_search"])  # required boolean
-        # Only persist lambda if diverse_search is true
-        if out.get("diverse_search") is True and ("lambda" in ctx) and (ctx["lambda"] is not None):
-            try:
+            # Only persist lambda if diverse_search is true
+            if out.get("diverse_search") is True and ("lambda" in ctx) and (ctx["lambda"] is not None):
+                try:
                 out["lambda"] = round(float(ctx["lambda"]), 2)  # 2dp
-            except Exception:
-                pass
+                except Exception:
+                    pass
         k_val = coerce_int(ctx.get("k"))
         if k_val is not None:
             out["k"] = k_val
@@ -320,7 +320,7 @@ class DiskVoteStore:
                 INSERT OR REPLACE INTO votes(time_stamp, query, passage_id, vote, relevant, backend, parameters)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
                 """,
-                (
+                    (
                     payload["time stamp"],
                     query,
                     payload["passage_id"],
@@ -347,9 +347,9 @@ class DiskVoteStore:
             ).fetchone()
             if row is not None:
                 return bool(row[0])
-        except Exception:
-            pass
-        return None
+                    except Exception:
+                        pass
+            return None
 
 
 # Instantiate vote store under VM root folder (override with VOTES_DIR if set)
@@ -605,7 +605,7 @@ def search():
                     def _as_int(val):
                         try:
                             return int(val)
-                        except Exception:
+                    except Exception:
                             return None
                     backend_params = {
                         'backend': 'diskann',

@@ -30,9 +30,9 @@ DOCS_DIR = os.path.join(REPO_ROOT, "docs")
 METRIC_ORDER = ["Recall", "F1", "EM"]
 DATASETS = {
     "TriviaQA": {
-        "EM": {"diskann": 0.857, "ivfpq": 0.840},
-        "F1": {"diskann": 0.900, "ivfpq": 0.885},
-        "Recall": {"diskann": 0.899, "ivfpq": 0.882},
+        "EM": {"diskann": 0.855, "ivfpq": 0.840},
+        "F1": {"diskann": 0.898, "ivfpq": 0.885},
+        "Recall": {"diskann": 0.896, "ivfpq": 0.882},
     },
     "NaturalQS": {
         "EM": {"diskann": 0.392, "ivfpq": 0.385},
