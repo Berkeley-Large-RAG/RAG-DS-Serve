@@ -236,15 +236,29 @@ We envision DS Serve enabling a range of high-impact applications:
 3. **Training Search Agents**: Training deep-research agents requires high-frequency search rollouts that are often cost-prohibitive on commercial engines. DS Serve provides a free, high-throughput backend where developers can control latency-accuracy tradeoffs without rate limits.
 4. **Pushing the Frontier of Search**: While traditional search engines struggle with long or complex queries, our vector-based approach handles them effectively. Additionally, the built-in voting system collects real-world labeled data to help build realistic benchmarks for retrieval research. 
 
+<br/>
+<details>
+<summary><b>Concrete Examples:</b></summary>
+<div style="margin-top: 10px;">
+<p><b>1. Robust Data Attribution & Novelty Detection</b><br/>
+Researchers working on novelty detection (e.g., <a href="https://arxiv.org/abs/2510.27313" target="_blank">Un-Attributability</a>) have found that embedding similarity is significantly more robust to paraphrased or long-context queries compared to traditional N-gram matching. However, building the necessary indices often requires expensive distributed setups. DS Serve provides an off-the-shelf solution for semantic attribution over pre-training corpora.</p>
+
+<p><b>2. Removing Bottlenecks in RL Training</b><br/>
+Recent work in reinforcement learning (see <a href="https://arxiv.org/abs/2511.19399" target="_blank">Dr. Tulu, §5.1</a>) highlights that search engine API rate limits often bottleneck training speed, rendering increased compute ineffective during rollouts. This limitation is also a key motivation for approaches like <a href="https://arxiv.org/abs/2505.04588" target="_blank">ZeroSearch</a>. DS Serve offers a high-throughput, rate-limit-free backend that enables search-intensive RL loops to scale efficiently.</p>
+
+<p><b>3. Efficient Test-Time Training (TTT)</b><br/>
+Prior approaches to retrieval-augmented TTT (e.g., <a href="https://arxiv.org/pdf/2305.18466" target="_blank">TTT for LLM</a>) have required massive resources—using up to 180 servers to achieve ~1.35s/query over just 810B tokens (~810G vectors). In contrast, DS Serve delivers low-latency retrieval over 5TB of embeddings (~2B vectors) with a fraction of the hardware footprint.</p>
+</div>
+</details>
 ---
 <br/>
 
 ## Technical design 
 
 ### Datastore
-Prior work showed that retrieval over large pre‑training corpora can improve RAG accuracy (see <a href="https://arxiv.org/abs/2112.04426" target="_blank">RETRO</a>, <a href="https://arxiv.org/abs/2407.12854" target="_blank">MassiveDS</a>, <a href="https://arxiv.org/abs/2507.01297" target="_blank">CompactDS</a>, <a href="https://arxiv.org/abs/2005.11401" target="_blank">RAG</a>, <a href="https://arxiv.org/abs/2002.08909" target="_blank">REALM</a>); however, accessible frameworks with modest resources have been lacking. DS SERVE is built on CompactDS, a 380‑billion‑word corpus (~2B vectors) spanning web crawl data, Wikipedia, research papers, and more.
+Prior work showed that retrieval over large pre‑training corpora can improve RAG accuracy (see <a href="https://arxiv.org/abs/2112.04426" target="_blank">RETRO</a>, <a href="https://arxiv.org/abs/2407.12854" target="_blank">MassiveDS</a>, <a href="https://arxiv.org/abs/2507.01297" target="_blank">CompactDS</a>); however, accessible frameworks with modest resources have been lacking. DS SERVE is built on CompactDS, a 380‑billion‑word corpus (~2B vectors) spanning web crawl data, Wikipedia, research papers, and more, because it is demonstrated to be comparable in coverage to a much larger, noisier Common Crawl data.
 
-This represents a significantly larger datastore than most prior work, and to the best of our knowledge is the largest pretraining dataset that users can access in open source for free. Typical evaluations run at much smaller scales (often ≤ tens of millions of vectors), e.g., <a href="https://microsoft.github.io/msmarco/" target="_blank">MS&nbsp;MARCO</a>, and <a href="https://dumps.wikimedia.org/" target="_blank">Wikipedia</a>, as well as consolidated leaderboards such as <a href="https://arxiv.org/abs/2104.08663" target="_blank">BEIR</a>. Even advanced commercial vector databases commonly impose per‑namespace/index limits well below the billion‑vector regime; see pricing/capacity notes for <a href="https://turbopuffer.com/pricing?namespaces=1&namespace=0&docs=1000000000&doc=7&writes=0&write=0" target="_blank">Turbopuffer</a>.
+This represents a significantly larger datastore than most prior work, and to the best of our knowledge is the largest datastore that is publicly available for neural retrieval. Typical evaluations run at much smaller scales (often ≤ tens of millions of vectors), e.g., <a href="https://microsoft.github.io/msmarco/" target="_blank">MS&nbsp;MARCO</a>, and <a href="https://dumps.wikimedia.org/" target="_blank">Wikipedia</a>, as well as consolidated leaderboards such as <a href="https://arxiv.org/abs/2104.08663" target="_blank">BEIR</a>. Even advanced commercial vector databases commonly impose per‑namespace/index limits well below the billion‑vector regime; see pricing/capacity notes for <a href="https://turbopuffer.com/pricing?namespaces=1&namespace=0&docs=1000000000&doc=7&writes=0&write=0" target="_blank">Turbopuffer</a>.
 
 ### Scalable and efficient search
 
