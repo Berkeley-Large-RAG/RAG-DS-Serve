@@ -10,6 +10,7 @@ from massive_serve.src.search import embed_queries
 from massive_serve.src.indicies.base import Indexer
 from massive_serve.src.indicies.diskann_backend import DiskANNBackend
 from rerank.diverse_rerank import diverse_rerank_topk, diverse_rerank_precomputed
+from rerank.exact_rerank import exact_rerank_topk
 
 import psutil
 
@@ -110,6 +111,25 @@ class DatastoreAPI():
             else:
                 searched_scores, searched_passages = ret
                 backend_timings = None
+            
+            if exact_rerank:
+                try:
+                    reranked_passages = []
+                    if isinstance(searched_passages, list):
+                        for i, raw_passages in enumerate(searched_passages):
+                            if not raw_passages:
+                                reranked_passages.append(raw_passages)
+                                continue
+                            if self.query_encoder is not None:
+                                reranked = exact_rerank_topk(raw_passages, self.query_encoder)
+                                logging.info(f"[DiskANN] [QUERY {i}] Used Exact Rerank")
+                            else:
+                                reranked = raw_passages
+                            reranked_passages.append(reranked)
+                        searched_passages = reranked_passages
+                except Exception as exc:
+                    logging.warning(f"[DiskANN] Exact rerank failed: {exc}")
+
             if use_diverse:
                 try:
                     reranked_passages = []

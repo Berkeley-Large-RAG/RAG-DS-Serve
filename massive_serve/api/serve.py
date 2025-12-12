@@ -512,7 +512,7 @@ def search():
                 pass
         request_cfg = {
             'nprobe': request.json.get('nprobe', None) if method != 'diskann' else None,
-            'exact_search': request.json.get('exact_search', False) if method != 'diskann' else False,
+            'exact_search': request.json.get('exact_search', False),
             'diverse_search': request.json.get('diverse_search', False),
             'lambda': request.json.get('lambda', 0.5),
         }
@@ -526,7 +526,7 @@ def search():
             domains=ds_cfg.domain_name,
             # exact_rerank = request.json.get('use_rerank', False),  # ORIGINAL - commented out
             # use_diverse=request.json.get('use_diverse', False),  # ORIGINAL - commented out
-            exact_rerank = request.json.get('exact_search', False) if method != 'diskann' else False,
+            exact_rerank = request.json.get('exact_search', False),
             use_diverse=request.json.get('diverse_search', False),
             lambda_val=request.json.get('lambda', 0.5),
             backend=method,
