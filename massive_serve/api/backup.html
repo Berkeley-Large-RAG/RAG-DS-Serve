@@ -328,12 +328,16 @@
               <input type="number" id="minWords" min="0" value="10" placeholder="Min words" class="border rounded-md p-1 text-sm w-24 text-center">
             </div>
             
-            <!-- Exact Search hidden from UI (backend preserved) -->
-            <div class="hidden">
+            <!-- Exact Search (Uncomment to enable; requires GPU backend support)
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
+              <label class="text-sm font-medium text-gray-700">Exact Search</label>
               <button id="rerankToggle" class="toggle-switch disabled" data-exact-rerank>
                 <span class="toggle-switch-thumb"></span>
               </button>
             </div>
+            -->
+            <!-- Placeholder to maintain JS compatibility -->
+            <div class="hidden"><button id="rerankToggle" class="toggle-switch disabled"></button></div>
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
               <label class="text-sm font-medium text-gray-700">Diverse Search</label>
               <button id="diverseToggle" class="toggle-switch disabled self-start sm:self-auto" data-diverse-search>
@@ -455,6 +459,7 @@
     const HELP_CONTENT = {
       shared: [
         { label: 'n_docs (k)', description: 'Number of passages returned and displayed.' },
+        // { label: 'Exact Search', description: 'Re-scores top candidates using a heavy encoder (GritLM) for higher accuracy. Requires GPU.' },
         { label: 'Diverse Search', description: 'Penalizes near-duplicate passages so the final set covers more unique information.' },
         { label: 'λ (lambda)', description: 'Tradeoff knob used with Diverse Search. Lower λ favors accuracy, higher λ favors coverage.' },
         { label: 'Min words', description: 'Filter out passages shorter than this threshold before final selection.' }
@@ -1042,7 +1047,7 @@
 
       // Gray out IVFPQ params when DiskANN
       setRowDisabled(nprobeRow, isDiskANN);
-      setRowDisabled(rerankBtn.parentElement, isDiskANN);
+      // setRowDisabled(rerankBtn.parentElement, isDiskANN); // Allow Exact Search for DiskANN if enabled
 
       // Gray out DiskANN params when IVFPQ
       setRowDisabled(diskannLRow, !isDiskANN);
@@ -1150,7 +1155,7 @@
             backend: method,
             nprobe: method === 'diskann' ? undefined : parseInt(nprobe),
             n_docs: parseInt(k),
-            exact_search: method === 'diskann' ? false : useRerank,
+            exact_search: useRerank,
             diverse_search: useDiverse,
             lambda: useDiverse ? lambdaVal : undefined,
             
@@ -1317,7 +1322,7 @@
                 k: typeof kCandidate === 'number' ? kCandidate : toInt(kCandidate),
                 min_words: typeof minWordsCandidate === 'number' ? minWordsCandidate : toInt(minWordsCandidate),
                 nprobe: backend === 'diskann' ? undefined : toInt(nprobeCandidate),
-                exact_search: backend === 'diskann' ? false : useRerank,
+                exact_search: useRerank,
                 diverse_search: useDiverse,
                 lambda: useDiverse ? lambdaVal : 0,
                 diskann_L: backend === 'diskann' ? (typeof diskannLCandidate === 'number' ? diskannLCandidate : toInt(diskannLCandidate)) : undefined,

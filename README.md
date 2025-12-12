@@ -1,22 +1,43 @@
 <div align="center">
   <img src="massive_serve/api/styles/logo_main.png" width="200" alt="DS Serve Logo"/>
-  <h1>🚀 DS Serve</h1>
-  <h3>A Framework for Efficient and Scalable Neural Retrieval</h3>
-  <p>We deploy the largest open vector store over high quality pretraining data.</p>
+  <h1>🚀 DS SERVE: A Framework for Efficient and Scalable Neural Retrieval</h1>
   <p>
-    <a href="http://api.ds-serve.org:30888/ui"><b>Web Interface</b></a> •
-    <a href="https://berkeley-large-rag.github.io/RAG-DS-Serve/"><b>Blog</b></a> •
-    <a href="https://berkeley-large-rag.github.io/RAG-DS-Serve/API_DOCUMENTATION.html"><b>Documentation</b></a>
+    <a href="https://github.com/berkeleyljj">Jinjian Liu</a><sup>1*</sup>, 
+    <a href="https://yichuan-w.github.io/">Yichuan Wang</a><sup>1*</sup>, 
+    <a href="https://alrope123.github.io/">Xinxi Lyu</a><sup>2</sup>, 
+    <a href="https://rulinshao.github.io/">Rulin Shao</a><sup>3</sup>,<br/>
+    <a href="https://joeygonzalez.com/">Joseph E. Gonzalez</a><sup>1</sup>, 
+    <a href="https://people.eecs.berkeley.edu/~matei/">Matei Zaharia</a><sup>1</sup>, 
+    <a href="https://www.sewonmin.com/">Sewon Min</a><sup>1</sup>
+  </p>
+  <p>
+    <sup>1</sup>University of California, Berkeley &nbsp;
+    <sup>2</sup>University of Illinois Urbana–Champaign &nbsp;
+    <sup>3</sup>University of Washington
+  </p>
+  <p><sup>*</sup>Equal contribution.</p>
+  <p>
+    [<a href="http://api.ds-serve.org:30888/ui">Web Interface</a>] 
+    [<a href="docs/API_DOCUMENTATION.html">API Endpoint</a>] 
+    [<a href="docs/VOTES_DOCUMENTATION.html">Voting System</a>] 
+    [<a href="docs/assets/DS_SERVE_Camera_Ready.pdf">Paper</a>]
   </p>
 </div>
-<br/>
 
+---
+
+> 1. You can turn any large in-house dataset (<1T tokens) into a **high-throughput (up to 10000 QPS)**, **memory-efficient (<200 GB RAM)** retrieval system with a **web UI and API**.
+> 2. Our **prototype**, built on **400B words** of high-quality LLM pre-training data, is readily available and provides downstream gains comparable to commercial search engine endpoints.
+
+<p align="center">
+  <img src="docs/assets/good_ui_example.gif" alt="DS-Serve UI" width="48%" />
+  <img src="docs/assets/panel_example.gif" alt="DS-Serve control panel" width="48%" />
+</p>
+<p align="center"><b>DS-Serve UI & control panel</b></p>
 
 ## Introduction
 
-This repository contains the Compact‑DS Dive Public API and server code. It exposes a production‑ready Flask service for retrieval‑augmented generation (RAG) backed by a billion‑scale FAISS IVFPQ index. The server provides adjustable settings and search modes at low-latency. A small CLI helps download/prepare indices and start the server, and an example domain (`index_dev/`) shows the expected data layout. Please refer to the Quickstart below to set up.
-
-
+This repository contains the DS-Serve Public API and server code. It exposes a production‑ready Flask service for retrieval‑augmented generation (RAG) backed by a billion‑scale FAISS IVFPQ index or DiskANN. The server provides adjustable settings and search modes at low-latency. A small CLI helps download/prepare indices and start the server.
 
 ### Expected data layout (under DATASTORE_PATH)
 
@@ -28,7 +49,7 @@ This repository contains the Compact‑DS Dive Public API and server code. It ex
     passages/                # *.jsonl shards for text lookup
 ```
 
-## Quickstart 
+## Quickstart (IVFPQ / Standard Setup)
 
 ### Datasets
 - [CompactDS-102GB](https://huggingface.co/datasets/alrope/CompactDS-102GB)
@@ -39,9 +60,10 @@ This repository contains the Compact‑DS Dive Public API and server code. It ex
 cat massiveds-pubmed--passages7_00.pkl_{aa,ab,ac,ad,ae,af,ag,ah,ai} \
   > massiveds-pubmed--passages7_00.pkl
 ```
+
 ### 0) Prepare the repo
 
-```
+```bash
 git clone https://github.com/Berkeley-Large-RAG/RAG-DS-Serve.git 
 cd RAG-DS-Serve
 git submodule update --init --recursive
@@ -62,12 +84,12 @@ huggingface-cli download <ORG_OR_USER>/<DATASET_REPO> \
 ```
 
 Notes:
-- The directory should include an `index/` directory with a FAISS index and a `passages/` directory with `.jsonl` files.
+- The directory should include an `index/` directory with a IVFPQ (FAISS) index and a `passages/` directory with `.jsonl` files.
 - If your index is uploaded in split/chunked form, see Step 3 to combine shards.
 
 ### 2) Build the position mapping arrays 
 
-The server looks up passage text by FAISS index id using position mapping arrays. Generate them once from your `passages/` directory:
+The server looks up passage text by the IVFPQ index id using position mapping arrays. Generate them once from your `passages/` directory:
 
 - Open `utils/build_arr.py` and set `INPUT_DIR` to your passages folder, e.g.:
 ```python
@@ -84,7 +106,7 @@ This writes three files next to the script (and the server expects them under `i
 - `index_dev/filename_index_array.npy`
 - `index_dev/filename_list.npy`
 
-### 3) Combine FAISS index shards
+### 3) Combine IVFPQ index shards
 
 Your `index/` folder contains split parts, combine them into a single `.faiss` file before serving.
 
@@ -108,34 +130,32 @@ python -m massive_serve.cli serve --domain_name index_dev
 By default the server starts at port `30888` and exposes `/search` and `/vote` endpoints.
 
 ### 5) Test the API
-For the full reference and examples, see `API_DOCUMENTATION.md`. You can use curl commands to run quick tests. 
+For the full reference and examples, see `docs/API_DOCUMENTATION.md`. You can use curl commands to run quick tests. 
 
 Single query:
 ```bash
-curl -X POST http://compactds.duckdns.org:30888/search \
+curl -X POST http://api.ds-serve.org:30888/search \
   -H "Content-Type: application/json" \
   -d '{"query": "Tell me more about Albert Einstein", "n_docs": 5, "nprobe": 32}'
 ```
 
 Batched queries:
 ```bash
-curl -X POST http://compactds.duckdns.org:30888/search \
+curl -X POST http://api.ds-serve.org:30888/search \
   -H "Content-Type: application/json" \
   -d '{"queries": ["quantum computing", "Who is Nikola Tesla", "AI ethics"], "n_docs": 2}'
 ```
 
-
-
-##  DiskANN build 
-NOTE: THIS IS ONLY FOR INTERNAL TESTING CURRENTLY \
+## DiskANN Build 
+**NOTE: THIS IS ONLY FOR INTERNAL TESTING CURRENTLY** \
 For convenience when testing from this repo root, you can point to the local copies under `./`:
-- ./position_array.npy
-- ./filename_index_array.npy
-- ./filename_list.npy
-- ./data/passages/
-- ./DiskANN-build/DiskANN_index/
+- `./position_array.npy`
+- `./filename_index_array.npy`
+- `./filename_list.npy`
+- `./data/passages/`
+- `./DiskANN-build/DiskANN_index/`
 
-## DiskANN serving (setup and launch)
+## DiskANN Serving (Setup and Launch)
 
 ### 1) Create environment
 
@@ -156,18 +176,17 @@ uv pip install --no-deps diskannpy==0.7.0
 From the repo root:
 ```bash
 DATASTORE_PATH=$(pwd)
+# Set your DiskANN index prefix here (e.g., diskann_mips_f32_R60_L80_B200_M500)
+DISKANN_PREFIX="<YOUR_INDEX_PREFIX>" 
 
-mkdir -p "$DATASTORE_PATH/runtime/votes" "$DATASTORE_PATH/runtime/query_logs"
+mkdir -p "$DATASTORE_PATH/logging"
 
-
-PYTHONPATH="rerank/contriever/src" \
-VOTES_DIR="$DATASTORE_PATH/runtime/votes" \
-QUERY_LOG_DIR="$DATASTORE_PATH/runtime/query_logs" \
+DS_SERVE_LOG_DIR="$DATASTORE_PATH/logging" \
 MASSIVE_SERVE_PORT=30888 \
 MS_BACKEND=diskann \
 DATASTORE_PATH="$DATASTORE_PATH" \
 DISKANN_INDEX_DIR="$DATASTORE_PATH/DiskANN-build/DiskANN_index" \
-DISKANN_INDEX_PREFIX=diskann_mips_f32_R60_L80_B200_M500 \
+DISKANN_INDEX_PREFIX="$DISKANN_PREFIX" \
 DISKANN_DISTANCE=mips \
 DISKANN_NUM_THREADS=128 \
 DISKANN_NODES_TO_CACHE=100000 \
@@ -176,7 +195,7 @@ DISKANN_W=4 \
 DISKANN_WARMUP=1 \
 DISKANN_WARMUP_QUERIES=5000 \
 DISKANN_WARMUP_BATCH=256 \
-DISKANN_WARMUP_QUERY_FILE="$DISKANN_INDEX_DIR/diskann_mips_f32_R60_L80_B200_M500_sample_data.bin" \
+DISKANN_WARMUP_QUERY_FILE="$DISKANN_INDEX_DIR/${DISKANN_PREFIX}_sample_data.bin" \
 DISKANN_WARMUP_KEEPALIVE=1 \
 python -m massive_serve.cli serve --domain_name data
 ```
@@ -185,6 +204,3 @@ Tips:
 - Use a different `MASSIVE_SERVE_PORT` if firewall issues occur or one is already in use.
 - `DISKANN_NUM_THREADS` sets CPU threads for DiskANN search; 0 uses all logical CPUs.
 - `DISKANN_NODES_TO_CACHE` pins popular nodes in RAM; warmup further primes OS page cache.
-- massive_serve is not installed using pip but from Rulin Shao's repo, where credits are due in this version. 
-
- 
