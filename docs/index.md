@@ -336,5 +336,6 @@ We support both backends, but **DiskANN is the recommended default** for all hig
 
 We thank the following open‑source projects and communities:
 
+- <a href="https://arxiv.org/abs/2507.01297" target="_blank">CompactDS</a> — for the diverse, high-quality, web-scale datastore that powers DS Serve's retrieval capabilities.
 - <a href="https://github.com/RulinShao/massive-serve" target="_blank">Massive Serve</a> — for the serving infrastructure and deployment utilities that power DS Serve.
 - <a href="https://github.com/facebookresearch/faiss" target="_blank">IVFPQ</a> and <a href="https://github.com/microsoft/DiskANN" target="_blank">DiskANN</a> — for enabling high‑performance ANN search at scale.
