@@ -193,13 +193,10 @@ details > summary {
 
 <p align="center">
   <img src="{{ 'assets/good_ui_example.gif' | relative_url }}"
-       alt="DS-Serve UI"
-       style="width: 48%; margin: 5px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);" />
-  <img src="{{ 'assets/panel_example.gif' | relative_url }}"
-       alt="DS-Serve control panel"
-       style="width: 48%; margin: 5px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);" />
+       alt="DS Serve UI"
+       style="width: 75%; margin: 5px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);" />
 </p>
-<p align="center" class="small-note"><b>DS-Serve UI & control panel</b></p>
+<p align="center" class="small-note"><b>DS Serve UI</b></p>
 
 ### Why was it previously challenging?
 
@@ -236,7 +233,6 @@ We envision DS Serve enabling a range of high-impact applications:
 3. **Training Search Agents**: Training deep-research agents requires high-frequency search rollouts that are often cost-prohibitive on commercial engines. DS Serve provides a free, high-throughput backend where developers can control latency-accuracy tradeoffs without rate limits.
 4. **Pushing the Frontier of Search**: While traditional search engines struggle with long or complex queries, our vector-based approach handles them effectively. Additionally, the built-in voting system collects real-world labeled data to help build realistic benchmarks for retrieval research. 
 
-<br/>
 <details>
 <summary><b>Concrete Examples:</b></summary>
 <div style="margin-top: 10px;">
@@ -296,7 +292,6 @@ We support both backends, but **DiskANN is the recommended default** for all hig
 <p>For fastest latency/QPS, keep both toggles off. Use Diverse Search to de-duplicate results; use Exact Search when accuracy is critical and you have GPU compute available.</p>
 </details>
 
-<br/>
 <div class="callout-note" style="margin-top: 10px;">
   <b>💡 Deployment Lessons: How to Build DiskANN Perfectly</b><br/>
   Deploying large-scale retrieval systems comes with unique challenges. We have documented our experiences and best practices—specifically focusing on optimizing DiskANN in our engineering blog post: <a href="https://yichuan-w.github.io/blog/How-to-build-diskANN-perfectly/" target="_blank">How to Build and Use DiskANN Perfectly</a>.
