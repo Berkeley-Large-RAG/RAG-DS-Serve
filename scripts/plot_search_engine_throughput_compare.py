@@ -91,8 +91,8 @@ def main() -> None:
     # Use shorter labels to keep x-axis flat (no rotation)
     accuracy_rows = [
         ("No Retrieval", 48.3),
-        ("CSE", 51.3),
-        ("CSE+LM", 51.5),
+        ("Google API", 51.3),
+        ("Google API+LM", 51.5),
         ("DS Serve", 55.1),
         ("DS Serve+LM", 56.0),
     ]
@@ -105,7 +105,7 @@ def main() -> None:
     for lab in labels_acc:
         if "DS Serve" in lab:
             color_acc.append(colors["DS Serve"])
-        elif "CSE" in lab:
+        elif "Google API" in lab:
             color_acc.append(colors["Google API"])
         else:
             color_acc.append("#b3b3b3")

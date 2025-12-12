@@ -29,7 +29,7 @@ def main() -> None:
     # Latency (single-request, ms) - from 2024-12-11 tests
     latency = {"DiskANN (L=2000)": 124.04, "IVFPQ (nprobe=256)": 307.18}
 
-    FIGSIZE = (7, 4)
+    FIGSIZE = (6, 4)
     os.makedirs(PLOTS_DIR, exist_ok=True)
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=FIGSIZE)

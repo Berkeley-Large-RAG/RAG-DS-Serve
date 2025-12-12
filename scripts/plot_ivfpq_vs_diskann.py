@@ -89,7 +89,7 @@ def plot_dataset(dataset: str) -> str:
     x_positions = list(range(len(labels)))
     bar_width = 0.36
 
-    plt.figure(figsize=(7.5, 4.5))
+    plt.figure(figsize=(5, 4))
     ax = plt.gca()
 
     ax.bar(

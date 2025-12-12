@@ -192,7 +192,7 @@ details > summary {
 </div>
 
 <p align="center">
-  <img src="{{ 'assets/UI_example.gif' | relative_url }}"
+  <img src="{{ 'assets/good_ui_example.gif' | relative_url }}"
        alt="DS-Serve UI"
        style="width: 48%; margin: 5px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);" />
   <img src="{{ 'assets/panel_example.gif' | relative_url }}"
