@@ -18,7 +18,7 @@
   <p><sup>*</sup>Equal contribution.</p>
   <p>
     [<a href="http://api.ds-serve.org:30888/ui">Web Interface</a>] 
-    [<a href="docs/API_DOCUMENTATION.html">API Endpoint</a>] 
+    [<a href="docs/API_DOCUMENTATION.md">API Endpoint</a>] 
     [<a href="docs/VOTES_DOCUMENTATION.html">Voting System</a>] 
     [<a href="docs/assets/DS_SERVE_Camera_Ready.pdf">Paper</a>]
   </p>
@@ -26,7 +26,7 @@
 
 ---
 
-> 1. You can turn any large in-house dataset (<1T tokens) into a **high-throughput (up to 10000 QPS)**, **memory-efficient (<200 GB RAM)** retrieval system with a **web UI and API**.
+> 1. You can turn any large in-house dataset (<1T tokens) into a **high-throughput (up to 10000 index-only QPS)**, **memory-efficient (<200 GB RAM)** retrieval system with a **web UI and API**.
 > 2. Our **prototype**, built on **400B words** of high-quality LLM pre-training data, is readily available and provides downstream gains comparable to commercial search engine endpoints.
 
 <p align="center">
@@ -130,24 +130,11 @@ python -m massive_serve.cli serve --domain_name index_dev
 By default the server starts at port `30888` and exposes `/search` and `/vote` endpoints.
 
 ### 5) Test the API
-For the full reference and examples, see `docs/API_DOCUMENTATION.md`. You can use curl commands to run quick tests. 
+For the full reference and examples, see `docs/API_DOCUMENTATION.md`. You can use curl commands documented there to run quick tests. 
 
-Single query:
-```bash
-curl -X POST http://api.ds-serve.org:30888/search \
-  -H "Content-Type: application/json" \
-  -d '{"query": "Tell me more about Albert Einstein", "n_docs": 5, "nprobe": 32}'
-```
-
-Batched queries:
-```bash
-curl -X POST http://api.ds-serve.org:30888/search \
-  -H "Content-Type: application/json" \
-  -d '{"queries": ["quantum computing", "Who is Nikola Tesla", "AI ethics"], "n_docs": 2}'
-```
 
 ## DiskANN Build 
-**NOTE: THIS IS ONLY FOR INTERNAL TESTING CURRENTLY** \
+**NOTE: The pre-built DiskANN index will be released publicly soon. The instructions below are currently intended for technical reference or internal testing.** \
 For convenience when testing from this repo root, you can point to the local copies under `./`:
 - `./position_array.npy`
 - `./filename_index_array.npy`
@@ -204,3 +191,12 @@ Tips:
 - Use a different `MASSIVE_SERVE_PORT` if firewall issues occur or one is already in use.
 - `DISKANN_NUM_THREADS` sets CPU threads for DiskANN search; 0 uses all logical CPUs.
 - `DISKANN_NODES_TO_CACHE` pins popular nodes in RAM; warmup further primes OS page cache.
+
+### Enabling Exact Search (Optional)
+
+"Exact Search" re-scores top candidates using a heavy encoder (GritLM) for higher accuracy but requires a GPU. To enable it:
+
+1. Open `massive_serve/api/backup.html`.
+2. Uncomment the "Exact Search" toggle block (search for "Exact Search").
+3. Uncomment the help text entry in the JavaScript `HELP_CONTENT` object.
+4. Ensure your server has GPU access (the backend automatically detects and uses it).
