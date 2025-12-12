@@ -295,7 +295,7 @@ In DS Serve we support both backends:
 <p align="center">
   <img src="{{ 'plots/internal_qps_diskann_vs_ivfpq.png' | relative_url }}" alt="Internal index QPS: DiskANN vs IVFPQ" style="width: 55%; margin: 8px;" />
 </p>
-<p class="small-note"><b>Note:</b> L≈100 is sufficient for most queries; higher L improves accuracy for harder queries while remaining fast. Internal QPS reflects raw index throughput without embedding or network overhead—our goal is to close the gap between internal and end-to-end QPS of the prototype through optimized engineering in the future. Accuracy metrics: <b>Recall</b> = does the LLM's answer contain the correct answer?; <b>EM</b> (Exact Match) = does the LLM's answer exactly match the correct answer (after normalization)?; <b>F1</b> = word-level overlap score between the LLM's answer and the correct answer. IVFPQ remains available as a legacy option.</p>
+<p>L≈100 is sufficient for most queries; higher L improves accuracy for harder queries while remaining fast. Internal QPS reflects raw index throughput without embedding or network overhead—our goal is to close the gap between internal and end-to-end QPS through future optimizations. Accuracy metrics: <b>Recall</b> measures whether the LLM's answer contains the correct answer; <b>EM</b> (Exact Match) measures whether the LLM's answer exactly matches the correct answer after normalization; <b>F1</b> measures word-level overlap between the LLM's answer and the correct answer. IVFPQ remains available as a legacy option.</p>
 <hr />
 
 
