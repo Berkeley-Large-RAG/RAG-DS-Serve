@@ -244,7 +244,7 @@ We envision DS Serve enabling a range of high-impact applications:
 ### Datastore
 Prior work showed that retrieval over large pre‑training corpora can improve RAG accuracy (see <a href="https://arxiv.org/abs/2112.04426" target="_blank">RETRO</a>, <a href="https://arxiv.org/abs/2407.12854" target="_blank">MassiveDS</a>, <a href="https://arxiv.org/abs/2507.01297" target="_blank">CompactDS</a>, <a href="https://arxiv.org/abs/2005.11401" target="_blank">RAG</a>, <a href="https://arxiv.org/abs/2002.08909" target="_blank">REALM</a>); however, accessible frameworks with modest resources have been lacking. DS SERVE is built on CompactDS, a 380‑billion‑word corpus (~2B vectors) spanning web crawl data, Wikipedia, research papers, and more.
 
-This represents a significantly larger datastore than most prior work, and to the best of our knowledge is the largest pretraining dataset that users can access in open source for free. Typical evaluations run at much smaller scales (often ≤ tens of millions of vectors), e.g., <a href="https://microsoft.github.io/msmarco/" target="_blank">MS&nbsp;MARCO</a>, <a href="https://ai.google.com/research/NaturalQuestions" target="_blank">Natural Questions</a>, and <a href="https://hotpotqa.github.io/" target="_blank">HotpotQA</a>, as well as consolidated leaderboards such as <a href="https://arxiv.org/abs/2104.08663" target="_blank">BEIR</a>. Even advanced commercial vector databases commonly impose per‑namespace/index limits well below the billion‑vector regime; see pricing/capacity notes for <a href="https://turbopuffer.com/pricing?namespaces=1&namespace=0&docs=1000000000&doc=7&writes=0&write=0" target="_blank">Turbopuffer</a>.
+This represents a significantly larger datastore than most prior work, and to the best of our knowledge is the largest pretraining dataset that users can access in open source for free. Typical evaluations run at much smaller scales (often ≤ tens of millions of vectors), e.g., <a href="https://microsoft.github.io/msmarco/" target="_blank">MS&nbsp;MARCO</a>, and <a href="https://dumps.wikimedia.org/" target="_blank">Wikipedia</a>, as well as consolidated leaderboards such as <a href="https://arxiv.org/abs/2104.08663" target="_blank">BEIR</a>. Even advanced commercial vector databases commonly impose per‑namespace/index limits well below the billion‑vector regime; see pricing/capacity notes for <a href="https://turbopuffer.com/pricing?namespaces=1&namespace=0&docs=1000000000&doc=7&writes=0&write=0" target="_blank">Turbopuffer</a>.
 
 ### Scalable and efficient search
 
@@ -252,21 +252,27 @@ This represents a significantly larger datastore than most prior work, and to th
 
 First, a database is embedded into a collection of vectors named datastore *D*. Then an index over *D* is built for easy lookup. Given a user query *q*, ANN returns the nearest neighbors—the vectors in *D* most semantically similar to *q*—through approximation. By visiting only part of the index, ANN retrieves faster than exhaustive search, which is infeasible at a billion‑vector scale. Therefore, ANN optimizes for latency with a small tradeoff in recall.
 
-**How we integrate ANN search**
+**The Challenge: IVFPQ and the Accuracy-Latency-Memory Tradeoff**
 
-Real‑world vector datasets can contain billions of vectors and occupy terabytes. Keeping all vectors in DRAM is expensive. Two practical strategies reduce cost while preserving accuracy:
-- Quantization with in‑memory ANN (e.g., IVFPQ)
-- Disk‑based ANN that stores vectors on SSDs with a small RAM cache (~10–20% of dataset)
+Most researchers and existing frameworks (including the <a href="https://arxiv.org/abs/2407.12854" target="_blank">CompactDS paper</a>) relying on **IVFPQ** (Inverted File with Product Quantization) have been struggling with the **accuracy-latency-memory** tradeoffs. At the billion-vector scale, IVFPQ requires heavy quantization to fit in RAM (sacrificing accuracy) or consumes excessive memory. Furthermore, increasing accuracy (e.g., larger `nprobe`) drastically reduces throughput.
 
-In DS Serve we support both backends:
+**The Solution: DiskANN**
 
-1. **IVFPQ**: We use <a href="https://github.com/facebookresearch/faiss/wiki/Faiss-indexes#ivfpq" target="_blank">IVFPQ</a> to reduce memory and latency by clustering and product quantization. In our setting, IVFPQ supports inference within ~200 ms at ~100 GB RAM, achieving **~100 QPS** end‑to‑end.
+DS Serve addresses this by incorporating <a href="https://github.com/microsoft/DiskANN" target="_blank">DiskANN</a>, which significantly outperforms IVFPQ. By storing compressed vectors in RAM and full-precision vectors with the navigation graph on NVMe SSDs, DiskANN breaks traditional bottlenecks through implicit reranking during graph traversal.
 
-2. **DiskANN**: For higher throughput, we integrate <a href="https://github.com/microsoft/DiskANN" target="_blank">DiskANN</a>, a disk‑based ANN system. DiskANN achieves **>10,000** index‑level QPS and **200+ end‑to‑end QPS** at ~200 GB RAM, making it suitable for high‑throughput deployments while maintaining competitive accuracy. In our internal evaluations, DiskANN's implicit reranking improved downstream accuracy compared to pure ANN and, on some tasks (e.g., MMLU), matched or exceeded Exact Search.
+**IVFPQ vs. DiskANN**
+
+| Feature | IVFPQ (Traditional) | DiskANN (DS Serve) |
+| :--- | :--- | :--- |
+| **Accuracy** | **Lower**: Quantization noise reduces recall. | **Higher**: Full-precision vectors on disk ensure high recall. |
+| **Throughput** | **~100 QPS**: More distance computations. | **>10,000 QPS**: Fewer distance computations using advanced data structure (navigation graph) and massively parallel I/O. |
+| **Latency** | **Higher**: Sequential inverted list scanning. | **Lower**: Efficient graph traversal. |
+
+We support both backends, but **DiskANN is the recommended default** for all high-performance deployments. DiskANN achieves >10,000 index-level QPS and 200+ end-to-end QPS with ~200 GB RAM, making it ideal for high-throughput deployments while maintaining competitive accuracy. In our internal evaluations, DiskANN's implicit reranking improved downstream accuracy compared to pure ANN and, on some tasks (e.g., MMLU), matched or exceeded exact search. Detailed benchmarks are provided below.
 
 <details>
 <summary><b>How DiskANN works (details)</b></summary>
-<p>DiskANN keeps a compressed copy of vectors in memory to compute approximate distances, while SSDs store full‑precision vectors and the proximity‑graph index. During search, the system fetches a node's original vector (to refine distances) and its adjacency list (to continue traversal) from disk.</p>
+<p>DiskANN stores compressed vectors in RAM and full-precision vectors with graph adjacency lists on SSD. Search begins with a candidate queue ordered by approximate distances from compressed vectors. At each step, the algorithm selects the nearest unvisited node, fetches its exact vector and adjacency list from SSD to refine the distance, then evaluates its neighbors using compressed representations. This alternates between compressed-distance frontier expansion and selective SSD loading for refinement until convergence. By loading only essential high precision data per query, DiskANN scales to billion-scale datasets while maintaining strong recall.</p>
 </details>
 
 <details>
