@@ -17,6 +17,7 @@
   </p>
   <p><sup>*</sup>Equal contribution.</p>
   <p>
+    [<a href="https://berkeley-large-rag.github.io/RAG-DS-Serve/">Blog</a>]
     [<a href="http://api.ds-serve.org:30888/ui">Web Interface</a>] 
     [<a href="docs/API_DOCUMENTATION.md">API Endpoint</a>] 
     [<a href="docs/VOTES_DOCUMENTATION.html">Voting System</a>] 
