@@ -296,6 +296,13 @@ We support both backends, but **DiskANN is the recommended default** for all hig
 <p>For fastest latency/QPS, keep both toggles off. Use Diverse Search to de-duplicate results; use Exact Search when accuracy is critical and you have GPU compute available.</p>
 </details>
 
+<br/>
+<div class="callout-note" style="margin-top: 10px;">
+  <b>💡 Deployment Lessons: How to Build DiskANN Perfectly</b><br/>
+  Deploying large-scale retrieval systems comes with unique challenges. We have documented our experiences and best practices—specifically focusing on optimizing DiskANN in our engineering blog post: <a href="https://yichuan-w.github.io/blog/How-to-build-diskANN-perfectly/" target="_blank">How to Build and Use DiskANN Perfectly</a>.
+</div>
+<br/>
+
 ## Performance 
 <hr />
 
