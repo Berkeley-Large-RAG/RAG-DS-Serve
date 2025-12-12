@@ -288,14 +288,9 @@ In DS Serve we support both backends:
 <h3 align="center">DiskANN vs IVFPQ</h3>
 <p>DiskANN is more accurate <i>and</i> faster than IVFPQ. At recommended configs (DiskANN L=2000, IVFPQ nprobe=256), DiskANN achieves <b>~2.3× higher throughput</b> and <b>~2.2× lower latency</b>. The internal DiskANN index reaches up to 10,000 QPS; DiskANN is the recommended default. Accuracy comparison uses DiskANN L=2000 and IVFPQ nprobe=256 on <a href="https://arxiv.org/abs/1705.03551" target="_blank">TriviaQA</a> and <a href="https://arxiv.org/abs/1906.00300" target="_blank">Natural Questions</a>.</p>
 <p align="center">
-  <img src="{{ 'plots/diskann_vs_ivfpq_combined.png' | relative_url }}" alt="DiskANN vs IVFPQ throughput and latency" style="width: 38%; margin: 2px;" />
-  <img src="{{ 'plots/accuracy_ivfpq_vs_diskann_triviaqa.png' | relative_url }}" alt="TriviaQA accuracy: DiskANN vs IVFPQ" style="width: 29%; margin: 2px;" />
-  <img src="{{ 'plots/accuracy_ivfpq_vs_diskann_naturalqs.png' | relative_url }}" alt="NaturalQS accuracy: DiskANN vs IVFPQ" style="width: 29%; margin: 2px;" />
+  <img src="{{ 'plots/diskann_vs_ivfpq_four_panel.png' | relative_url }}" alt="DiskANN vs IVFPQ: throughput, latency, TriviaQA and NaturalQS accuracy" style="width: 95%; margin: 8px;" />
 </p>
-<p align="center">
-  <img src="{{ 'plots/internal_qps_diskann_vs_ivfpq.png' | relative_url }}" alt="Internal index QPS: DiskANN vs IVFPQ" style="width: 55%; margin: 8px;" />
-</p>
-<p>L≈100 is sufficient for most queries; higher L improves accuracy for harder queries while remaining fast. Internal QPS reflects raw index throughput without embedding or network overhead—our goal is to close the gap between internal and end-to-end QPS through future optimizations. Accuracy metrics: <b>Recall</b> measures whether the LLM's answer contains the correct answer; <b>EM</b> (Exact Match) measures whether the LLM's answer exactly matches the correct answer after normalization; <b>F1</b> measures word-level overlap between the LLM's answer and the correct answer. IVFPQ remains available as a legacy option.</p>
+<p>Accuracy metrics: <b>Recall</b> measures whether the LLM's answer contains the correct answer; <b>EM</b> (Exact Match) measures whether the LLM's answer exactly matches the correct answer after normalization; <b>F1</b> measures word-level overlap between the LLM's answer and the correct answer. IVFPQ remains available as a legacy option.</p>
 <hr />
 
 
@@ -306,6 +301,13 @@ In DS Serve we support both backends:
   <img src="{{ 'plots/search_engine_accuracy_avg.png' | relative_url }}" alt="Acccuracy: Search Engine vs DS Serve Database" style="width: 48%; margin: 4px;" />
 </p>
 <p>DS Serve (backed by CompactDS) achieves better downstream accuracy than Google CSE and it's also capable to offer <b>~30× higher throughput</b> (batched) and <b>~2× lower latency</b> (single-request)—all free of any API costs. We aim to reach 10,000 QPS end-to-end, matching the internal index-only throughput.</p>
+<hr />
+
+<h3 align="center">DiskANN Search Complexity (L) Ablation</h3>
+<p>The search list size <b>L</b> controls the accuracy–latency tradeoff in DiskANN. L≈100 is sufficient for most queries; higher L improves accuracy for harder queries while remaining fast. Internal QPS reflects raw index throughput without embedding or network overhead—our goal is to close the gap between internal and end-to-end QPS through future optimizations.</p>
+<p align="center">
+  <img src="{{ 'plots/diskann_ablation_three_panel.png' | relative_url }}" alt="DiskANN L ablation: internal QPS, batched e2e QPS, and single-request latency" style="width: 95%; margin: 8px;" />
+</p>
 
 ---
 <br/>
