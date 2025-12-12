@@ -26,7 +26,7 @@
 
 ---
 
-> 1. You can turn any large in-house dataset (<1T tokens) into a **high-throughput (up to 10000 QPS)**, **memory-efficient (<200 GB RAM)** retrieval system with a **web UI and API**.
+> 1. You can turn any large in-house dataset (<1T tokens) into a **high-throughput (up to 10000 index-only QPS)**, **memory-efficient (<200 GB RAM)** retrieval system with a **web UI and API**.
 > 2. Our **prototype**, built on **400B words** of high-quality LLM pre-training data, is readily available and provides downstream gains comparable to commercial search engine endpoints.
 
 <p align="center">
