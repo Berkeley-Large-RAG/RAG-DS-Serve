@@ -18,7 +18,7 @@
   <p><sup>*</sup>Equal contribution.</p>
   <p>
     [<a href="http://api.ds-serve.org:30888/ui">Web Interface</a>] 
-    [<a href="docs/API_DOCUMENTATION.html">API Endpoint</a>] 
+    [<a href="docs/API_DOCUMENTATION.md">API Endpoint</a>] 
     [<a href="docs/VOTES_DOCUMENTATION.html">Voting System</a>] 
     [<a href="docs/assets/DS_SERVE_Camera_Ready.pdf">Paper</a>]
   </p>
@@ -204,3 +204,12 @@ Tips:
 - Use a different `MASSIVE_SERVE_PORT` if firewall issues occur or one is already in use.
 - `DISKANN_NUM_THREADS` sets CPU threads for DiskANN search; 0 uses all logical CPUs.
 - `DISKANN_NODES_TO_CACHE` pins popular nodes in RAM; warmup further primes OS page cache.
+
+### Enabling Exact Search (Optional)
+
+"Exact Search" re-scores top candidates using a heavy encoder (GritLM) for higher accuracy but requires a GPU. To enable it:
+
+1. Open `massive_serve/api/backup.html`.
+2. Uncomment the "Exact Search" toggle block (search for "Exact Search").
+3. Uncomment the help text entry in the JavaScript `HELP_CONTENT` object.
+4. Ensure your server has GPU access (the backend automatically detects and uses it).
