@@ -242,9 +242,9 @@ We envision DS Serve enabling a range of high-impact applications:
 ## Technical design 
 
 ### Datastore
-Prior work showed that retrieval over large pre‑training corpora can improve RAG accuracy (see <a href="https://arxiv.org/abs/2112.04426" target="_blank">RETRO</a>, <a href="https://arxiv.org/abs/2407.12854" target="_blank">MassiveDS</a>, <a href="https://arxiv.org/abs/2507.01297" target="_blank">CompactDS</a>, <a href="https://arxiv.org/abs/2005.11401" target="_blank">RAG</a>, <a href="https://arxiv.org/abs/2002.08909" target="_blank">REALM</a>); however, accessible frameworks with modest resources have been lacking. DS SERVE is built on CompactDS, a 380‑billion‑word corpus (~2B vectors) spanning web crawl data, Wikipedia, research papers, and more.
+Prior work showed that retrieval over large pre‑training corpora can improve RAG accuracy (see <a href="https://arxiv.org/abs/2112.04426" target="_blank">RETRO</a>, <a href="https://arxiv.org/abs/2407.12854" target="_blank">MassiveDS</a>, <a href="https://arxiv.org/abs/2507.01297" target="_blank">CompactDS</a>); however, accessible frameworks with modest resources have been lacking. DS SERVE is built on CompactDS, a 380‑billion‑word corpus (~2B vectors) spanning web crawl data, Wikipedia, research papers, and more, because it is demonstrated to be comparable in coverage to a much larger, noisier Common Crawl data
 
-This represents a significantly larger datastore than most prior work, and to the best of our knowledge is the largest pretraining dataset that users can access in open source for free. Typical evaluations run at much smaller scales (often ≤ tens of millions of vectors), e.g., <a href="https://microsoft.github.io/msmarco/" target="_blank">MS&nbsp;MARCO</a>, <a href="https://ai.google.com/research/NaturalQuestions" target="_blank">Natural Questions</a>, and <a href="https://hotpotqa.github.io/" target="_blank">HotpotQA</a>, as well as consolidated leaderboards such as <a href="https://arxiv.org/abs/2104.08663" target="_blank">BEIR</a>. Even advanced commercial vector databases commonly impose per‑namespace/index limits well below the billion‑vector regime; see pricing/capacity notes for <a href="https://turbopuffer.com/pricing?namespaces=1&namespace=0&docs=1000000000&doc=7&writes=0&write=0" target="_blank">Turbopuffer</a>.
+This represents a significantly larger datastore than most prior work, and to the best of our knowledge is the largest datastore that is publicly available for neural retrieval and users can also access in open source for free. Typical evaluations run at much smaller scales (often ≤ tens of millions of vectors), e.g., <a href="https://microsoft.github.io/msmarco/" target="_blank">MS&nbsp;MARCO</a>, <a href="https://ai.google.com/research/NaturalQuestions" target="_blank">Natural Questions</a>, and <a href="https://hotpotqa.github.io/" target="_blank">HotpotQA</a>, as well as consolidated leaderboards such as <a href="https://arxiv.org/abs/2104.08663" target="_blank">BEIR</a>. Even advanced commercial vector databases commonly impose per‑namespace/index limits well below the billion‑vector regime; see pricing/capacity notes for <a href="https://turbopuffer.com/pricing?namespaces=1&namespace=0&docs=1000000000&doc=7&writes=0&write=0" target="_blank">Turbopuffer</a>.
 
 ### Scalable and efficient search
 
@@ -304,7 +304,8 @@ In DS Serve we support both backends:
 <hr />
 
 <h3 align="center">DiskANN Search Complexity (L) Ablation</h3>
-<p>The search list size <b>L</b> controls the accuracy–latency tradeoff in DiskANN. L≈100 is sufficient for most queries; higher L improves accuracy for harder queries while remaining fast. Internal QPS reflects raw index throughput without embedding or network overhead—our goal is to close the gap between internal and end-to-end QPS through future optimizations.</p>
+<p>The search list size <b>L</b> controls the accuracy–latency tradeoff in DiskANN. <i>L</i>≈100 is sufficient for most queries; higher <i>L</i> improves accuracy for harder queries at a slight cost of latency. Internal QPS reflects raw index throughput without embedding or network overhead—our goal is to close the gap between the internal 10,000+ QPS and end-to-end QPS. We plan to bridge this gap in the future through inter-query pipelining and compute/memory access overlapping.
+</p>
 <p align="center">
   <img src="{{ 'plots/diskann_ablation_three_panel.png' | relative_url }}" alt="DiskANN L ablation: internal QPS, batched e2e QPS, and single-request latency" style="width: 95%; margin: 8px;" />
 </p>
@@ -316,5 +317,6 @@ In DS Serve we support both backends:
 
 We thank the following open‑source projects and communities:
 
+- <a href="https://arxiv.org/abs/2507.01297" target="_blank">CompactDS</a> — for the diverse, high-quality, web-scale datastore that powers DS Serve's retrieval capabilities.
 - <a href="https://github.com/RulinShao/massive-serve" target="_blank">Massive Serve</a> — for the serving infrastructure and deployment utilities that power DS Serve.
 - <a href="https://github.com/facebookresearch/faiss" target="_blank">IVFPQ</a> and <a href="https://github.com/microsoft/DiskANN" target="_blank">DiskANN</a> — for enabling high‑performance ANN search at scale.
