@@ -147,7 +147,7 @@ curl -X POST http://api.ds-serve.org:30888/search \
 ```
 
 ## DiskANN Build 
-**NOTE: THIS IS ONLY FOR INTERNAL TESTING CURRENTLY** \
+**NOTE: The pre-built DiskANN index will be released publicly soon. The instructions below are currently intended for technical reference or internal testing.** \
 For convenience when testing from this repo root, you can point to the local copies under `./`:
 - `./position_array.npy`
 - `./filename_index_array.npy`
