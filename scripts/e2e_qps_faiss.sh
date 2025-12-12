@@ -3,6 +3,7 @@ set -euo pipefail
 
 # End-to-end FAISS (IVFPQ) QPS test against /search on a remote host.
 # Supports batched (one POST with COUNT queries) or single (COUNT POSTs) modes.
+# Now reports faiss_ms (pure index search) and map_ms (ID->passage mapping) separately.
 
 # Config
 HOST=${HOST:-http://api.ds-serve.org:30888}
@@ -26,11 +27,11 @@ SAMPLE_FILE=$(mktemp)
 shuf -n "$COUNT" "$QUERIES" > "$SAMPLE_FILE"
 
 if [ -n "$NPROBE_LIST" ]; then
-  printf "%-8s %-8s %-10s %-8s %-12s %-12s %-12s\n" \
-         "nprobe" "Reqs" "Duration" "QPS" "embed_ms(avg)" "search_ms(avg)" "total_ms(avg)"
+  printf "%-8s %-8s %-10s %-8s %-13s %-13s %-10s %-12s\n" \
+         "nprobe" "Reqs" "Duration" "QPS" "embed_ms(avg)" "faiss_ms(avg)" "map_ms(avg)" "total_ms(avg)"
 else
-  printf "%-8s %-10s %-8s %-12s %-12s %-12s\n" \
-         "Reqs" "Duration" "QPS" "embed_ms(avg)" "search_ms(avg)" "total_ms(avg)"
+  printf "%-8s %-10s %-8s %-13s %-13s %-10s %-12s\n" \
+         "Reqs" "Duration" "QPS" "embed_ms(avg)" "faiss_ms(avg)" "map_ms(avg)" "total_ms(avg)"
 fi
 
 if [ -n "$NPROBE_LIST" ] && [ "$BATCHED" = "1" ]; then
@@ -48,11 +49,16 @@ if [ -n "$NPROBE_LIST" ] && [ "$BATCHED" = "1" ]; then
     END=$(date +%s)
     DUR=$((END-START)); if [ "$DUR" -le 0 ]; then DUR=1; fi
     QPS=$(awk -v c="$COUNT" -v d="$DUR" 'BEGIN{ printf "%.2f", c/d }')
-    READS=$(printf '%s' "$RESP" | jq -r --argjson n "$COUNT" '(.results.timings_ms) as $t | [($t.embed/$n), ($t.search/$n), ($t.total/$n)] | @tsv')
+    # Extract embed, total from timings_ms; faiss_search, mapping from backend_timings_ms
+    READS=$(printf '%s' "$RESP" | jq -r --argjson n "$COUNT" '
+      (.results.timings_ms) as $t |
+      (.results.backend_timings_ms // {}) as $bt |
+      [($t.embed/$n), (($bt.faiss_search // 0)/$n), (($bt.mapping // 0)/$n), ($t.total/$n)] | @tsv')
     EMBED=$(printf '%s' "$READS" | awk -F'\t' '{printf "%.2f", $1}')
-    SEARCH=$(printf '%s' "$READS" | awk -F'\t' '{printf "%.2f", $2}')
-    TOTAL=$(printf '%s' "$READS" | awk -F'\t' '{printf "%.2f", $3}')
-    printf "%-8s %-8s %-10ss %-8s %-12s %-12s %-12s\n" "$NP" "$COUNT" "$DUR" "$QPS" "$EMBED" "$SEARCH" "$TOTAL"
+    FAISS=$(printf '%s' "$READS" | awk -F'\t' '{printf "%.2f", $2}')
+    MAPMS=$(printf '%s' "$READS" | awk -F'\t' '{printf "%.2f", $3}')
+    TOTAL=$(printf '%s' "$READS" | awk -F'\t' '{printf "%.2f", $4}')
+    printf "%-8s %-8s %-10ss %-8s %-13s %-13s %-10s %-12s\n" "$NP" "$COUNT" "$DUR" "$QPS" "$EMBED" "$FAISS" "$MAPMS" "$TOTAL"
   done
   rm -f "$QUERIES_JSON"
 elif [ -n "$NPROBE_LIST" ] && [ "$BATCHED" = "0" ]; then
@@ -66,14 +72,18 @@ elif [ -n "$NPROBE_LIST" ] && [ "$BATCHED" = "0" ]; then
         --argjson ex '"$EXACT"' --argjson dv '"$DIVERSE"' --argjson lb '"$LAMBDA"' \
         '"'"'{query:$query, n_docs:$k, backend:"faiss", nprobe:$np, exact_search:$ex, diverse_search:$dv, lambda:$lb}'"'"' \
       | curl -s -X POST -H "Content-Type: application/json" --data-binary @- '"$HOST"'/search
-    ' _ {} | jq -r '(.results.timings_ms) as $t | [$t.embed, $t.search, $t.total] | @tsv' > "$TMP"
+    ' _ {} | jq -r '
+      (.results.timings_ms) as $t |
+      (.results.backend_timings_ms // {}) as $bt |
+      [$t.embed, ($bt.faiss_search // 0), ($bt.mapping // 0), $t.total] | @tsv' > "$TMP"
     END=$(date +%s)
     DUR=$((END-START)); if [ "$DUR" -le 0 ]; then DUR=1; fi
     QPS=$(awk -v c="$COUNT" -v d="$DUR" 'BEGIN{ printf "%.2f", c/d }')
     EMBED=$(awk -F'\t' '($1!="" && $1!="null"){sum+=$1; n++} END{ if(n>0) printf "%.2f", sum/n; else print "NA"}' "$TMP")
-    SEARCH=$(awk -F'\t' '($2!="" && $2!="null"){sum+=$2; n++} END{ if(n>0) printf "%.2f", sum/n; else print "NA"}' "$TMP")
-    TOTAL=$(awk -F'\t' '($3!="" && $3!="null"){sum+=$3; n++} END{ if(n>0) printf "%.2f", sum/n; else print "NA"}' "$TMP")
-    printf "%-8s %-8s %-10ss %-8s %-12s %-12s %-12s\n" "$NP" "$COUNT" "$DUR" "$QPS" "$EMBED" "$SEARCH" "$TOTAL"
+    FAISS=$(awk -F'\t' '($2!="" && $2!="null"){sum+=$2; n++} END{ if(n>0) printf "%.2f", sum/n; else print "NA"}' "$TMP")
+    MAPMS=$(awk -F'\t' '($3!="" && $3!="null"){sum+=$3; n++} END{ if(n>0) printf "%.2f", sum/n; else print "NA"}' "$TMP")
+    TOTAL=$(awk -F'\t' '($4!="" && $4!="null"){sum+=$4; n++} END{ if(n>0) printf "%.2f", sum/n; else print "NA"}' "$TMP")
+    printf "%-8s %-8s %-10ss %-8s %-13s %-13s %-10s %-12s\n" "$NP" "$COUNT" "$DUR" "$QPS" "$EMBED" "$FAISS" "$MAPMS" "$TOTAL"
     rm -f "$TMP"
   done
 elif [ "$BATCHED" = "1" ]; then
@@ -93,11 +103,15 @@ elif [ "$BATCHED" = "1" ]; then
 
   DUR=$((END-START)); if [ "$DUR" -le 0 ]; then DUR=1; fi
   QPS=$(awk -v c="$COUNT" -v d="$DUR" 'BEGIN{ printf "%.2f", c/d }')
-  READS=$(printf '%s' "$RESP" | jq -r --argjson n "$COUNT" '(.results.timings_ms) as $t | [($t.embed/$n), ($t.search/$n), ($t.total/$n)] | @tsv')
+  READS=$(printf '%s' "$RESP" | jq -r --argjson n "$COUNT" '
+    (.results.timings_ms) as $t |
+    (.results.backend_timings_ms // {}) as $bt |
+    [($t.embed/$n), (($bt.faiss_search // 0)/$n), (($bt.mapping // 0)/$n), ($t.total/$n)] | @tsv')
   EMBED=$(printf '%s' "$READS" | awk -F'\t' '{printf "%.2f", $1}')
-  SEARCH=$(printf '%s' "$READS" | awk -F'\t' '{printf "%.2f", $2}')
-  TOTAL=$(printf '%s' "$READS" | awk -F'\t' '{printf "%.2f", $3}')
-  printf "%-8s %-10ss %-8s %-12s %-12s %-12s\n" "$COUNT" "$DUR" "$QPS" "$EMBED" "$SEARCH" "$TOTAL"
+  FAISS=$(printf '%s' "$READS" | awk -F'\t' '{printf "%.2f", $2}')
+  MAPMS=$(printf '%s' "$READS" | awk -F'\t' '{printf "%.2f", $3}')
+  TOTAL=$(printf '%s' "$READS" | awk -F'\t' '{printf "%.2f", $4}')
+  printf "%-8s %-10ss %-8s %-13s %-13s %-10s %-12s\n" "$COUNT" "$DUR" "$QPS" "$EMBED" "$FAISS" "$MAPMS" "$TOTAL"
 else
   START=$(date +%s)
   TMP=$(mktemp)
@@ -108,16 +122,19 @@ else
       --argjson ex '"$EXACT"' --argjson dv '"$DIVERSE"' --argjson lb '"$LAMBDA"' \
       '"'"'{query:$query, n_docs:$k, backend:"faiss", nprobe:$np, exact_search:$ex, diverse_search:$dv, lambda:$lb}'"'"' \
     | curl -s -X POST -H "Content-Type: application/json" --data-binary @- '"$HOST"'/search
-  ' _ {} | jq -r '(.results.timings_ms) as $t | [$t.embed, $t.search, $t.total] | @tsv' > "$TMP"
+  ' _ {} | jq -r '
+    (.results.timings_ms) as $t |
+    (.results.backend_timings_ms // {}) as $bt |
+    [$t.embed, ($bt.faiss_search // 0), ($bt.mapping // 0), $t.total] | @tsv' > "$TMP"
   END=$(date +%s)
   DUR=$((END-START)); if [ "$DUR" -le 0 ]; then DUR=1; fi
   QPS=$(awk -v c="$COUNT" -v d="$DUR" 'BEGIN{ printf "%.2f", c/d }')
   EMBED=$(awk -F'\t' '($1!="" && $1!="null"){sum+=$1; n++} END{ if(n>0) printf "%.2f", sum/n; else print "NA"}' "$TMP")
-  SEARCH=$(awk -F'\t' '($2!="" && $2!="null"){sum+=$2; n++} END{ if(n>0) printf "%.2f", sum/n; else print "NA"}' "$TMP")
-  TOTAL=$(awk -F'\t' '($3!="" && $3!="null"){sum+=$3; n++} END{ if(n>0) printf "%.2f", sum/n; else print "NA"}' "$TMP")
-  printf "%-8s %-10ss %-8s %-12s %-12s %-12s\n" "$COUNT" "$DUR" "$QPS" "$EMBED" "$SEARCH" "$TOTAL"
+  FAISS=$(awk -F'\t' '($2!="" && $2!="null"){sum+=$2; n++} END{ if(n>0) printf "%.2f", sum/n; else print "NA"}' "$TMP")
+  MAPMS=$(awk -F'\t' '($3!="" && $3!="null"){sum+=$3; n++} END{ if(n>0) printf "%.2f", sum/n; else print "NA"}' "$TMP")
+  TOTAL=$(awk -F'\t' '($4!="" && $4!="null"){sum+=$4; n++} END{ if(n>0) printf "%.2f", sum/n; else print "NA"}' "$TMP")
+  printf "%-8s %-10ss %-8s %-13s %-13s %-10s %-12s\n" "$COUNT" "$DUR" "$QPS" "$EMBED" "$FAISS" "$MAPMS" "$TOTAL"
   rm -f "$TMP"
 fi
 
 rm -f "$SAMPLE_FILE"
-

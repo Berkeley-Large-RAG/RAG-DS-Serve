@@ -552,7 +552,7 @@ class IVFPQIndexer(object):
         if expand_index_id is not None:
             print(f"[EXPANSION MODE] Expanding index_id={expand_index_id} with offset={expand_offset}")
             result = self.expand_passage(expand_index_id, offset=expand_offset)
-            return None, [[result]]
+            return None, [[result]], None  # No timings for expansion mode
 
         if isinstance(raw_query, str):
             raw_queries = [raw_query]
@@ -603,14 +603,23 @@ class IVFPQIndexer(object):
         best_total = 0
 
         used_big_k = None
+        # Timing accumulators
+        faiss_search_time = 0.0
+        mapping_time = 0.0
+        
         for attempt in range(len(K_ranges)):
             K = K_ranges[attempt]
             print(f"[SEARCH] Attempt {attempt + 1}: K is {K}")
             used_big_k = K
+            
+            # Time FAISS index search separately
+            t_faiss_start = time.time()
             all_scores, all_indices = self.index.search(query_embs, K)
+            t_faiss_end = time.time()
+            faiss_search_time += (t_faiss_end - t_faiss_start)
 
-
-            # === Parallel get_retrieved_passages ===
+            # === Parallel get_retrieved_passages (mapping) ===
+            t_map_start = time.time()
             def retrieve_for_query(i):
                 q_text = raw_queries[i]
                 top_indices = all_indices[i]
@@ -618,6 +627,8 @@ class IVFPQIndexer(object):
 
             with ThreadPoolExecutor() as executor:
                 all_raw_passages = list(executor.map(retrieve_for_query, range(len(raw_queries))))
+            t_map_end = time.time()
+            mapping_time += (t_map_end - t_map_start)
 
             all_batch_passages = []
 
@@ -732,8 +743,17 @@ class IVFPQIndexer(object):
         print(f"[SEARCH] Completed batch of {len(raw_queries)} in {t1 - t0:.2f}s")
         print(f"[DEBUG] Returning scores of shape: {len(all_final_scores)} x {len(all_final_scores[0]) if all_final_scores else 0}")
         print(f"[DEBUG] Returning passages of shape: {len(all_final_passages)} x {len(all_final_passages[0]) if all_final_passages else 0}")
+        
+        # Return timings similar to DiskANN backend
+        timings = {
+            'faiss_search': round(faiss_search_time * 1000.0, 3),  # ms
+            'mapping': round(mapping_time * 1000.0, 3),  # ms
+            'nprobe': nprobe,
+            'K_FETCH': used_big_k,
+        }
+        print(f"[IVFPQ] Timings: faiss_search={timings['faiss_search']:.2f}ms, mapping={timings['mapping']:.2f}ms")
 
-        return all_final_scores, all_final_passages
+        return all_final_scores, all_final_passages, timings
 
 
 

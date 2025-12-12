@@ -26,7 +26,7 @@
                 {% elsif path == 'paper.md' %}
                 <a class="page-link" href="{{ '/assets/DS_SERVE_Camera_Ready.pdf' | relative_url }}" target="_blank">Paper</a>
                 {% else %}
-                <a class="page-link" href="{{ my_page.url | relative_url }}">{{ my_page.title | escape }}</a>
+              <a class="page-link" href="{{ my_page.url | relative_url }}">{{ my_page.title | escape }}</a>
                 {% endif %}
               {%- endif -%}
             {%- endfor -%}

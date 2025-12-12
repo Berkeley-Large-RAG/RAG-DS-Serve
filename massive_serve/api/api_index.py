@@ -60,7 +60,7 @@ class DatastoreAPI():
 
         # Expansion path: always handled by IVFPQ expander, regardless of UI backend
         if expand_index_id is not None:
-            searched_scores, searched_passages = self.index.search(
+            expand_ret = self.index.search(
                 query,
                 query_embedding,
                 n_docs,
@@ -73,6 +73,11 @@ class DatastoreAPI():
                 use_diskann=False,
                 min_words=min_words,
             )
+            # Handle 3-tuple return (scores, passages, timings)
+            if isinstance(expand_ret, tuple) and len(expand_ret) == 3:
+                searched_scores, searched_passages, _ = expand_ret
+            else:
+                searched_scores, searched_passages = expand_ret
             t_end = time.time()
             return {
                 'scores': searched_scores,
@@ -84,6 +89,7 @@ class DatastoreAPI():
                 }
             }
 
+        backend_timings = None  # Initialize before branches
         if backend == 'diskann':
             L = int(diskann_L or 300)
             W = int(diskann_W or 4)
@@ -103,28 +109,37 @@ class DatastoreAPI():
                 searched_scores, searched_passages, backend_timings = ret
             else:
                 searched_scores, searched_passages = ret
+                backend_timings = None
             if use_diverse:
                 try:
                     reranked_passages = []
                     if isinstance(searched_passages, list):
-                        for raw_passages in searched_passages:
+                        for i, raw_passages in enumerate(searched_passages):
                             if not raw_passages:
                                 reranked_passages.append(raw_passages)
                                 continue
-                            reranked_passages.append(
-                                diverse_rerank_precomputed(
-                                    raw_passages,
-                                    query_embedding=query_embedding,
-                                    query_encoder=self.query_encoder,
-                                    lambda_val=lambda_val,
-                                )
+                            # Try precomputed path first (fast)
+                            reranked = diverse_rerank_precomputed(
+                                raw_passages,
+                                query_embedding=query_embedding,
+                                query_encoder=self.query_encoder,
+                                lambda_val=lambda_val,
                             )
+                            # Check if precomputed path worked (returned different order)
+                            if reranked is raw_passages:
+                                # Precomputed embeddings unavailable, fallback to on-the-fly
+                                logging.info(f"[DiskANN] [QUERY {i}] Precomputed unavailable, using on-the-fly diverse rerank")
+                                reranked = diverse_rerank_topk(raw_passages, self.query_encoder, lambda_val=lambda_val)
+                                logging.info(f"[DiskANN] [QUERY {i}] On-the-fly diverse rerank complete")
+                            else:
+                                logging.info(f"[DiskANN] [QUERY {i}] Used precomputed diverse rerank")
+                            reranked_passages.append(reranked)
                         searched_passages = reranked_passages
                 except Exception as exc:
                     logging.warning(f"[DiskANN] Diverse rerank failed: {exc}")
         else:
             t2 = time.time()
-            searched_scores, searched_passages  = self.index.search(
+            ivfpq_ret = self.index.search(
                 query,
                 query_embedding,
                 n_docs,
@@ -138,6 +153,12 @@ class DatastoreAPI():
                 min_words=min_words,
             )
             t3 = time.time()
+            # Handle 3-tuple return (scores, passages, timings) from IVFPQ
+            if isinstance(ivfpq_ret, tuple) and len(ivfpq_ret) == 3:
+                searched_scores, searched_passages, backend_timings = ivfpq_ret
+            else:
+                searched_scores, searched_passages = ivfpq_ret
+                backend_timings = None
         t_end = time.time()
         results = {
             'scores': searched_scores,

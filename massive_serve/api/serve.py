@@ -170,16 +170,18 @@ class DiskVoteStore:
         coerced_nprobe = coerce_int(nprobe_val)
         if coerced_nprobe is not None:
             out["nprobe"] = coerced_nprobe  # ensure int
-        if "exact_search" in ctx:
-            out["exact_search"] = bool(ctx["exact_search"])  # required boolean
-        if "diverse_search" in ctx:
-            out["diverse_search"] = bool(ctx["diverse_search"])  # required boolean
-        # Only persist lambda if diverse_search is true
-        if out.get("diverse_search") is True and ("lambda" in ctx) and (ctx["lambda"] is not None):
-            try:
-                out["lambda"] = round(float(ctx["lambda"]), 2)  # 2dp
-            except Exception:
-                pass
+            if "exact_search" in ctx:
+                out["exact_search"] = bool(ctx["exact_search"])  # required boolean
+            if "diverse_search" in ctx:
+                out["diverse_search"] = bool(ctx["diverse_search"])  # required boolean
+            if "faiss_search" in ctx:
+                out["faiss_search"] = bool(ctx["faiss_search"])  # required boolean
+            # Only persist lambda if diverse_search is true
+            if out.get("diverse_search") is True and ("lambda" in ctx) and (ctx["lambda"] is not None):
+                try:
+                    out["lambda"] = round(float(ctx["lambda"]), 2)  # 2dp
+                except Exception:
+                    pass
         k_val = coerce_int(ctx.get("k"))
         if k_val is not None:
             out["k"] = k_val
@@ -320,7 +322,7 @@ class DiskVoteStore:
                 INSERT OR REPLACE INTO votes(time_stamp, query, passage_id, vote, relevant, backend, parameters)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
                 """,
-                (
+                    (
                     payload["time stamp"],
                     query,
                     payload["passage_id"],

@@ -30,9 +30,9 @@ DOCS_DIR = os.path.join(REPO_ROOT, "docs")
 METRIC_ORDER = ["Recall", "F1", "EM"]
 DATASETS = {
     "TriviaQA": {
-        "EM": {"diskann": 0.857, "ivfpq": 0.840},
-        "F1": {"diskann": 0.900, "ivfpq": 0.885},
-        "Recall": {"diskann": 0.899, "ivfpq": 0.882},
+        "EM": {"diskann": 0.855, "ivfpq": 0.840},
+        "F1": {"diskann": 0.898, "ivfpq": 0.885},
+        "Recall": {"diskann": 0.896, "ivfpq": 0.882},
     },
     "NaturalQS": {
         "EM": {"diskann": 0.392, "ivfpq": 0.385},
@@ -41,8 +41,8 @@ DATASETS = {
     },
 }
 OUTPUT_FILES = {
-    "TriviaQA": os.path.join(DOCS_DIR, "accuracy_ivfpq_vs_diskann_triviaqa.png"),
-    "NaturalQS": os.path.join(DOCS_DIR, "accuracy_ivfpq_vs_diskann_naturalqs.png"),
+    "TriviaQA": os.path.join(DOCS_DIR, "plots", "accuracy_ivfpq_vs_diskann_triviaqa.png"),
+    "NaturalQS": os.path.join(DOCS_DIR, "plots", "accuracy_ivfpq_vs_diskann_naturalqs.png"),
 }
 
 
@@ -89,7 +89,7 @@ def plot_dataset(dataset: str) -> str:
     x_positions = list(range(len(labels)))
     bar_width = 0.36
 
-    plt.figure(figsize=(7.5, 4.5))
+    plt.figure(figsize=(5, 4))
     ax = plt.gca()
 
     ax.bar(
@@ -109,7 +109,7 @@ def plot_dataset(dataset: str) -> str:
 
     ax.set_xticks(x_positions)
     ax.set_xticklabels(labels)
-    ax.set_ylabel("Score", fontsize=14)
+    ax.set_ylabel("Score (↑ higher is better)", fontsize=14)
     ax.set_title(f"{dataset} Accuracy: IVFPQ vs DiskANN", fontsize=16)
     ax.legend(fontsize=12)
 
