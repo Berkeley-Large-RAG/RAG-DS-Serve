@@ -93,7 +93,7 @@ Content-Type: application/json
       <td>IVFPQ clusters to scan (ignored for DiskANN)</td>
     </tr>
     <tr>
-      <td><code>exact_search</code></td>
+      <td><code>exact_search (need to build from source to enable)</code></td>
       <td>boolean</td>
       <td>false</td>
       <td>Brute-force rerank after ANN</td>
@@ -113,25 +113,25 @@ Content-Type: application/json
     <tr>
       <td><code>diskann_L</code></td>
       <td>integer</td>
-      <td>300</td>
+      <td>500</td>
       <td>DiskANN candidate list size (≥ <code>n_docs</code>)</td>
     </tr>
     <tr>
       <td><code>diskann_W</code></td>
       <td>integer</td>
-      <td>4</td>
+      <td>8</td>
       <td>DiskANN beam width / I/O fan-out</td>
     </tr>
     <tr>
       <td><code>diskann_threads</code></td>
       <td>integer</td>
-      <td>server default</td>
+      <td>64</td>
       <td>Override worker thread count</td>
     </tr>
     <tr>
       <td><code>min_words</code></td>
       <td>integer</td>
-      <td>0</td>
+      <td>10</td>
       <td>Minimum passage length filter</td>
     </tr>
   </tbody>
