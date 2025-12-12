@@ -211,9 +211,7 @@ DS Serve addresses these challenges by making it easy to transform any large-sca
 <p align="center">
   <img src="{{ 'plots/Figure-1.png' | relative_url }}" style="width: 70%;" />
 </p>
-<p>
-DS SERVE converts the largest pretraining dataset into an efficient neural retrieval system: a query q retrieves relevant text via ANN (IVFPQ or DiskANN), optionally reranks with exact and/or diverse search, and returns the top-k chunks with voting options for user feedback.
-</p>
+<p align="center" class="small-note">DS SERVE converts the largest pretraining dataset into an efficient neural retrieval system: a query q retrieves relevant text via ANN (IVFPQ or DiskANN), optionally reranks with exact and/or diverse search, and returns the top-k chunks with voting options for user feedback.</p>
 
 <!-- <div id="overview-note" class="callout-note"><span class="note-sup" aria-hidden="true">*</span> Note: For detailed technical explanations of the algorithms, see the <a href="#technical-design">Technical Design</a> section.</div> -->
 
@@ -234,7 +232,7 @@ We envision DS Serve enabling a range of high-impact applications:
 4. **Pushing the Frontier of Search**: While traditional search engines struggle with long or complex queries, our vector-based approach handles them effectively. Additionally, the built-in voting system collects real-world labeled data to help build realistic benchmarks for retrieval research. 
 
 <details>
-<summary><b>Concrete Examples:</b></summary>
+<summary><b>Concrete project ideas:</b></summary>
 <div style="margin-top: 10px;">
 <p><b>1. Robust Data Attribution & Novelty Detection</b><br/>
 Researchers working on novelty detection (e.g., <a href="https://arxiv.org/abs/2510.27313" target="_blank">Un-Attributability</a>) have found that embedding similarity is significantly more robust to paraphrased or long-context queries compared to traditional N-gram matching. However, building the necessary indices often requires expensive distributed setups. DS Serve provides an off-the-shelf solution for semantic attribution over pre-training corpora.</p>

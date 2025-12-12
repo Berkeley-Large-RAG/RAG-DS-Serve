@@ -130,21 +130,8 @@ python -m massive_serve.cli serve --domain_name index_dev
 By default the server starts at port `30888` and exposes `/search` and `/vote` endpoints.
 
 ### 5) Test the API
-For the full reference and examples, see `docs/API_DOCUMENTATION.md`. You can use curl commands to run quick tests. 
+For the full reference and examples, see `docs/API_DOCUMENTATION.md`. You can use curl commands documented there to run quick tests. 
 
-Single query:
-```bash
-curl -X POST http://api.ds-serve.org:30888/search \
-  -H "Content-Type: application/json" \
-  -d '{"query": "Tell me more about Albert Einstein", "n_docs": 5, "nprobe": 32}'
-```
-
-Batched queries:
-```bash
-curl -X POST http://api.ds-serve.org:30888/search \
-  -H "Content-Type: application/json" \
-  -d '{"queries": ["quantum computing", "Who is Nikola Tesla", "AI ethics"], "n_docs": 2}'
-```
 
 ## DiskANN Build 
 **NOTE: The pre-built DiskANN index will be released publicly soon. The instructions below are currently intended for technical reference or internal testing.** \
