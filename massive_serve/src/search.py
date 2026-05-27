@@ -46,7 +46,7 @@ def embed_queries(cfg, queries, model, tokenizer, model_name_or_path):
                         output = model.encode(batch_question, instruction="", batch_size=cfg.per_gpu_batch_size)
                         output = torch.tensor(output, device='cpu')
                     else:
-                        encoded_batch = tokenizer.batch_encode_plus(
+                        encoded_batch = tokenizer(
                             batch_question,
                             return_tensors="pt",
                             max_length=cfg.question_maxlength,
